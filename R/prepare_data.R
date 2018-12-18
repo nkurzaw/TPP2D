@@ -15,6 +15,9 @@
 #' 
 #' @import dplyr
 recomputeSignalFromRatios <- function(df){
+  clustername <- log2_value <- raw_value <- rel_value <- representative <- sum_raw <- 
+  sum_rel <- temperature <- value <- NULL
+  
   df_recomp <- df %>%
     group_by(representative, clustername, temperature) %>%
     mutate(sum_raw = sum(raw_value, na.rm = TRUE),
