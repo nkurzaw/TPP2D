@@ -1,1 +1,1 @@
-# TPP2D
+# TPP2D: FDR-controlled analysis of 2D-TPP experiments with R
