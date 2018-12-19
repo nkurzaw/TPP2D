@@ -10,8 +10,8 @@
 #'
 #' @examples
 #' 
-#' data("jq1_thp1_lys_subset")
-#' recomputeSignalFromRatios(jq1_thp1_lys_subset)
+#' data("simulated_cell_extract_df")
+#' recomputeSignalFromRatios(simulated_cell_extract_df)
 #' 
 #' @import dplyr
 recomputeSignalFromRatios <- function(df){
