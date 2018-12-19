@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Nils Kurzawa 
 Maintainer: Nils Kurzawa <nils.kurzawa@embl.de>
 Description: FDR-controlled analysis of 2D-TPP experiments by
-  functional modeling of dose-response curves across temperatures
+  functional modeling of dose-response curves across temperatures.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
