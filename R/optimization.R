@@ -6,31 +6,18 @@ trim_sum <- function(x)
   sum(x[-which(x == max(x))])
 }
 
-#' @importFrom Rcpp cppFunction
-compute_residuals_cpp <- Rcpp::cppFunction("
-    NumericVector compute_residuals_cpp(
-       NumericVector tempi,
-       double zeta,
-       double slope,
-       double betamax,
-       NumericVector betaz,
-       NumericVector alpha,
-       NumericVector logconc,
-       NumericVector log2value) {
-        int n = tempi.size();
-        NumericVector out(n);
-        for(int i = 0; i < n; ++i){
-          int tempindex = tempi[i] - 1;
-          double quot = alpha[tempindex] * betamax;
-          double divi = 1 + exp( -slope * (logconc[i] - zeta));
-          out[i] = pow((betaz[tempindex] + (quot / divi)) - log2value[i], 2.0);
-        }
-        return out;
-      }
-")
+min_RSS_h0 <- function(data, par, len_temp)
+  # Optimization function for fitting an intercept model to a protein's 2D 
+  # thermal profile by minimizing the sum of squared errors
+{
+  beta_0 <- par[1:len_temp]
+  
+  sum(
+    with(data, (beta_0[temp_i] - log2_value)^2)
+  )
+}
 
-
-min_RSS_h0_trim <- function(data, par, unique_temperature, len_temp)
+min_RSS_h0_trim <- function(data, par, len_temp)
 # Optimization function for fitting an intercept model to a protein's 2D 
 # thermal profile by minimizing the trimmed sum of squared errors
 {
@@ -41,7 +28,7 @@ min_RSS_h0_trim <- function(data, par, unique_temperature, len_temp)
   )
 }
 
-min_RSS_h1 <- function(data, par, unique_temperature, len_temp)
+min_RSS_h1 <- function(data, par, len_temp)
 # Optimization function for fitting an dose-response model to a 
 # protein's 2D thermal profile by minimizing the sum of squared errors
 {
@@ -58,9 +45,10 @@ min_RSS_h1 <- function(data, par, unique_temperature, len_temp)
   )
 }
 
-min_RSS_h1_cpp <- function(data, par, unique_temperature, len_temp)
+min_RSS_h1_cpp <- function(data, par, len_temp)
   # Optimization function for fitting an dose-response model to a 
   # protein's 2D thermal profile by minimizing the sum of squared errors
+  # using a CPP implementation of the optimization task
 {
   zeta <- par[1]
   slope <- par[2]
@@ -69,12 +57,12 @@ min_RSS_h1_cpp <- function(data, par, unique_temperature, len_temp)
   alpha <- par[(4 + len_temp):(3 + len_temp*2)]
   
   sum(
-    with(data, compute_residuals_cpp(temp_i, zeta, slope, beta_max, 
-                                     beta_0, alpha, log_conc, log2_value))
+    with(data, rcpp_compute_residuals(temp_i, zeta, slope, beta_max, 
+                                      beta_0, alpha, log_conc, log2_value))
   )
 }
 
-min_RSS_h1_trim <- function(data, par, unique_temperature, len_temp)
+min_RSS_h1_trim <- function(data, par, len_temp)
 # Optimization function for fitting an dose-response model to a 
 # protein's 2D thermal profile by minimizing the trimmed sum of 
 # squared errors
@@ -90,4 +78,56 @@ min_RSS_h1_trim <- function(data, par, unique_temperature, len_temp)
                   (1 + exp(-slope * (log_conc - zeta))) -
                   log2_value)^2)
   )
+}
+
+min_RSS_h1_trim_cpp <- function(data, par, len_temp)
+  # Optimization function for fitting an dose-response model to a 
+  # protein's 2D thermal profile by minimizing the trimmed sum of 
+  # squared errors using a CPP implementation of the optimization 
+  # task
+{
+  zeta <- par[1]
+  slope <- par[2]
+  beta_max <- par[3]
+  beta_0 <- par[4:(len_temp + 3)]
+  alpha <- par[(4 + len_temp):(3 + len_temp*2)]
+  
+  trim_sum(
+    with(data, rcpp_compute_residuals(temp_i = temp_i, zeta = zeta, 
+                                      slope = slope, beta_max = beta_max, 
+                                      beta_0 = beta_0, alpha = alpha, 
+                                      log_conc = log_conc, 
+                                      log2_value = log2_value))
+  )
+}
+
+min_RSS_h1_gradient <- function(data, par, len_temp){
+  # Analytically solved gradient function for min_RSS_h1
+  zeta <- par[1]
+  slope <- par[2]
+  beta_max <- par[3]
+  beta_0 <- par[4:(len_temp + 3)]
+  alpha <- par[(4 + len_temp):(3 + len_temp*2)]
+  
+  data <- full_join(data, expand.grid(log_conc = unique(data$log_conc),
+                                      temp_i = 1:max(data$temp_i)),
+                    by = c("log_conc", "temp_i"))
+  outer_dev <-
+    with(data, 2 * (beta_0[temp_i] + (alpha[temp_i] * beta_max)/
+                      (1 + exp(-slope * (log_conc - zeta))) -
+                      log2_value))
+  d_zeta <- sum(
+    outer_dev * with(data, -(alpha * beta_max)/(1 + exp(-slope * (log_conc - zeta)))^2 *
+                       exp(-slope * (log_conc - zeta)) * slope), na.rm = TRUE)
+  d_slope <- sum(
+    outer_dev * with(data, -(alpha * beta_max)/(1 + exp(-slope * (log_conc - zeta)))^2 *
+                       exp(-slope * (log_conc - zeta)) * (-(log_conc - zeta))), na.rm = TRUE)
+  d_beta_max <- sum(
+    outer_dev * with(data, alpha/(1 + exp(-slope * (log_conc - zeta)))), na.rm = TRUE)
+  d_beta_0 <- apply(matrix(outer_dev, nrow = 5, byrow = TRUE), 2, sum, na.rm = TRUE)
+  d_alpha <- apply(matrix(
+    outer_dev * with(data, beta_max/(1 + exp(-slope * (log_conc - zeta)))),
+    nrow = 5, byrow = TRUE), 2, sum, na.rm = TRUE)
+  return(c(d_zeta, d_slope, d_beta_max, d_beta_0, d_alpha))
+  
 }
