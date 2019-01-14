@@ -5,7 +5,7 @@
 \title{Fit H1 model and evaluate fit statistics}
 \usage{
 fitH1Model(df, maxit = 500, optim_fun = min_RSS_h1,
-  optim_fun_2 = NULL,
+  optim_fun_2 = NULL, gr_fun = NULL,
   ec50_lower_limit = min(unique(df$log_conc)[which(is.finite(unique(df$log_conc)))]),
   ec50_upper_limit = max(unique(df$log_conc)[which(is.finite(unique(df$log_conc)))]))
 }
@@ -22,11 +22,17 @@ for fitting the H0 model}
 
 \item{optim_fun_2}{optional secound optimization function for
 fitting the H1 model that should be used based on the fitted 
-parameters of the optimizationfor based on 
-\code{\link{optim_fun}}}
+parameters of the optimizationfor based on optim_fun}
+
+\item{gr_fun}{optional gradient funtion for optimization}
+
+\item{ec50_lower_limit}{lower limit of ec50 parameter}
+
+\item{ec50_upper_limit}{lower limit of ec50 parameter}
 }
 \value{
-
+data frame with H1 model characteristics for each
+protein
 }
 \description{
 Fit H1 model and evaluate fit statistics

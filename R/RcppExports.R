@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 rcpp_compute_residuals <- function(temp_i, zeta, slope, beta_max, beta_0, alpha, log_conc, log2_value) {
-    .Call(`_TPP2D_rcpp_compute_residuals`, temp_i, zeta, slope, beta_max, beta_0, alpha, log_conc, log2_value)
+    .Call('_TPP2D_rcpp_compute_residuals', PACKAGE = 'TPP2D', temp_i, zeta, slope, beta_max, beta_0, alpha, log_conc, log2_value)
 }
 

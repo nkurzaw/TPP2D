@@ -8,7 +8,8 @@
 #' @param optim_fun optimization function that should be used
 #' for fitting the H0 model
 #' 
-#' @return 
+#' @return data frame with H0 model characteristics for each
+#' protein
 #' 
 #' @export
 #'
@@ -66,10 +67,13 @@ fitH0Model <- function(df,
 #' for fitting the H0 model
 #' @param optim_fun_2 optional secound optimization function for
 #' fitting the H1 model that should be used based on the fitted 
-#' parameters of the optimizationfor based on 
-#' \code{\link{optim_fun}}
+#' parameters of the optimizationfor based on optim_fun
+#' @param gr_fun optional gradient funtion for optimization 
+#' @param ec50_lower_limit lower limit of ec50 parameter
+#' @param ec50_upper_limit lower limit of ec50 parameter
 #' 
-#' @return 
+#' @return data frame with H1 model characteristics for each
+#' protein
 #' 
 #' @export
 #'

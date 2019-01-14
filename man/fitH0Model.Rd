@@ -18,7 +18,8 @@ should be given, default is set to 500}
 for fitting the H0 model}
 }
 \value{
-
+data frame with H0 model characteristics for each
+protein
 }
 \description{
 Fit H0 model and evaluate fit statistics
