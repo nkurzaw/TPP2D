@@ -4,7 +4,7 @@
 \alias{fitH0Model}
 \title{Fit H0 model and evaluate fit statistics}
 \usage{
-fitH0Model(df, maxit = 500, optim_fun = min_RSS_h0)
+fitH0Model(df, maxit = 500, optim_fun = min_RSS_h0, gr_fun = NULL)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 
@@ -16,6 +16,9 @@ should be given, default is set to 500}
 
 \item{optim_fun}{optimization function that should be used
 for fitting the H0 model}
+
+\item{gr_fun}{optional gradient function for optim_fun,
+default is NULL}
 }
 \value{
 data frame with H0 model characteristics for each

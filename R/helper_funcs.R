@@ -15,3 +15,9 @@ getStartParameters <- function(df, unique_temp, len_temp){
     rep(0, len_temp))
     return(start_par)
 }
+
+paste_rmNA <- function(x, sep = "|"){
+  # function that pastes non-dedundant and na-filtered
+  # vector elements into a string
+  return(paste(x[!is.na(x)], collapse = sep))
+}
