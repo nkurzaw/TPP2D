@@ -6,8 +6,7 @@
 \usage{
 fitH1Model(df, maxit = 500, optim_fun = min_RSS_h1,
   optim_fun_2 = NULL, gr_fun = NULL, gr_fun_2 = NULL,
-  ec50_lower_limit = min(unique(df$log_conc)[which(is.finite(unique(df$log_conc)))]),
-  ec50_upper_limit = max(unique(df$log_conc)[which(is.finite(unique(df$log_conc)))]))
+  ec50_lower_limit = NULL, ec50_upper_limit = NULL)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 

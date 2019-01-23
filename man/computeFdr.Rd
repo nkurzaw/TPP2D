@@ -25,7 +25,7 @@ null dataset
 \examples{
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
-  filter(clustername \%in\% paste0("protein", 1:20)) \%>\% 
+  filter(clustername \%in\% paste0("protein", 1:10)) \%>\% 
   group_by(representative) \%>\% 
   mutate(nObs = n()) \%>\% 
   ungroup 

@@ -105,15 +105,20 @@ fitH1Model <- function(df,
                        optim_fun_2 = NULL,
                        gr_fun = NULL,
                        gr_fun_2 = NULL,
-                       ec50_lower_limit = 
-                         min(unique(df$log_conc)[
-                           which(is.finite(unique(df$log_conc)))]),
-                       ec50_upper_limit = 
-                         max(unique(df$log_conc)[
-                           which(is.finite(unique(df$log_conc)))])){
+                       ec50_lower_limit = NULL,
+                       ec50_upper_limit = NULL){
   
   representative <- clustername <- nObs <- 
     temperature <- NULL
+  
+  if(is.null(ec50_lower_limit)){
+    ec50_lower_limit <- min(unique(df$log_conc)[
+      which(is.finite(unique(df$log_conc)))])
+  }
+  if(is.null(ec50_upper_limit)){
+    ec50_upper_limit <- max(unique(df$log_conc)[
+      which(is.finite(unique(df$log_conc)))])
+  }
   
   h1_df <- df %>%
     group_by(representative, clustername, nObs) %>%
@@ -263,6 +268,8 @@ computeFstat <- function(h0_df, h1_df){
 #' default is NULL
 #' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
 #' default is NULL
+#' @param ec50_lower_limit lower limit of ec50 parameter
+#' @param ec50_upper_limit lower limit of ec50 parameter
 #' 
 #' @return data frame with H0 and H1 model characteristics for each
 #' protein and respectively computed F statistics
@@ -283,7 +290,9 @@ fitAndEvalDataset <- function(df, maxit = 500,
                               optim_fun_h1_2 = NULL,
                               gr_fun_h0 = NULL,
                               gr_fun_h1 = NULL,
-                              gr_fun_h1_2 = NULL){
+                              gr_fun_h1_2 = NULL,
+                              ec50_lower_limit = NULL,
+                              ec50_upper_limit = NULL){
   
   h0_df <- fitH0Model(df = df,
                       maxit = maxit,
@@ -295,9 +304,256 @@ fitAndEvalDataset <- function(df, maxit = 500,
                       optim_fun = optim_fun_h1,
                       optim_fun_2 = optim_fun_h1_2,
                       gr_fun = gr_fun_h1,
-                      gr_fun_2 = gr_fun_h1_2)
+                      gr_fun_2 = gr_fun_h1_2,
+                      ec50_lower_limit = ec50_lower_limit,
+                      ec50_upper_limit = ec50_upper_limit)
   
   sum_df <- computeFstat(h0_df, h1_df)
   
   return(sum_df)
 }
+
+
+minObsFilter <- function(df, minObs = 20){
+  # Filter data frame for a minimal number of observations
+  # per protein
+  representative <- clustername <- rel_value <- NULL
+  
+  df_fil <- df %>%
+    group_by(representative, clustername) %>%
+    mutate(nObs = n()) %>%
+    filter(nObs >= minObs) %>%
+    ungroup()
+  
+  return(df_fil)
+}
+
+independentFilter <- function(df, fcThres = 1.5){
+  # Filter data frame independently based on maximal 
+  # fold change per protein
+  representative <- clustername <- rel_value <- NULL
+  
+  df_fil <- df %>%
+    group_by(representative, clustername) %>%
+    filter(any(rel_value > fcThres) | any(rel_value < 1/fcThres)) %>%
+    ungroup
+  
+  return(df_fil)
+}
+
+
+getEC50Limits <- function(df){
+  log_conc <- NULL
+  
+  ec50_lower_limit <- min(unique(df$log_conc)[
+    which(is.finite(unique(df$log_conc)))])
+  ec50_upper_limit <- max(unique(df$log_conc)[
+    which(is.finite(unique(df$log_conc)))])
+  
+  return(c(ec50_lower_limit, 
+           ec50_upper_limit))
+}
+
+#' Compete H0 and H1 models per protein and obtain F statistic
+#' 
+#' @param df tidy data_frame retrieved after import of a 2D-TPP 
+#' dataset, potential filtering and addition of a column "nObs"
+#' containing the number of observations per protein
+#' @param fcThres numeric value of minimal fold change 
+#' (or inverse fold change) a protein has to show to be kept 
+#' upon independent filtering
+#' @param independentFiltering boolean flag indicating whether
+#' independent filtering should be performed based on minimal
+#' fold changes per protein profile
+#' @param seed seed to set, default is NULL equivalent to no
+#' seed being set
+#' @param minObs numeric value of minimal number of observations
+#' that should be required per protein
+#' @param maxit maximal number of iterations the optimization
+#' should be given, default is set to 500
+#' @param optim_fun_h0 optimization function that should be used
+#' for fitting the H0 model
+#' @param optim_fun_h1 optimization function that should be used
+#' for fitting the H1 model
+#' @param optim_fun_h1_2 optional additional optimization function 
+#' that will be run with paramters retrieved from optim_fun_h1 and 
+#' should be used for fitting the H1 model with the trimmed sum
+#' model, default is NULL
+#' @param gr_fun_h0 optional gradient function for optim_fun_h0,
+#' default is NULL
+#' @param gr_fun_h1 optional gradient function for optim_fun_h1,
+#' default is NULL
+#' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
+#' default is NULL
+#' 
+#' @return data frame summarising the fit characteristics of H0 and
+#' H1 models and therof resulting computed F statistics per protein
+#' 
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' temp_df <- simulated_cell_extract_df %>% 
+#'   filter(clustername %in% paste0("protein", 1:10)) %>% 
+#'   group_by(representative) %>% 
+#'   mutate(nObs = n()) %>% 
+#'   ungroup 
+#' competeModels(temp_df)  
+#' 
+#' @export
+competeModels <- function(df, fcThres = 1.5,
+                          independentFiltering = FALSE,
+                          seed = NULL, minObs = 20,
+                          optim_fun_h0 = min_RSS_h0_trim,
+                          optim_fun_h1 = min_RSS_h1,
+                          optim_fun_h1_2 = NULL,
+                          gr_fun_h0 = NULL,
+                          gr_fun_h1 = NULL,
+                          gr_fun_h1_2 = NULL,
+                          maxit = 750){
+  
+  
+  ec50_limits <- getEC50Limits(df)
+  
+  df_fil <- minObsFilter(df, minObs = minObs)
+  
+  if(independentFiltering){
+    message("Independent Filtering: removing proteins without 
+            any values crossing the threshold.")
+    df_fil <- independentFilter(df_fil, fcThres = fcThres) 
+  }
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
+  sum_df <- fitAndEvalDataset(
+    df_fil,
+    maxit = maxit,
+    optim_fun_h0 = optim_fun_h0,
+    optim_fun_h1 = optim_fun_h1,
+    optim_fun_h1_2 = optim_fun_h1_2,
+    ec50_lower_limit = ec50_limits[1],
+    ec50_upper_limit = ec50_limits[2])
+  
+  return(sum_df)
+}
+
+
+
+#' Estimate the null distribution by resampling H0 model 
+#' residuals and recapitulating H0 and H1 model fits and
+#' forming F statistic 
+#' 
+#' @param df tidy data_frame retrieved after import of a 2D-TPP 
+#' dataset, potential filtering and addition of a column "nObs"
+#' containing the number of observations per protein
+#' @param fcThres numeric value of minimal fold change 
+#' (or inverse fold change) a protein has to show to be kept 
+#' upon independent filtering
+#' @param independentFiltering boolean flag indicating whether
+#' independent filtering should be performed based on minimal
+#' fold changes per protein profile
+#' @param seed seed to set, default is NULL equivalent to no
+#' seed being set
+#' @param ncores number of cores to be used for optional 
+#' parallelization, default is 1 (no parallelization)
+#' @param B numeric value of number of bootstraps to be performed
+#' @param minObs numeric value of minimal number of observations
+#' that should be required per protein
+#' @param maxit maximal number of iterations the optimization
+#' should be given, default is set to 500
+#' @param optim_fun_h0 optimization function that should be used
+#' for fitting the H0 model
+#' @param optim_fun_h1 optimization function that should be used
+#' for fitting the H1 model
+#' @param optim_fun_h1_2 optional additional optimization function 
+#' that will be run with paramters retrieved from optim_fun_h1 and 
+#' should be used for fitting the H1 model with the trimmed sum
+#' model, default is NULL
+#' @param gr_fun_h0 optional gradient function for optim_fun_h0,
+#' default is NULL
+#' @param gr_fun_h1 optional gradient function for optim_fun_h1,
+#' default is NULL
+#' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
+#' default is NULL
+#' 
+#' @return data frame summarising the fit characteristics of H0 and
+#' H1 models and therof resulting computed F statistics per permuted
+#' protein profile
+#' 
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' temp_df <- simulated_cell_extract_df %>% 
+#'   filter(clustername %in% paste0("protein", 1:10)) %>% 
+#'   group_by(representative) %>% 
+#'   mutate(nObs = n()) %>% 
+#'   ungroup 
+#' nullSampleFstat(temp_df, B = 1)  
+#' 
+#' @export
+#'
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach
+#' @importFrom foreach %dopar%
+#' @import dplyr
+nullSampleFstat <-
+  function(df, fcThres = 1.5,
+           independentFiltering = FALSE,
+           seed = NULL, ncores = 1,
+           B = 3, minObs = 20,
+           optim_fun_h0 = min_RSS_h0_trim,
+           optim_fun_h1 = min_RSS_h1,
+           optim_fun_h1_2 = NULL,
+           gr_fun_h0 = NULL,
+           gr_fun_h1 = NULL,
+           gr_fun_h1_2 = NULL,
+           maxit = 750){
+    
+    ec50_limits <- getEC50Limits(df)
+    
+    df_fil <- minObsFilter(df, minObs = minObs)
+    
+    if(independentFiltering){
+      message("Independent Filtering: removing proteins without 
+              any values crossing the threshold.")
+      df_fil <- independentFilter(df_fil, fcThres = fcThres) 
+    }
+    registerDoParallel(cores = B)
+    
+    if(!is.null(seed)){
+      set.seed(seed, kind = "L'Ecuyer-CMRG")
+    }
+
+    unique_clustername <- unique(df_fil$clustername)
+    null_list <- foreach(prot = unique_clustername) %dopar% {
+      df_fil_prot <- filter(df_fil, clustername == prot)
+      prot_h0 <- lm(log2_value ~ 1 + as.factor(temperature),
+                    data = df_fil_prot)
+      res_prot_h0 <- residuals(prot_h0)
+      len_res <- length(res_prot_h0)
+      out_list <- lapply(seq_len(B), function(boot){
+        df_resample_prot <- df_fil_prot %>%
+          mutate(log2_value = log2_value - res_prot_h0 +
+                   sample(res_prot_h0, size = len_res, replace = TRUE))
+        
+        sum_df <- fitAndEvalDataset(
+          df_resample_prot,
+          maxit = maxit,
+          optim_fun_h0 = optim_fun_h0,
+          optim_fun_h1 = optim_fun_h1,
+          optim_fun_h1_2 = optim_fun_h1_2,
+          gr_fun_h0 = gr_fun_h0,
+          gr_fun_h1 = gr_fun_h1,
+          gr_fun_h1_2 = gr_fun_h1_2,
+          ec50_lower_limit = ec50_limits[1],
+          ec50_upper_limit = ec50_limits[2])
+        
+        return(sum_df)
+      })
+    }
+    
+    null_df <- bind_rows(lapply(null_list, function(x){
+      do.call(rbind, lapply(
+        seq_len(length(x)), function(i) x[[i]] %>%
+          mutate(dataset = paste("bootstrap", as.character(i), sep = "_"))))
+    }))
+    
+    return(null_df)
+  }

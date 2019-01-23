@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_funcs.R
 \name{plot2dTppRelProfile}
 \alias{plot2dTppRelProfile}
-\title{Plot 2D thermal profile ratios of a protein}
+\title{Plot 2D thermal profile ratios of a protein of choice}
 \usage{
 plot2dTppRelProfile(df, name)
 }
@@ -17,7 +17,7 @@ A ggplot displaying the thermal profile ratios of
 a protein of choice in a datset of choice
 }
 \description{
-Plot 2D thermal profile ratios of a protein
+Plot 2D thermal profile ratios of a protein of choice
 }
 \examples{
 

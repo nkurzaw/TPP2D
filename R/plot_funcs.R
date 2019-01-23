@@ -53,7 +53,8 @@ gg_qq <- function(x, y,
     gg_theme
 }
 
-#' Plot 2D thermal profile intensities of a protein
+#' Plot 2D thermal profile intensities of a protein 
+#' of choice
 #' 
 #' @param df tidy data frame of a 2D-TPP dataset 
 #' @param name gene name (clustername) of protein that 
@@ -79,7 +80,7 @@ plot2dTppProfile <- function(df, name){
     facet_wrap(~temperature)
 }
 
-#' Plot 2D thermal profile ratios of a protein
+#' Plot 2D thermal profile ratios of a protein of choice
 #' 
 #' @param df tidy data frame of a 2D-TPP dataset 
 #' @param name gene name (clustername) of protein that 
@@ -103,4 +104,137 @@ plot2dTppRelProfile <- function(df, name){
          aes(log_conc, rel_value)) +
     geom_point() +
     facet_wrap(~temperature)
+}
+
+#' Plot H0 or H1 fit of 2D thermal profile intensities of 
+#' a protein of choice
+#' 
+#' @param df tidy data frame of a 2D-TPP dataset 
+#' @param name gene name (clustername) of protein that 
+#' should be visualized
+#' @param model_type character string indicating whether
+#' the "H0" or the "H1" model should be fitted
+#' @param optim_fun optimization function that should be used
+#' for fitting either the H0 or H1 model
+#' @param optim_fun_2 optional additional optimization function 
+#' that will be run with paramters retrieved from optim_fun and 
+#' should be used for fitting the H1 model with the trimmed sum
+#' model, default is NULL
+#' @param maxit maximal number of iterations the optimization
+#' should be given, default is set to 500
+#' @param xlab character string of x-axis label of plot
+#' @param ylab character string of y-axis label of plot
+#' 
+#' @return A ggplot displaying the thermal profile of
+#' a protein of choice in a datset of choice
+#' 
+#' @export
+#'
+#' @examples
+#' 
+#' data("simulated_cell_extract_df")
+#' plot2dTppProfile(simulated_cell_extract_df, "protein1")
+#'
+#' @import ggplot2
+plot2dTppFit <- function(df, name,
+                         model_type = "H0",
+                         optim_fun = min_RSS_h0,
+                         optim_fun_2 = NULL,
+                         maxit = 500,
+                         xlab = "-log10(conc.)",
+                         ylab = "log2(summed intensities)"){
+  
+  clustername <- NULL
+  
+  df_fil <- filter(df, clustername == name) %>% 
+    mutate(temp_i = dense_rank(temperature))
+  unique_temp <- unique(df_fil$temperature)
+  len_temp <- length(unique_temp)
+  
+  if(model_type == "H0"){
+      start_par = sapply(unique_temp, function(x)
+        mean(filter(df_fil, temperature == x)$log2_value))
+      h0_model = try(optim(par = start_par,
+                           fn = optim_fun,
+                           len_temp = len_temp,
+                           data = df_fil,
+                           method = "L-BFGS-B",
+                           control = list(maxit = maxit)))
+        
+      fit_df <-
+        tibble(log_conc = 
+                 rep(seq(-9, -3, by = 0.1), 
+                     length(unique(df_fil$temperature))),
+               temperature = 
+                 rep(unique(df_fil$temperature), 
+                     each = length(seq(-9, -3, by = 0.1))),
+               temp_i = 
+                 rep(1:length(unique(df_fil$temperature)), 
+                     each = length(seq(-9, -3, by = 0.1))),
+               len_temp = length(unique(df_fil$temperature))) %>%
+        mutate(y_hat = h0_model$par[temp_i])
+      
+      ggplot(fit_df, aes(log_conc, y_hat)) +
+        geom_line() +
+        geom_point(aes(log_conc, log2_value), data = df_fil) +
+        facet_wrap(~temperature) +
+        ggtitle(prot) +
+        labs(x = xlab, y = ylab)
+  }else if(model_type == "H1"){
+    start_par = getStartParameters(
+      df = df_fil, 
+      unique_temp = unique_temp, 
+      len_temp = len_temp)
+    lower = c(min(unique(df_fil$log_conc)[
+      which(is.finite(unique(df_fil$log_conc)))]),
+              rep(-Inf, 2 + len_temp), 
+              rep(0, len_temp)) 
+    upper = c(max(unique(df_fil$log_conc)[
+      which(is.finite(unique(df_fil$log_conc)))]),
+              rep(Inf, 2 + len_temp), 
+              rep(1, len_temp)) 
+    h1_model = try(optim(par = start_par,
+                         fn = optim_fun,
+                         len_temp = len_temp,
+                         data = .,
+                         method = "L-BFGS-B",
+                         upper = upper,
+                         lower = lower,
+                         control = list(maxit = maxit)))
+    if(!is.null(optim_fun_2) & 
+       class(h1_model) != "try-error"){
+      h1_model = try(optim(par = h1_model$par,
+                           fn = optim_fun_2,
+                           len_temp = len_temp,
+                           data = .,
+                           method = "L-BFGS-B",
+                           upper = upper,
+                           lower = lower,
+                           control = list(maxit = maxit)))
+    }
+      
+      fit_df <-
+        tibble(log_conc = 
+                 rep(seq(-9, -3, by = 0.1), 
+                     length(unique(df_fil$temperature))),
+               temperature = 
+                 rep(unique(df_fil$temperature), 
+                     each = length(seq(-9, -3, by = 0.1))),
+               temp_i = 
+                 rep(1:length(unique(df_fil$temperature)), 
+                     each = length(seq(-9, -3, by = 0.1))),
+               len_temp = length(unique(df_fil$temperature))) %>%
+        mutate(y_hat = h1_model$par[3 + temp_i] + 
+                 (h1_model$par[3 + len_temp + temp_i] * h1_model$par[3])/
+                 (1 + exp(-h1_model$par[2] * (log_conc - h1_model$par[1]))))
+      
+      ggplot(fit_df, aes(log_conc, y_hat)) +
+        geom_line() +
+        geom_point(aes(log_conc, log2_value), data = df_fil) +
+        facet_wrap(~temperature) +
+        ggtitle(prot) +
+        labs(x = xlab, y = ylab)
+  }else{
+    stop("Please specify a valid model_type! Either H0 or H1!")
+  }
 }

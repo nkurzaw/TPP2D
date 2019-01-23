@@ -3,6 +3,14 @@
 #' @param df tidy data_frame retrieved after import of a 2D-TPP 
 #' dataset, potential filtering and addition of a column "nObs"
 #' containing the number of observations per protein
+#' @param fcThres numeric value of minimal fold change 
+#' (or inverse fold change) a protein has to show to be kept 
+#' upon independent filtering
+#' @param minObs numeric value of minimal number of observations
+#' that should be required per protein
+#' @param independentFiltering boolean flag indicating whether
+#' independent filtering should be performed based on minimal
+#' fold changes per protein profile
 #' @param maxit maximal number of iterations the optimization
 #' should be given, default is set to 500
 #' @param optim_fun_h0 optimization function that should be used
@@ -31,7 +39,7 @@
 #' @examples 
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
-#'   filter(clustername %in% paste0("protein", 1:20)) %>% 
+#'   filter(clustername %in% paste0("protein", 1:10)) %>% 
 #'   group_by(representative) %>% 
 #'   mutate(nObs = n()) %>% 
 #'   ungroup 
@@ -43,7 +51,10 @@
 #' @importFrom foreach foreach
 #' @importFrom foreach %dopar%
 #' @importFrom doParallel registerDoParallel
+#' @import dplyr
 bootstrapNull <- function(df, maxit = 500,
+                          independentFiltering = FALSE,
+                          fcThres = 1.5, minObs = 20,
                           optim_fun_h0 = min_RSS_h0,
                           optim_fun_h1 = min_RSS_h1,
                           optim_fun_h1_2 = NULL,
@@ -53,37 +64,42 @@ bootstrapNull <- function(df, maxit = 500,
                           seed = NULL,
                           ncores = 1,
                           B = 3){
-  ec50_lower_limit = 
-    min(unique(df$log_conc)[
-      which(is.finite(unique(df$log_conc)))])
   
-  ec50_upper_limit = 
-    max(unique(df$log_conc)[
-      which(is.finite(unique(df$log_conc)))])
+  ec50_limits <- getEC50Limits(df)
+  
+  df_fil <- minObsFilter(df, minObs = minObs)
+  
+  if(independentFiltering){
+    message("Independent Filtering: removing proteins without 
+            any values crossing the threshold.")
+    df_fil <- independentFilter(df_fil, fcThres = fcThres) 
+  }
   
   registerDoParallel(cores = ncores)
   if(!is.null(seed)){
     set.seed(seed, kind = "L'Ecuyer-CMRG")
   }
-  unique_names <- unique(df$clustername)
+  unique_names <- unique(df_fil$clustername)
   null_list <- foreach(prot = unique_names) %dopar% {
-    df_prot <- filter(df, clustername == prot)
+    df_prot <- filter(df_fil, clustername == prot)
     prot_h0 <- lm(log2_value ~ 1 + as.factor(temperature),
                   data = df_prot)
     len_res <- length(residuals(prot_h0))
     
     out_list <- lapply(seq_len(B), function(boot){
-      df_prot <- df_prot %>%
+      df_resample_prot <- df_prot %>%
         mutate(log2_value = log2_value - residuals(prot_h0) +
                  sample(residuals(prot_h0), size = len_res, replace = TRUE))
       
-      sum_df <- fitAndEvalDataset(df_prot, 
+      sum_df <- fitAndEvalDataset(df_resample_prot, 
                                   optim_fun_h0 = optim_fun_h0,
                                   optim_fun_h1 = optim_fun_h1,
                                   optim_fun_h1_2 = optim_fun_h1_2,
                                   gr_fun_h0 = gr_fun_h0,
                                   gr_fun_h1 = gr_fun_h1,
-                                  gr_fun_h1_2 = gr_fun_h1_2)
+                                  gr_fun_h1_2 = gr_fun_h1_2,
+                                  ec50_lower_limit = ec50_limits[1],
+                                  ec50_upper_limit = ec50_limits[2])
       
       return(sum_df)
     })

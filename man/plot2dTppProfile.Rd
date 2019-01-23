@@ -2,7 +2,8 @@
 % Please edit documentation in R/plot_funcs.R
 \name{plot2dTppProfile}
 \alias{plot2dTppProfile}
-\title{Plot 2D thermal profile intensities of a protein}
+\title{Plot 2D thermal profile intensities of a protein 
+of choice}
 \usage{
 plot2dTppProfile(df, name)
 }
@@ -17,7 +18,8 @@ A ggplot displaying the thermal profile of
 a protein of choice in a datset of choice
 }
 \description{
-Plot 2D thermal profile intensities of a protein
+Plot 2D thermal profile intensities of a protein 
+of choice
 }
 \examples{
 
