@@ -37,13 +37,14 @@
 #' distribution of F statistics
 #' 
 #' @examples 
+#' library(TPP2D)
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
 #'   filter(clustername %in% paste0("protein", 1:10)) %>% 
 #'   group_by(representative) %>% 
 #'   mutate(nObs = n()) %>% 
 #'   ungroup 
-#' bootstrapNull(temp_df, B = 1)  
+#' bootstrapNull(temp_df, B = 2)  
 #' 
 #' @export
 #'

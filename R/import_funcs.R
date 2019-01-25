@@ -1,4 +1,408 @@
-#' @import TPP
+TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  isDF <- !is.null(dataframes)
+  isF <- !is.null(files)
+  isBoth <- isDF & isF
+  isNone <- !(isDF | isF)
+  if (isBoth) {
+    stop("Data import function received a filename AND a dataframe object. \n
+         Please specify only one.")
+  }
+  else if (isNone) {
+    stop("Data import function requires a filename or a dataframe object. \n
+         Please specify one.")
+  }
+  if (isDF) {
+    isClassList <- is.list(dataframes) && !is.data.frame(dataframes)
+    isClassDF <- is.data.frame(dataframes)
+    if (isClassList) {
+      classesInList <- dataframes %>% 
+        sapply(. %>% inherits(., "data.frame"))
+      if (!all(classesInList)) {
+        stop(paste("Argument 'dataframes' contains elements that are", 
+                   "not of type 'data.frame' at the following positions: "), 
+             which(!classesInList) %>% paste(collapse = ", "), 
+             ".")
+      }
+    }
+    else if (isClassDF) {
+      dataframes <- list(dataframes)
+      names(dataframes) <- expNames
+    }
+    else {
+      stop("Argument 'dataframes' must be either an object of class \n
+           'data.frame', or a list of such objects.")
+    }
+  }
+  if (isF) {
+    files <- as.character(files)
+    names(files) <- expNames
+  }
+  return(list(files = files, dataframes = dataframes))
+}
+
+#' @importFrom utils read.delim
+TPP_importFct_readFiles <- function (files, naStrs){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  expNames <- names(files)
+  data <- vector("list", length(files))
+  names(data) <- expNames
+  for (expName in expNames) {
+    fTmp <- files[[expName]]
+    if (file.exists(fTmp) || url.exists(fTmp)) {
+      data[[expName]] <- read.delim(fTmp, as.is = TRUE, 
+                                    na.strings = naStrs, quote = "")
+    }
+    else {
+      stop("File ", fTmp, " could not be found.")
+    }
+  }
+  return(data)
+}
+
+TPP_importFct_removeDuplicates <- function(inDF, refColName, 
+                                           nonNAColNames, qualColName){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  message("Removing duplicate identifiers using quality column '", 
+          qualColName, "'...")
+  nonUniques = unique(inDF[duplicated(inDF[[refColName]]), 
+                           refColName])
+  retDF = subset(inDF, !(get(refColName) %in% nonUniques))
+  for (nU in nonUniques) {
+    tmpDF = subset(inDF, get(refColName) == nU)
+    nonNArows = NULL
+    for (r in 1:nrow(tmpDF)) {
+      if (any(!is.na(tmpDF[r, nonNAColNames]))) {
+        nonNArows = c(nonNArows, r)
+      }
+    }
+    if (length(nonNArows) > 1) {
+      if (is.null(qualColName)) {
+        useRow = 1
+      }
+      else {
+        qualVals = tmpDF[nonNArows, qualColName]
+        useRow = match(max(qualVals), qualVals)
+      }
+    }
+    else {
+      useRow = nonNArows[1]
+    }
+    retDF = rbind(retDF, tmpDF[useRow, ])
+  }
+  message(nrow(retDF), " out of ", nrow(inDF), " rows kept for further analysis.")
+  return(retDF)
+}
+
+TPP_replaceZeros <- function(x){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  x[which(x == 0)] <- NA
+  return(x)
+}
+
+TPP_importFct_rmZeroSias <- function(configTable, data.list, 
+                                     intensityStr){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  out <- lapply(names(data.list), function(l.name) {
+    datTmp <- data.list[[l.name]]
+    colsTmp <- colnames(datTmp)
+    intensity.cols <- grep(intensityStr, colsTmp, value = TRUE)
+    intensity.df <- subset(datTmp, select = intensity.cols) %>% 
+      mutate_all(as.character) %>% mutate_all(as.numeric)
+    new.intensity.df <- intensity.df %>% mutate_all(TPP_replaceZeros)
+    datTmp[, intensity.cols] <- new.intensity.df
+    return(datTmp)
+  })
+  names(out) <- names(data.list)
+  return(out)
+}
+
+TPP_importFct_checkExperimentCol <- function(expCol){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  if (is.null(expCol)) {
+    m <- "Config table needs an 'Experiment' column with unique experiment IDs."
+    stop(m, "\n")
+  }
+  oldExpNames <- expCol
+  newExpNames <- gsub("([^[:alnum:]])", "_", expCol)
+  iChanged <- oldExpNames != newExpNames
+  if (any(iChanged)) {
+    m1 <- "Replaced non-alphanumeric characters in the 'Experiment' column entries:"
+    m2 <- paste("'", paste(oldExpNames[iChanged], collapse = "', '"), 
+                "'\nby\n'", paste(newExpNames[iChanged], collapse = "', '"), 
+                sep = "")
+    message(m1, "\n", m2, "\n")
+  }
+  return(newExpNames)
+}
+
+TPP_importFct_checkComparisons <- function(confgTable){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  expConds <- confgTable$Condition
+  expNames <- confgTable$Experiment
+  compCols <- grep("Comparison", colnames(confgTable), ignore.case = TRUE, 
+                   value = TRUE)
+  compChars <- apply(confgTable[compCols], 2, function(x) {
+    length(grep("[[:alnum:]]", x, value = TRUE))
+  })
+  comp_unequal_two <- compChars != 2
+  if (any(comp_unequal_two)) {
+    warning(paste("\nThe following comparison columns could not be evaluated", 
+                  "because they did not contain exactly two entries:\n\t\t"), 
+            paste(compCols[comp_unequal_two], collapse = ",\n\t\t"))
+  }
+  validCompCols <- compCols[!comp_unequal_two]
+  allCompStrs <- c()
+  if (length(validCompCols) > 0) {
+    message("Comparisons will be performed between the following experiments:")
+    for (colName in validCompCols) {
+      current_compEntries <- confgTable[[colName]]
+      current_compRows <- grep("[[:alnum:]]", current_compEntries)
+      current_compExps <- expNames[current_compRows]
+      compRef <- current_compExps[1]
+      compTreatm <- current_compExps[2]
+      if ("Condition" %in% names(confgTable)) {
+        current_compConds <- expConds[current_compRows]
+        if ("Vehicle" %in% current_compConds && "Treatment" %in% 
+            current_compConds) {
+          compRef <- current_compExps[current_compConds == 
+                                        "Vehicle"]
+          compTreatm <- current_compExps[current_compConds == 
+                                           "Treatment"]
+        }
+      }
+      compStr <- paste(compTreatm, "_vs_", compRef, sep = "")
+      names(compStr) <- colName
+      message(compStr)
+      allCompStrs <- c(allCompStrs, compStr)
+    }
+    message("\n")
+  }
+  return(allCompStrs)
+}
+
+#' @importFrom stringr str_to_title
+TPP_importFct_checkConditions <- function(condInfo, 
+                                          expectedLength){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  flagGenerateConds <- FALSE
+  if (is.null(condInfo)) {
+    message("No information about experimental conditions given. Assigning NA instead.\n
+            Reminder: recognition of Vehicle and Treatment groups during pairwise \n
+            comparisons is only possible when they are specified in the config table.\n")
+    condInfo <- rep(NA_character_, expectedLength)
+  }
+  else {
+    condInfo <- as.character(condInfo) %>% stringr::str_to_title()
+    condLevels <- unique(condInfo)
+    invalidLevels = setdiff(condLevels, c("Treatment", "Vehicle"))
+    if (length(invalidLevels) > 0) {
+      stop("The entry '", invalidLevels, 
+           paste("' in the condition column is invalid. Only the values 'Treatment' and", 
+                 "'Vehicle' are allowed. Please correct this and start again."))
+    }
+  }
+  return(condInfo)
+}
+
+TPP_checkFunctionArgs <- function(functionCall, expectedArguments){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  myArgs <- names(functionCall)
+  sapply(expectedArguments, function(arg) {
+    if (!arg %in% myArgs) {
+      stop("Error in ", paste(functionCall)[1], ": argument '", 
+           arg, "' is missing, with no default", call. = FALSE)
+    }
+  })
+}
+
+TPP_nonLabelColumns <- function(){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  out <- data.frame(
+    column = c("Experiment", "Experiment",
+               "Experiment", "Path", "Path", 
+               "Path", "Condition", "Replicate", 
+               "Compound", "Temperature", "RefCol"), 
+    type = c("TR", "CCR", "2D", "TR", "CCR", "2D", 
+             "TR", "TR", "2D", "2D", "2D"), 
+    obligatory = c(TRUE, TRUE, TRUE, FALSE, FALSE, 
+                   FALSE, TRUE, FALSE, TRUE, TRUE, TRUE), 
+    exclusive = c(FALSE, FALSE, FALSE, FALSE, FALSE, 
+                  FALSE, TRUE, TRUE, TRUE, TRUE, TRUE))
+  return(out)
+}
+
+TPP_detectLabelColumnsInConfigTable <- function(allColumns){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  TPP_checkFunctionArgs(match.call(), c("allColumns"))
+  noLabelCols <- TPP_nonLabelColumns()$column %>% as.character %>% 
+    unique
+  compCols <- grep("comparison", allColumns, value = TRUE, 
+                   ignore.case = TRUE)
+  noLabelCols <- c(noLabelCols, compCols)
+  labelCols <- setdiff(allColumns, noLabelCols)
+  return(labelCols)
+}
+
+TPP_importCheckTemperatures <- function(temp){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  tempMatrix <- as.matrix(temp)
+  rownames(tempMatrix) <- NULL
+  naRows <- apply(is.na(tempMatrix), 1, all)
+  if (any(naRows)) {
+    stop("Row(s) ", paste(which(naRows), collapse = ", "), 
+         " in the configuration table contain only missing temperature values.")
+  }
+  return(tempMatrix)
+}
+
+#' @importFrom openxlsx read.xlsx
+#' @importFrom utils read.table
+TPP_importFct_readConfigTable <- function(cfg){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  if (is.character(cfg)) {
+    if (file.exists(cfg)) {
+      strChunks <- strsplit(cfg, "\\.")[[1]]
+      fileExtension <- strChunks[length(strChunks)]
+      if (fileExtension == "txt") {
+        tab <- read.table(file = cfg, header = TRUE, 
+                          check.names = FALSE, stringsAsFactors = FALSE, 
+                          sep = "\t")
+      }
+      else if (fileExtension == "csv") {
+        tab <- read.table(file = cfg, header = TRUE, 
+                          check.names = FALSE, stringsAsFactors = FALSE, 
+                          sep = ",")
+      }
+      else if (fileExtension == "xlsx") {
+        tab <- openxlsx::read.xlsx(cfg)
+      }
+      else {
+        stop("Error during data import: ", cfg, " does not belong to a valid configuration file.")
+      }
+    }
+    else {
+      stop("Error during data import: ", cfg, " does not belong to a valid configuration file.")
+    }
+    cfg <- tab
+  }
+  return(cfg)
+}
+
+TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
+  # internal function copied from TPP package to avoid 
+  # import of non-exported package functions
+  TPP_checkFunctionArgs(match.call(), c("infoTable", "type"))
+  Experiment = Path = Compound <- NULL
+  isValidDF <- FALSE
+  if (is.data.frame(infoTable)) {
+    if ((ncol(infoTable) > 1) & ("Experiment" %in% colnames(infoTable))) {
+      isValidDF <- TRUE
+    }
+  }
+  if (!is.character(infoTable) & !isValidDF) {
+    stop("'infoTable' must either be a data frame with an 'Experiment' column \n
+         and at least one isobaric label column, or a filename pointing at a \n
+         table that fulfills the same criteria")
+  }
+  isValidType <- type %in% c("2D")
+  if (!isValidType) {
+    stop("'type' must have this value: '2D'")
+  }
+  infoTable <- TPP_importFct_readConfigTable(cfg = infoTable)
+  infoTable$Experiment <- TPP_importFct_checkExperimentCol(infoTable$Experiment)
+  infoTable <- subset(infoTable, Experiment != "")
+  givenPaths <- NULL
+  if (any("Path" %in% colnames(infoTable))) {
+    if (all(infoTable$Path == "") || all(is.na(infoTable$Path))) {
+      message("Removing empty 'Path' column from config table")
+      infoTable <- infoTable %>% select(-Path)
+    }
+    else {
+      givenPaths <- infoTable$Path
+    }
+  }
+  if (type == "TR") {
+    infoTable <- TPP_importFct_replaceReplicateColumn(cfg = infoTable)
+  }
+  if (type == "TR") {
+    compStrs <- TPP_importFct_checkComparisons(confgTable = infoTable)
+  }
+  else {
+    compStrs <- NA
+  }
+  if (type == "TR") {
+    infoTable$Condition <- TPP_importFct_checkConditions(
+      infoTable$Condition, 
+      nrow(infoTable))
+  }
+  else {
+    infoTable$Condition <- NULL
+  }
+  allCols <- colnames(infoTable)
+  labelCols <- TPP_detectLabelColumnsInConfigTable(allColumns = allCols)
+  labelValues <- infoTable[, labelCols]
+  labelValuesNum <- suppressWarnings(labelValues %>% apply(2, 
+                                                           as.numeric))
+  if (is.matrix(labelValuesNum)) {
+    isInvalid <- labelValuesNum %>% apply(2, is.na) %>% apply(2, 
+                                                              all)
+  }
+  else if (is.vector(labelValuesNum)) {
+    isInvalid <- is.na(labelValuesNum)
+  }
+  invalidLabels <- labelCols[isInvalid]
+  infoTable[, invalidLabels] <- NULL
+  labelColsNew <- labelCols[!isInvalid]
+  labelStr <- paste(labelColsNew, collapse = ", ")
+  message("The following valid label columns were detected:\n", 
+          labelStr, ".")
+  if (type == "2D") {
+    temperatures <- infoTable$Temperature
+    if (is.null(temperatures) | length(temperatures) < 2) {
+      m1 <- "Insufficient temperatures (<2) specified in config file."
+      m2 <- "Does your configuration table have the correct column names?"
+      stop(m1, "\n", m2)
+    }
+    else if (length(which(!infoTable$RefCol %in% labelColsNew)) != 
+             0) {
+      stop("Labels in reference column not found in any of teh label columns.")
+    }
+    hasCompoundCol <- any(allCols == "Compound")
+    if (!hasCompoundCol) {
+      m <- "Config table of a 2D-TPP experiment needs a 'Compound' column."
+      stop(m, "\n")
+    }
+    else {
+      infoTable <- infoTable %>% mutate(Compound = gsub("([^[:alnum:]])", 
+                                                        "_", Compound))
+    }
+    out <- infoTable
+  }
+  else {
+    temperatures <- subset(infoTable, select = labelColsNew)
+    tempMatrix <- TPP_importCheckTemperatures(temp = temperatures)
+    infoList <- list(expNames = as.character(infoTable$Experiment), 
+                     expCond = infoTable$Condition, files = givenPaths, 
+                     compStrs = compStrs, labels = labelColsNew, tempMatrix = tempMatrix)
+    out <- infoList
+  }
+  return(out)
+}
+
 import2dMain <- function(configTable, data, idVar, fcStr,
                          addCol, naStrs, intensityStr,
                          qualColName, nonZeroCols){
@@ -12,13 +416,15 @@ import2dMain <- function(configTable, data, idVar, fcStr,
   }
   Experiment = Compound = Temperature = RefCol <- NULL
   expNames <- configTable$Experiment
-  argList <- TPP:::importFct_CheckDataFormat(dataframes = data, files = files,
-                                             expNames = expNames)
+  argList <- TPP_importFct_CheckDataFormat(dataframes = data, 
+                                           files = files,
+                                           expNames = expNames)
   data <- argList[["dataframes"]]
   files <- argList[["files"]]
   if (!is.null(files)) {
     files2 <- files[!duplicated(names(files))]
-    data <- TPP:::importFct_readFiles(files = files2, naStrs = naStrs)
+    data <- TPP_importFct_readFiles(files = files2, 
+                                    naStrs = naStrs)
   }
   configTable %>% group_by(Experiment, Compound,
                            Temperature, RefCol)
@@ -51,10 +457,13 @@ import2dMain <- function(configTable, data, idVar, fcStr,
       notFound <- paste(setdiff(relevant.cols, colnames(dataTmp)),
                         collapse = "', '")
       stop("The following columns could not be found: '",
-           notFound, "'. Please check the suffices and the additional column names you have specified.")
+           notFound, paste("'. Please check the suffices and the", 
+                           "additional column names you have specified."))
     }
-    dataFiltered <- TPP:::importFct_removeDuplicates(
-      inDF = dataTmp,refColName = idVar, nonNAColNames = dataCols, qualColName = qualColName[1])
+    dataFiltered <- TPP_importFct_removeDuplicates(
+      inDF = dataTmp,refColName = idVar, 
+      nonNAColNames = dataCols, 
+      qualColName = qualColName[1])
     idsTmp <- as.character(dataFiltered[, idVar])
     idsAnnotated <- paste(expTmp, tTmp, idsTmp, sep = "_")
     dataFinal <- dataFiltered %>% subset(select = relevant.cols) %>%
@@ -69,11 +478,13 @@ import2dMain <- function(configTable, data, idVar, fcStr,
     return(newName)
   })
   names(dataList) <- newNames
-  out <- TPP:::importFct_rmZeroSias(configTable = configTable, data.list = dataList,
-                                    intensityStr = intensityStr)
+  out <- TPP_importFct_rmZeroSias(configTable = configTable, 
+                                  data.list = dataList,
+                                  intensityStr = intensityStr)
   return(out)
 }
 
+#' @importFrom tidyr gather
 configWide2Long <- function(configWide){
   # internal function to tranform config table into long format
   if(any(grepl("Path", colnames(configWide)))){
@@ -188,8 +599,6 @@ renameColumns <- function(dataLong, idVar, geneNameVar){
 #' be adjusted to yield total unit e.g. default mmol - 1e6
 #' 
 #' @export
-#'
-#' @import TPP
 import2dDataset <- function(configTable, data,
                             idVar = "representative",
                             intensityStr = "sumionarea_protein_",
@@ -203,7 +612,7 @@ import2dDataset <- function(configTable, data,
                             medianNormalizeFC = TRUE,
                             filterContaminants = TRUE){
   
-  configWide <- TPP:::importCheckConfigTable(infoTable = configTable, type = "2D")
+  configWide <- TPP_importCheckConfigTable(infoTable = configTable, type = "2D")
   configLong <- configWide2Long(configWide = configWide)
   
   dataList <- import2dMain(configTable = configWide,
