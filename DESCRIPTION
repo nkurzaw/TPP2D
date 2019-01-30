@@ -8,7 +8,9 @@ Description: FDR-controlled analysis of 2D-TPP experiments by
   functional modeling of dose-response curves across temperatures.
 License: GPL-3
 Encoding: UTF-8
+VignetteBuilder: knitr
 LazyData: true
+biocViews: Proteomics, LigandProteinInteractions, Software
 RoxygenNote: 6.1.0
 Depends: R (>= 3.5.0), stats, utils, dplyr
 Imports: 
@@ -19,4 +21,5 @@ Imports:
   doParallel, 
   openxlsx,
   stringr
+Suggests: knitr
 LinkingTo: Rcpp

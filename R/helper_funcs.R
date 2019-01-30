@@ -1,3 +1,5 @@
+#' @importFrom stats lm
+#' @importFrom stats coef
 getStartParameters <- function(df, unique_temp, len_temp){
   # function to generate vector of start parameters
   # for h1 model optimization

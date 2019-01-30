@@ -499,19 +499,23 @@ configWide2Long <- function(configWide){
   }
 }
 
+#' @importFrom tidyr spread
 annotateDataList <- function(dataList, geneNameVar, configLong,
                              intensityStr, fcStr){
   # internal function to annotate list of 2D-TPP data subtables with
   # information from config table
+  channel <- signal <- Temperature <- RefCol <- label <- 
+    conc <- unique_ID <- NULL
+  
   combinedTab <- bind_rows(lapply(dataList, function(dat){
     datLong <- dat %>% tbl_df() %>%
       gather(channel, signal, matches(intensityStr), matches(fcStr)) %>%
       mutate(label = gsub(fcStr, "", gsub(intensityStr, "", channel))) %>%
       left_join(configLong %>% dplyr::select(Temperature, RefCol, label, conc),
                 by = c("temperature" = "Temperature", "label")) %>%
-      mutate(var = ifelse(grepl(fcStr, channel), "rel_value", "raw_value")) %>%
+      mutate(spread_var = ifelse(grepl(fcStr, channel), "rel_value", "raw_value")) %>%
       dplyr::select(-channel, -unique_ID) %>%
-      spread(var, signal)
+      spread(spread_var, signal)
   }))
   return(combinedTab)
 }
@@ -545,12 +549,14 @@ checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
   }
 }
 
+#' @importFrom stats median
 medianNormalizeRatios <- function(dataLong){
   # internal function to perform median normalization of ratios
   dataOut <- dataLong %>%
     rename(raw_rel_value = rel_value) %>%
     group_by(temperature, conc) %>%
-    mutate(rel_value = raw_rel_value / median(raw_rel_value, na.rm = TRUE)) %>%
+    mutate(rel_value = raw_rel_value / 
+             median(raw_rel_value, na.rm = TRUE)) %>%
     ungroup()
   
   return(dataOut)

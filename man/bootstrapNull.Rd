@@ -65,7 +65,6 @@ distribution of F statistics
 Bootstrap null distribution of F statistics for FDR estimation
 }
 \examples{
-library(TPP2D)
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
   filter(clustername \%in\% paste0("protein", 1:10)) \%>\% 

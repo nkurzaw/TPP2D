@@ -294,7 +294,7 @@ fitAndEvalDataset <- function(df, maxit = 500,
                               optim_fun_h1 = min_RSS_h1,
                               optim_fun_h1_2 = NULL,
                               gr_fun_h0 = NULL,
-                              gr_fun_h1 = NULL,
+                              gr_fun_h1 = min_RSS_h1_gradient,
                               gr_fun_h1_2 = NULL,
                               ec50_lower_limit = NULL,
                               ec50_upper_limit = NULL){
@@ -407,11 +407,11 @@ getEC50Limits <- function(df){
 competeModels <- function(df, fcThres = 1.5,
                           independentFiltering = FALSE,
                           seed = NULL, minObs = 20,
-                          optim_fun_h0 = min_RSS_h0_trim,
+                          optim_fun_h0 = min_RSS_h0,
                           optim_fun_h1 = min_RSS_h1,
                           optim_fun_h1_2 = NULL,
                           gr_fun_h0 = NULL,
-                          gr_fun_h1 = NULL,
+                          gr_fun_h1 = min_RSS_h1_gradient,
                           gr_fun_h1_2 = NULL,
                           maxit = 750){
   
@@ -421,8 +421,8 @@ competeModels <- function(df, fcThres = 1.5,
   df_fil <- minObsFilter(df, minObs = minObs)
   
   if(independentFiltering){
-    message("Independent Filtering: removing proteins without 
-            any values crossing the threshold.")
+    message(paste("Independent Filtering: removing proteins without", 
+            "any values crossing the set threshold."))
     df_fil <- independentFilter(df_fil, fcThres = fcThres) 
   }
   if(!is.null(seed)){

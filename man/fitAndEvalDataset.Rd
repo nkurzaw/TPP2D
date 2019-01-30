@@ -7,8 +7,8 @@ and compute F statistic}
 \usage{
 fitAndEvalDataset(df, maxit = 500, optim_fun_h0 = min_RSS_h0,
   optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = NULL, gr_fun_h0 = NULL,
-  gr_fun_h1 = NULL, gr_fun_h1_2 = NULL, ec50_lower_limit = NULL,
-  ec50_upper_limit = NULL)
+  gr_fun_h1 = min_RSS_h1_gradient, gr_fun_h1_2 = NULL,
+  ec50_lower_limit = NULL, ec50_upper_limit = NULL)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 

@@ -178,7 +178,7 @@ plot2dTppFit <- function(df, name,
         geom_line() +
         geom_point(aes(log_conc, log2_value), data = df_fil) +
         facet_wrap(~temperature) +
-        ggtitle(prot) +
+        ggtitle(name) +
         labs(x = xlab, y = ylab)
   }else if(model_type == "H1"){
     start_par = getStartParameters(
@@ -232,7 +232,7 @@ plot2dTppFit <- function(df, name,
         geom_line() +
         geom_point(aes(log_conc, log2_value), data = df_fil) +
         facet_wrap(~temperature) +
-        ggtitle(prot) +
+        ggtitle(name) +
         labs(x = xlab, y = ylab)
   }else{
     stop("Please specify a valid model_type! Either H0 or H1!")

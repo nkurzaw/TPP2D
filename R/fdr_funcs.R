@@ -40,12 +40,15 @@ computeFdr <- function(df_out, df_null){
       mutate(pi = ((max_rank/2) - true_cumsum)/
                ((max_rank/2) - null_cumsum)) %>%
       mutate(fdr = null_cumsum/(true_cumsum)) %>%
+      # mutate(fdr = 2*null_cumsum/true_cumsum) %>% 
       ungroup()
   })) %>%
     group_by(representative, clustername, dataset) %>%
     mutate(pi = mean(pi)) %>%
     mutate(fdr = pi * mean(fdr),
            rank = mean(rank)) %>%
+    # mutate(fdr = mean(fdr),
+    #        rank = mean(rank)) %>%
     filter(!duplicated(clustername)) %>%
     ungroup %>%
     arrange(rank)

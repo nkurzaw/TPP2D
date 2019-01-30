@@ -37,7 +37,6 @@
 #' distribution of F statistics
 #' 
 #' @examples 
-#' library(TPP2D)
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
 #'   filter(clustername %in% paste0("protein", 1:10)) %>% 
@@ -49,6 +48,7 @@
 #' @export
 #'
 #' @importFrom stats lm
+#' @importFrom stats residuals
 #' @importFrom foreach foreach
 #' @importFrom foreach %dopar%
 #' @importFrom doParallel registerDoParallel
@@ -65,6 +65,8 @@ bootstrapNull <- function(df, maxit = 500,
                           seed = NULL,
                           ncores = 1,
                           B = 3){
+  
+  clustername <- prot <- log2_value <- NULL
   
   ec50_limits <- getEC50Limits(df)
   
