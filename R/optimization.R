@@ -46,22 +46,22 @@ min_RSS_h1 <- function(data, par, len_temp)
   )
 }
 
-min_RSS_h1_cpp <- function(data, par, len_temp)
-  # Optimization function for fitting an dose-response model to a 
-  # protein's 2D thermal profile by minimizing the sum of squared errors
-  # using a CPP implementation of the optimization task
-{
-  zeta <- par[1]
-  slope <- par[2]
-  beta_max <- par[3]
-  beta_0 <- par[4:(len_temp + 3)]
-  alpha <- par[(4 + len_temp):(3 + len_temp*2)]
-  
-  sum(
-    with(data, rcpp_compute_residuals(temp_i, zeta, slope, beta_max, 
-                                      beta_0, alpha, log_conc, log2_value))
-  )
-}
+# min_RSS_h1_cpp <- function(data, par, len_temp)
+#   # Optimization function for fitting an dose-response model to a 
+#   # protein's 2D thermal profile by minimizing the sum of squared errors
+#   # using a CPP implementation of the optimization task
+# {
+#   zeta <- par[1]
+#   slope <- par[2]
+#   beta_max <- par[3]
+#   beta_0 <- par[4:(len_temp + 3)]
+#   alpha <- par[(4 + len_temp):(3 + len_temp*2)]
+#   
+#   sum(
+#     with(data, rcpp_compute_residuals(temp_i, zeta, slope, beta_max, 
+#                                       beta_0, alpha, log_conc, log2_value))
+#   )
+# }
 
 min_RSS_h1_trim <- function(data, par, len_temp)
 # Optimization function for fitting an dose-response model to a 
@@ -81,26 +81,26 @@ min_RSS_h1_trim <- function(data, par, len_temp)
   )
 }
 
-min_RSS_h1_trim_cpp <- function(data, par, len_temp)
-  # Optimization function for fitting an dose-response model to a 
-  # protein's 2D thermal profile by minimizing the trimmed sum of 
-  # squared errors using a CPP implementation of the optimization 
-  # task
-{
-  zeta <- par[1]
-  slope <- par[2]
-  beta_max <- par[3]
-  beta_0 <- par[4:(len_temp + 3)]
-  alpha <- par[(4 + len_temp):(3 + len_temp*2)]
-  
-  trim_sum(
-    with(data, rcpp_compute_residuals(temp_i = temp_i, zeta = zeta, 
-                                      slope = slope, beta_max = beta_max, 
-                                      beta_0 = beta_0, alpha = alpha, 
-                                      log_conc = log_conc, 
-                                      log2_value = log2_value))
-  )
-}
+# min_RSS_h1_trim_cpp <- function(data, par, len_temp)
+#   # Optimization function for fitting an dose-response model to a 
+#   # protein's 2D thermal profile by minimizing the trimmed sum of 
+#   # squared errors using a CPP implementation of the optimization 
+#   # task
+# {
+#   zeta <- par[1]
+#   slope <- par[2]
+#   beta_max <- par[3]
+#   beta_0 <- par[4:(len_temp + 3)]
+#   alpha <- par[(4 + len_temp):(3 + len_temp*2)]
+#   
+#   trim_sum(
+#     with(data, rcpp_compute_residuals(temp_i = temp_i, zeta = zeta, 
+#                                       slope = slope, beta_max = beta_max, 
+#                                       beta_0 = beta_0, alpha = alpha, 
+#                                       log_conc = log_conc, 
+#                                       log2_value = log2_value))
+#   )
+# }
 
 min_RSS_h0_gradient <- function(data, par, len_temp){
   # Analytically solved gradient function for min_RSS_h1
