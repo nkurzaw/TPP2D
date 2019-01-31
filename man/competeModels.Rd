@@ -5,13 +5,13 @@
 \title{Compete H0 and H1 models per protein and obtain F statistic}
 \usage{
 competeModels(df, fcThres = 1.5, independentFiltering = FALSE,
-  seed = NULL, minObs = 20, optim_fun_h0 = min_RSS_h0_trim,
+  minObs = 20, optim_fun_h0 = min_RSS_h0_trim,
   optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = min_RSS_h1_trim,
-  gr_fun_h0 = NULL, gr_fun_h1 = min_RSS_h1_gradient,
-  gr_fun_h1_2 = NULL, maxit = 750)
+  gr_fun_h0 = NULL, gr_fun_h1 = NULL, gr_fun_h1_2 = NULL,
+  maxit = 750)
 }
 \arguments{
-\item{df}{tidy data_frame retrieved after import of a 2D-TPP 
+\item{df}{tidy data frame retrieved after import of a 2D-TPP 
 dataset, potential filtering and addition of a column "nObs"
 containing the number of observations per protein}
 
@@ -22,9 +22,6 @@ upon independent filtering}
 \item{independentFiltering}{boolean flag indicating whether
 independent filtering should be performed based on minimal
 fold changes per protein profile}
-
-\item{seed}{seed to set, default is NULL equivalent to no
-seed being set}
 
 \item{minObs}{numeric value of minimal number of observations
 that should be required per protein}

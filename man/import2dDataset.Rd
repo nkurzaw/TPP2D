@@ -52,6 +52,9 @@ be adjusted to yield total unit e.g. default mmol - 1e6}
 \item{filterContaminants}{boolean variable indicating whether data 
 should be filtered to exclude contaminants (default: TRUE).}
 }
+\value{
+tidy data frame representing a 2D-TPP dataset
+}
 \description{
 Import 2D-TPP dataset using a config table
 }

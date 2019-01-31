@@ -294,7 +294,7 @@ fitAndEvalDataset <- function(df, maxit = 500,
                               optim_fun_h1 = min_RSS_h1,
                               optim_fun_h1_2 = NULL,
                               gr_fun_h0 = NULL,
-                              gr_fun_h1 = min_RSS_h1_gradient,
+                              gr_fun_h1 = NULL,
                               gr_fun_h1_2 = NULL,
                               ec50_lower_limit = NULL,
                               ec50_upper_limit = NULL){
@@ -409,7 +409,7 @@ competeModels <- function(df, fcThres = 1.5,
                           optim_fun_h1 = min_RSS_h1,
                           optim_fun_h1_2 = min_RSS_h1_trim,
                           gr_fun_h0 = NULL,
-                          gr_fun_h1 = min_RSS_h1_gradient,
+                          gr_fun_h1 = NULL,
                           gr_fun_h1_2 = NULL,
                           maxit = 750){
   
