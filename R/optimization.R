@@ -11,7 +11,7 @@ min_RSS_h0 <- function(data, par, len_temp)
   # Optimization function for fitting an intercept model to a protein's 2D 
   # thermal profile by minimizing the sum of squared errors
 {
-  beta_0 <- par[1:len_temp]
+  beta_0 <- par[seq_len(len_temp)]
   
   sum(
     with(data, (beta_0[temp_i] - log2_value)^2)
@@ -22,7 +22,7 @@ min_RSS_h0_trim <- function(data, par, len_temp)
 # Optimization function for fitting an intercept model to a protein's 2D 
 # thermal profile by minimizing the trimmed sum of squared errors
 {
-  beta_0 <- par[1:len_temp]
+  beta_0 <- par[seq_len(len_temp)]
   
   trim_sum(
     with(data, (beta_0[temp_i] - log2_value)^2)
