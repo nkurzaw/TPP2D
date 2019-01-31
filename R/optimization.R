@@ -104,10 +104,10 @@ min_RSS_h1_trim <- function(data, par, len_temp)
 
 min_RSS_h0_gradient <- function(data, par, len_temp){
   # Analytically solved gradient function for min_RSS_h1
-  beta_0 <- par[1:len_temp]
+  beta_0 <- par[seq_len(len_temp)]
   
   data <- full_join(data, expand.grid(log_conc = unique(data$log_conc),
-                                      temp_i = 1:max(data$temp_i)),
+                                      temp_i = seq_len(max(data$temp_i))),
                     by = c("log_conc", "temp_i"))
   
   outer_dev <-
@@ -122,10 +122,10 @@ min_RSS_h0_gradient <- function(data, par, len_temp){
 
 min_RSS_h0_gradient_trim <- function(data, par, len_temp){
   # Analytically solved gradient function for min_RSS_h1
-  beta_0 <- par[1:len_temp]
+  beta_0 <- par[seq_len(len_temp)]
   
   data <- full_join(data, expand.grid(log_conc = unique(data$log_conc),
-                                      temp_i = 1:max(data$temp_i)),
+                                      temp_i = seq_len(max(data$temp_i))),
                     by = c("log_conc", "temp_i"))
   
   outer_dev <-
@@ -147,7 +147,7 @@ min_RSS_h1_gradient <- function(data, par, len_temp){
   alpha <- par[(4 + len_temp):(3 + len_temp*2)]
   
   data <- full_join(data, expand.grid(log_conc = unique(data$log_conc),
-                                      temp_i = 1:max(data$temp_i)),
+                                      temp_i = seq_len(max(data$temp_i))),
                     by = c("log_conc", "temp_i"))
   outer_dev <-
     with(data, 2 * (beta_0[temp_i] + (alpha[temp_i] * beta_max)/
@@ -178,7 +178,7 @@ min_RSS_h1_gradient_trim <- function(data, par, len_temp){
   alpha <- par[(4 + len_temp):(3 + len_temp*2)]
   
   data <- full_join(data, expand.grid(log_conc = unique(data$log_conc),
-                                      temp_i = 1:max(data$temp_i)),
+                                      temp_i = seq_len(max(data$temp_i))),
                     by = c("log_conc", "temp_i"))
   outer_dev <-
     with(data, 2 * (beta_0[temp_i] + (alpha[temp_i] * beta_max)/

@@ -604,6 +604,9 @@ renameColumns <- function(dataLong, idVar, geneNameVar){
 #' @param concFactor numeric value that indicates how concentrations need to 
 #' be adjusted to yield total unit e.g. default mmol - 1e6
 #' 
+#' @return tidy data frame representing a 2D-TPP dataset
+#' 
+#' 
 #' @export
 import2dDataset <- function(configTable, data,
                             idVar = "representative",

@@ -361,7 +361,7 @@ getEC50Limits <- function(df){
 
 #' Compete H0 and H1 models per protein and obtain F statistic
 #' 
-#' @param df tidy data_frame retrieved after import of a 2D-TPP 
+#' @param df tidy data frame retrieved after import of a 2D-TPP 
 #' dataset, potential filtering and addition of a column "nObs"
 #' containing the number of observations per protein
 #' @param fcThres numeric value of minimal fold change 
@@ -370,8 +370,6 @@ getEC50Limits <- function(df){
 #' @param independentFiltering boolean flag indicating whether
 #' independent filtering should be performed based on minimal
 #' fold changes per protein profile
-#' @param seed seed to set, default is NULL equivalent to no
-#' seed being set
 #' @param minObs numeric value of minimal number of observations
 #' that should be required per protein
 #' @param maxit maximal number of iterations the optimization
@@ -406,7 +404,7 @@ getEC50Limits <- function(df){
 #' @export
 competeModels <- function(df, fcThres = 1.5,
                           independentFiltering = FALSE,
-                          seed = NULL, minObs = 20,
+                          minObs = 20,
                           optim_fun_h0 = min_RSS_h0_trim,
                           optim_fun_h1 = min_RSS_h1,
                           optim_fun_h1_2 = min_RSS_h1_trim,
@@ -425,9 +423,7 @@ competeModels <- function(df, fcThres = 1.5,
             "any values crossing the set threshold."))
     df_fil <- independentFilter(df_fil, fcThres = fcThres) 
   }
-  if(!is.null(seed)){
-    set.seed(seed)
-  }
+
   sum_df <- fitAndEvalDataset(
     df_fil,
     maxit = maxit,

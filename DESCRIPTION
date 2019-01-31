@@ -13,8 +13,6 @@ LazyData: true
 biocViews: Proteomics, DataImport, Software
 RoxygenNote: 6.1.0
 Depends: R (>= 3.5.0), stats, utils, dplyr
-Imports: 
-  Rcpp (>= 1.0.0), ggplot2, tidyr, foreach, doParallel, 
-  openxlsx,stringr
+Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr
 Suggests: knitr, testthat
 LinkingTo: Rcpp

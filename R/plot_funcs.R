@@ -152,8 +152,8 @@ plot2dTppFit <- function(df, name,
   len_temp <- length(unique_temp)
   
   if(model_type == "H0"){
-      start_par = sapply(unique_temp, function(x)
-        mean(filter(df_fil, temperature == x)$log2_value))
+      start_par = vapply(unique_temp, function(x)
+        mean(filter(df_fil, temperature == x)$log2_value), 1)
       h0_model = try(optim(par = start_par,
                            fn = optim_fun,
                            len_temp = len_temp,
@@ -169,7 +169,7 @@ plot2dTppFit <- function(df, name,
                  rep(unique(df_fil$temperature), 
                      each = length(seq(-9, -3, by = 0.1))),
                temp_i = 
-                 rep(1:length(unique(df_fil$temperature)), 
+                 rep(seq_len(length(unique(df_fil$temperature))), 
                      each = length(seq(-9, -3, by = 0.1))),
                len_temp = length(unique(df_fil$temperature))) %>%
         mutate(y_hat = h0_model$par[temp_i])
@@ -202,7 +202,7 @@ plot2dTppFit <- function(df, name,
                          lower = lower,
                          control = list(maxit = maxit)))
     if(!is.null(optim_fun_2) & 
-       class(h1_model) != "try-error"){
+       is(h1_model) != "try-error"){
       h1_model = try(optim(par = h1_model$par,
                            fn = optim_fun_2,
                            len_temp = len_temp,
@@ -221,7 +221,7 @@ plot2dTppFit <- function(df, name,
                  rep(unique(df_fil$temperature), 
                      each = length(seq(-9, -3, by = 0.1))),
                temp_i = 
-                 rep(1:length(unique(df_fil$temperature)), 
+                 rep(seq_len(length(unique(df_fil$temperature))), 
                      each = length(seq(-9, -3, by = 0.1))),
                len_temp = length(unique(df_fil$temperature))) %>%
         mutate(y_hat = h1_model$par[3 + temp_i] + 
