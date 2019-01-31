@@ -5,10 +5,10 @@
 \title{Bootstrap null distribution of F statistics for FDR estimation}
 \usage{
 bootstrapNull(df, maxit = 500, independentFiltering = FALSE,
-  fcThres = 1.5, minObs = 20, optim_fun_h0 = min_RSS_h0,
-  optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = NULL, gr_fun_h0 = NULL,
-  gr_fun_h1 = NULL, gr_fun_h1_2 = NULL, seed = NULL, ncores = 1,
-  B = 3)
+  fcThres = 1.5, minObs = 20, optim_fun_h0 = min_RSS_h0_trim,
+  optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = min_RSS_h1_trim,
+  gr_fun_h0 = NULL, gr_fun_h1 = NULL, gr_fun_h1_2 = NULL,
+  ncores = 1, B = 3)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 
@@ -48,8 +48,6 @@ default is NULL}
 
 \item{gr_fun_h1_2}{optional gradient function for optim_fun_h1_2,
 default is NULL}
-
-\item{seed}{seed to set, default NULL corresponds to no seed set}
 
 \item{ncores}{numeric value of numbers of cores that the function 
 should use to parallelize}

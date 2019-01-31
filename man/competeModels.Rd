@@ -5,9 +5,10 @@
 \title{Compete H0 and H1 models per protein and obtain F statistic}
 \usage{
 competeModels(df, fcThres = 1.5, independentFiltering = FALSE,
-  seed = NULL, minObs = 20, optim_fun_h0 = min_RSS_h0,
-  optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = NULL, gr_fun_h0 = NULL,
-  gr_fun_h1 = min_RSS_h1_gradient, gr_fun_h1_2 = NULL, maxit = 750)
+  seed = NULL, minObs = 20, optim_fun_h0 = min_RSS_h0_trim,
+  optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = min_RSS_h1_trim,
+  gr_fun_h0 = NULL, gr_fun_h1 = min_RSS_h1_gradient,
+  gr_fun_h1_2 = NULL, maxit = 750)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 
