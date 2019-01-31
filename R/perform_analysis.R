@@ -42,8 +42,8 @@ fitH0Model <- function(df,
     do({
       unique_temp <- unique(.$temperature)
       len_temp <- length(unique_temp)
-      start_par = sapply(unique_temp, function(x)
-        mean(filter(., temperature == x)$log2_value))
+      start_par = vapply(unique_temp, function(x)
+        mean(filter(., temperature == x)$log2_value), 1)
       h0_model = try(optim(par = start_par,
                        fn = optim_fun,
                        len_temp = len_temp,
@@ -147,7 +147,7 @@ fitH1Model <- function(df,
                        gr = gr_fun,
                        control = list(maxit = maxit)))
       if(!is.null(optim_fun_2) & 
-         class(h1_model) != "try-error"){
+         is(h1_model) != "try-error"){
         h1_model = try(optim(par = h1_model$par,
                          fn = optim_fun_2,
                          len_temp = len_temp,
@@ -171,7 +171,7 @@ eval_optim_result <- function(optim_result, hypothesis = "H1",
                               data, len_temp = NULL){
   # evaluate optimization results for H0 or H1 models 
   
-  if(class(optim_result) != "try-error"){
+  if(is(optim_result) != "try-error"){
     if(hypothesis == "H1"){
       
       pEC50 = -optim_result$par[1]
@@ -407,9 +407,9 @@ getEC50Limits <- function(df){
 competeModels <- function(df, fcThres = 1.5,
                           independentFiltering = FALSE,
                           seed = NULL, minObs = 20,
-                          optim_fun_h0 = min_RSS_h0,
+                          optim_fun_h0 = min_RSS_h0_trim,
                           optim_fun_h1 = min_RSS_h1,
-                          optim_fun_h1_2 = NULL,
+                          optim_fun_h1_2 = min_RSS_h1_trim,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = min_RSS_h1_gradient,
                           gr_fun_h1_2 = NULL,

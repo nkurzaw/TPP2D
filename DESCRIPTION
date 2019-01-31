@@ -5,21 +5,16 @@ Authors@R: person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de",
                   role = c("aut", "cre"))
 Maintainer: Nils Kurzawa <nils.kurzawa@embl.de>
 Description: FDR-controlled analysis of 2D-TPP experiments by
-  functional modeling of dose-response curves across temperatures.
+  functional analysis of dose-response curves across temperatures.
 License: GPL-3
 Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: true
-biocViews: Proteomics, LigandProteinInteractions, Software
+biocViews: Proteomics, DataImport, Software
 RoxygenNote: 6.1.0
 Depends: R (>= 3.5.0), stats, utils, dplyr
 Imports: 
-  Rcpp (>= 1.0.0),
-  ggplot2, 
-  tidyr, 
-  foreach, 
-  doParallel, 
-  openxlsx,
-  stringr
-Suggests: knitr
+  Rcpp (>= 1.0.0), ggplot2, tidyr, foreach, doParallel, 
+  openxlsx,stringr
+Suggests: knitr, testthat
 LinkingTo: Rcpp

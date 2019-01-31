@@ -27,7 +27,6 @@
 #' default is NULL
 #' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
 #' default is NULL
-#' @param seed seed to set, default NULL corresponds to no seed set
 #' @param ncores numeric value of numbers of cores that the function 
 #' should use to parallelize
 #' @param B numeric value of rounds of bootstrap, default: 3
@@ -56,13 +55,12 @@
 bootstrapNull <- function(df, maxit = 500,
                           independentFiltering = FALSE,
                           fcThres = 1.5, minObs = 20,
-                          optim_fun_h0 = min_RSS_h0,
+                          optim_fun_h0 = min_RSS_h0_trim,
                           optim_fun_h1 = min_RSS_h1,
-                          optim_fun_h1_2 = NULL,
+                          optim_fun_h1_2 = min_RSS_h1_trim,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = NULL,
                           gr_fun_h1_2 = NULL,
-                          seed = NULL,
                           ncores = 1,
                           B = 3){
   
@@ -79,9 +77,6 @@ bootstrapNull <- function(df, maxit = 500,
   }
   
   registerDoParallel(cores = ncores)
-  if(!is.null(seed)){
-    set.seed(seed, kind = "L'Ecuyer-CMRG")
-  }
   unique_names <- unique(df_fil$clustername)
   null_list <- foreach(prot = unique_names) %dopar% {
     df_prot <- filter(df_fil, clustername == prot)
