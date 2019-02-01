@@ -5,7 +5,7 @@
 \alias{simulated_cell_extract_df}
 \title{Example subset of a simulated 2D-TPP cell 
 extract dataset}
-\format{data_frame with columns representative (protein id), 
+\format{data frame with columns representative (protein id), 
 clustername (gene name), temperature, log_conc, raw_value, 
 rel_value, value and log2_value}
 \description{

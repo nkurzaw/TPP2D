@@ -6,7 +6,7 @@
 \usage{
 import2dDataset(configTable, data, idVar = "representative",
   intensityStr = "sumionarea_protein_", fcStr = "rel_fc_protein_",
-  nonZeroCols = "qssm", geneNameVar = "clustername", addCol = "",
+  nonZeroCols = "qssm", geneNameVar = "clustername", addCol = NULL,
   qualColName = "qupm", naStrs = c("NA", "n/d", "NaN"),
   concFactor = 1e+06, medianNormalizeFC = TRUE,
   filterContaminants = TRUE)
@@ -57,4 +57,21 @@ tidy data frame representing a 2D-TPP dataset
 }
 \description{
 Import 2D-TPP dataset using a config table
+}
+\examples{
+data("config_tab")
+data("raw_dat_list")
+import_df <- import2dDataset(configTable = config_tab, data = raw_dat_list,
+                             idVar = "protein_id",
+                             intensityStr = "signal_sum_",
+                             fcStr = "rel_fc_",
+                             nonZeroCols = "qusm",
+                             geneNameVar = "gene_name",
+                             addCol = NULL,
+                             qualColName = "qupm",
+                             naStrs = c("NA", "n/d", "NaN"),
+                             concFactor = 1e6,
+                             medianNormalizeFC = TRUE,
+                             filterContaminants = TRUE)
+
 }

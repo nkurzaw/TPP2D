@@ -15,4 +15,3 @@ RoxygenNote: 6.1.0
 Depends: R (>= 3.5.0), stats, utils, dplyr
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr
 Suggests: knitr, testthat
-LinkingTo: Rcpp
