@@ -428,7 +428,7 @@ import2dMain <- function(configTable, data, idVar, fcStr,
   }
   configTable %>% group_by(Experiment, Compound,
                            Temperature, RefCol)
-  iVec <- 1:nrow(configTable)
+  iVec <- seq_len(nrow(configTable))
   dataList <- lapply(iVec, function(iTmp) {
     rowTmp <- configTable[iTmp, ]
     expTmp <- rowTmp$Experiment
@@ -606,6 +606,21 @@ renameColumns <- function(dataLong, idVar, geneNameVar){
 #' 
 #' @return tidy data frame representing a 2D-TPP dataset
 #' 
+#' @examples 
+#' data("config_tab")
+#' data("raw_dat_list")
+#' import_df <- import2dDataset(configTable = config_tab, data = raw_dat_list,
+#'                              idVar = "protein_id",
+#'                              intensityStr = "signal_sum_",
+#'                              fcStr = "rel_fc_",
+#'                              nonZeroCols = "qusm",
+#'                              geneNameVar = "gene_name",
+#'                              addCol = NULL,
+#'                              qualColName = "qupm",
+#'                              naStrs = c("NA", "n/d", "NaN"),
+#'                              concFactor = 1e6,
+#'                              medianNormalizeFC = TRUE,
+#'                              filterContaminants = TRUE)
 #' 
 #' @export
 import2dDataset <- function(configTable, data,
@@ -614,7 +629,7 @@ import2dDataset <- function(configTable, data,
                             fcStr = "rel_fc_protein_",
                             nonZeroCols = "qssm",
                             geneNameVar = "clustername",
-                            addCol = "",
+                            addCol = NULL,
                             qualColName = "qupm",
                             naStrs = c("NA", "n/d", "NaN"),
                             concFactor = 1e6,
