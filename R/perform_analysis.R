@@ -34,7 +34,7 @@ fitH0Model <- function(df,
                        gr_fun = NULL){
   
   representative <- clustername <- nObs <- 
-    temperature <- NULL
+    temperature <- . <- NULL
   
   h0_df <- df %>%
     group_by(representative, clustername, nObs) %>%
@@ -101,6 +101,7 @@ fitH0Model <- function(df,
 #' 
 #' @import dplyr
 #' @importFrom stats optim
+#' @importFrom methods is
 fitH1Model <- function(df, 
                        maxit = 500,
                        optim_fun = min_RSS_h1,
@@ -111,7 +112,7 @@ fitH1Model <- function(df,
                        ec50_upper_limit = NULL){
   
   representative <- clustername <- nObs <- 
-    temperature <- NULL
+    temperature <- . <- NULL
   
   if(is.null(ec50_lower_limit)){
     ec50_lower_limit <- min(unique(df$log_conc)[
@@ -147,7 +148,7 @@ fitH1Model <- function(df,
                        gr = gr_fun,
                        control = list(maxit = maxit)))
       if(!is.null(optim_fun_2) & 
-         is(h1_model) != "try-error"){
+         !is(h1_model, "try-error")){
         h1_model = try(optim(par = h1_model$par,
                          fn = optim_fun_2,
                          len_temp = len_temp,
@@ -167,11 +168,12 @@ fitH1Model <- function(df,
   return(h1_df)
 }
 
+#' @importFrom methods is
 eval_optim_result <- function(optim_result, hypothesis = "H1",
                               data, len_temp = NULL){
   # evaluate optimization results for H0 or H1 models 
   
-  if(is(optim_result) != "try-error"){
+  if(!is(optim_result, "try-error")){
     if(hypothesis == "H1"){
       
       pEC50 = -optim_result$par[1]
@@ -242,8 +244,13 @@ eval_optim_result <- function(optim_result, hypothesis = "H1",
 #' 
 #' @import dplyr
 computeFstat <- function(h0_df, h1_df){
-  sum_df <- left_join(h0_df, h1_df,
-                      by = c("representative", "clustername", "nObs")) %>%
+  
+  nCoeffsH1 <- nCoeffsH0 <- nObs <- rssH0 <- 
+    rssH1 <- df2 <- df1 <- NULL
+  
+  sum_df <- 
+    left_join(h0_df, h1_df, by = c("representative",
+                                   "clustername", "nObs")) %>%
     ungroup() %>%
     mutate(df1 = nCoeffsH1 - nCoeffsH0, df2 = nObs - nCoeffsH1) %>%
     mutate(F_statistic = ((rssH0 - rssH1) / rssH1) * (df2/df1))

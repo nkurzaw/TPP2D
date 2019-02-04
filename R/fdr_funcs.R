@@ -24,6 +24,12 @@
 #'
 #' @import dplyr
 computeFdr <- function(df_out, df_null){
+  
+  dataset <- nObs <- nObsRound <- F_statistic <- 
+    is_decoy <- max_rank <- true_cumsum <- 
+    null_cumsum <- representative <- clustername <- 
+    dataset <- fdr <- NULL
+  
   out_df <- bind_rows(lapply(unique(df_null$dataset), function(boot){
     null_df <- filter(df_null, dataset == boot)
     fdr_df <- bind_rows(df_out %>%
@@ -79,6 +85,10 @@ computeFdr <- function(df_out, df_null){
 #' 
 #' @import dplyr
 findHits <- function(fdr_df, alpha){
+  
+  nObsRound <- fdr <- max_rank_fdr <- 
+    dataset <- NULL
+  
   hits_df <- fdr_df %>% 
     group_by(nObsRound) %>% 
     mutate(max_rank_fdr = min(rank[fdr > alpha], na.rm = TRUE)) %>% 

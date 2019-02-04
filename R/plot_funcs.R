@@ -196,17 +196,17 @@ plot2dTppFit <- function(df, name,
     h1_model = try(optim(par = start_par,
                          fn = optim_fun,
                          len_temp = len_temp,
-                         data = .,
+                         data = df_fil,
                          method = "L-BFGS-B",
                          upper = upper,
                          lower = lower,
                          control = list(maxit = maxit)))
     if(!is.null(optim_fun_2) & 
-       is(h1_model) != "try-error"){
+       !is(h1_model, "try-error")){
       h1_model = try(optim(par = h1_model$par,
                            fn = optim_fun_2,
                            len_temp = len_temp,
-                           data = .,
+                           data = df_fil,
                            method = "L-BFGS-B",
                            upper = upper,
                            lower = lower,

@@ -1,6 +1,7 @@
 TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
+  . <- NULL
   isDF <- !is.null(dataframes)
   isF <- !is.null(files)
   isBoth <- isDF & isF
@@ -18,7 +19,7 @@ TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
     isClassDF <- is.data.frame(dataframes)
     if (isClassList) {
       classesInList <- dataframes %>% 
-        sapply(. %>% inherits(., "data.frame"))
+        vapply(. %>% inherits(., "data.frame"), TRUE)
       if (!all(classesInList)) {
         stop(paste("Argument 'dataframes' contains elements that are", 
                    "not of type 'data.frame' at the following positions: "), 
@@ -43,6 +44,7 @@ TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
 }
 
 #' @importFrom utils read.delim
+#' @importFrom RCurl url.exists
 TPP_importFct_readFiles <- function (files, naStrs){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
@@ -74,7 +76,7 @@ TPP_importFct_removeDuplicates <- function(inDF, refColName,
   for (nU in nonUniques) {
     tmpDF = subset(inDF, get(refColName) == nU)
     nonNArows = NULL
-    for (r in 1:nrow(tmpDF)) {
+    for (r in seq_len(nrow(tmpDF))) {
       if (any(!is.na(tmpDF[r, nonNAColNames]))) {
         nonNArows = c(nonNArows, r)
       }
@@ -217,7 +219,7 @@ TPP_checkFunctionArgs <- function(functionCall, expectedArguments){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   myArgs <- names(functionCall)
-  sapply(expectedArguments, function(arg) {
+  lapply(expectedArguments, function(arg) {
     if (!arg %in% myArgs) {
       stop("Error in ", paste(functionCall)[1], ": argument '", 
            arg, "' is missing, with no default", call. = FALSE)
@@ -335,23 +337,8 @@ TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
       givenPaths <- infoTable$Path
     }
   }
-  if (type == "TR") {
-    infoTable <- TPP_importFct_replaceReplicateColumn(cfg = infoTable)
-  }
-  if (type == "TR") {
-    compStrs <- TPP_importFct_checkComparisons(confgTable = infoTable)
-  }
-  else {
-    compStrs <- NA
-  }
-  if (type == "TR") {
-    infoTable$Condition <- TPP_importFct_checkConditions(
-      infoTable$Condition, 
-      nrow(infoTable))
-  }
-  else {
-    infoTable$Condition <- NULL
-  }
+  compStrs <- NA
+  infoTable$Condition <- NULL
   allCols <- colnames(infoTable)
   labelCols <- TPP_detectLabelColumnsInConfigTable(allColumns = allCols)
   labelValues <- infoTable[, labelCols]
@@ -470,13 +457,13 @@ import2dMain <- function(configTable, data, idVar, fcStr,
       mutate(temperature = tTmp, experiment = expTmp, unique_ID = idsAnnotated)
     return(dataFinal)
   })
-  newNames <- sapply(seq(nrow(configTable)), function(iTmp) {
+  newNames <- vapply(seq(nrow(configTable)), function(iTmp) {
     rowTmp <- configTable[iTmp, ]
     tTmp <- rowTmp$Temperature
     expTmp <- rowTmp$Experiment
     newName <- paste(expTmp, tTmp, sep = "_")
     return(newName)
-  })
+  }, "")
   names(dataList) <- newNames
   out <- TPP_importFct_rmZeroSias(configTable = configTable, 
                                   data.list = dataList,
@@ -487,14 +474,20 @@ import2dMain <- function(configTable, data, idVar, fcStr,
 #' @importFrom tidyr gather
 configWide2Long <- function(configWide){
   # internal function to tranform config table into long format
+  
+  Path <- label <- conc <- Compound <- Experiment <- 
+    Temperature <- RefCol <- NULL
+  
   if(any(grepl("Path", colnames(configWide)))){
     configLong <- configWide %>%
       dplyr::select(-Path) %>%
-      gather(label, conc, -Compound, -Experiment, -Temperature, -RefCol) %>%
+      gather(label, conc, -Compound, 
+             -Experiment, -Temperature, -RefCol) %>%
       filter(conc != "-")
   }else{
     configLong <- configWide %>%
-      gather(label, conc, -Compound, -Experiment, -Temperature, -RefCol) %>%
+      gather(label, conc, -Compound, 
+             -Experiment, -Temperature, -RefCol) %>%
       filter(conc != "-")
   }
 }
@@ -505,7 +498,7 @@ annotateDataList <- function(dataList, geneNameVar, configLong,
   # internal function to annotate list of 2D-TPP data subtables with
   # information from config table
   channel <- signal <- Temperature <- RefCol <- label <- 
-    conc <- unique_ID <- NULL
+    conc <- unique_ID <- spread_var <- NULL
   
   combinedTab <- bind_rows(lapply(dataList, function(dat){
     datLong <- dat %>% tbl_df() %>%
@@ -522,12 +515,15 @@ annotateDataList <- function(dataList, geneNameVar, configLong,
 
 filterOutContaminants <- function(dataLong){
   # internal function to filter out contaminants
+  representative <- NULL
   filter(dataLong, !grepl("##", representative))
 }
 
 checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
   # internal function to check that protein fold changes are computed
   # relative to the correct TMT channel
+  label <- RefCol <- rel_value <- raw_value <- conc <- NULL
+  
   if(!all(filter(dataLong, label == RefCol)$rel_value == 1, na.rm = TRUE)){
     message("Recomputing ratios!")
     dataOut <- dataLong %>%
