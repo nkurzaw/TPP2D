@@ -15,6 +15,6 @@ test_that("import2dDataset works as expected", {
                                concFactor = 1e6,
                                medianNormalizeFC = TRUE,
                                filterContaminants = TRUE)
-  recomp_sig_df <- recomputeSignalFromRatios(import_df)
-  expect_equivalent(simulated_cell_extract_df, recomp_sig_df)
+  recomp_sig_df <- data.frame(recomputeSignalFromRatios(import_df))
+  expect_equivalent(data.frame(simulated_cell_extract_df), recomp_sig_df)
 })
