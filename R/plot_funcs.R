@@ -144,7 +144,8 @@ plot2dTppFit <- function(df, name,
                          xlab = "-log10(conc.)",
                          ylab = "log2(summed intensities)"){
   
-  clustername <- NULL
+  clustername <- temperature <- temp_i <- 
+    log_conc <- y_hat <- log2_value <- NULL
   
   df_fil <- filter(df, clustername == name) %>% 
     mutate(temp_i = dense_rank(temperature))

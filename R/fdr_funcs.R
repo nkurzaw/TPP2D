@@ -32,9 +32,9 @@ computeFdr <- function(df_out, df_null){
   
   out_df <- bind_rows(lapply(unique(df_null$dataset), function(boot){
     null_df <- filter(df_null, dataset == boot)
-    fdr_df <- bind_rows(df_out %>%
-                          mutate(dataset = "true"),
-                        null_df) %>%
+    fdr_df <- bind_rows(
+      df_out %>% 
+        mutate(dataset = "true"), null_df) %>%
       mutate(nObsRound = round(nObs/10)*10) %>%
       group_by(nObsRound) %>%
       arrange(desc(F_statistic)) %>%

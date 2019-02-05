@@ -7,10 +7,11 @@ trim_sum <- function(x, na.rm = TRUE)
       na.rm = TRUE)
 }
 
-min_RSS_h0 <- function(data, par, len_temp)
+min_RSS_h0 <- function(data, par, len_temp){
   # Optimization function for fitting an intercept model to a protein's 2D 
   # thermal profile by minimizing the sum of squared errors
-{
+  temp_i <- log2_value <- NULL
+  
   beta_0 <- par[seq_len(len_temp)]
   
   sum(
@@ -18,10 +19,11 @@ min_RSS_h0 <- function(data, par, len_temp)
   )
 }
 
-min_RSS_h0_trim <- function(data, par, len_temp)
-# Optimization function for fitting an intercept model to a protein's 2D 
-# thermal profile by minimizing the trimmed sum of squared errors
-{
+min_RSS_h0_trim <- function(data, par, len_temp){
+  # Optimization function for fitting an intercept model to a protein's 2D 
+  # thermal profile by minimizing the trimmed sum of squared errors
+  temp_i <- log2_value <- NULL
+  
   beta_0 <- par[seq_len(len_temp)]
   
   trim_sum(
@@ -29,10 +31,11 @@ min_RSS_h0_trim <- function(data, par, len_temp)
   )
 }
 
-min_RSS_h1 <- function(data, par, len_temp)
-# Optimization function for fitting an dose-response model to a 
-# protein's 2D thermal profile by minimizing the sum of squared errors
-{
+min_RSS_h1 <- function(data, par, len_temp){
+  # Optimization function for fitting an dose-response model to a 
+  # protein's 2D thermal profile by minimizing the sum of squared errors
+  temp_i <- log2_value <- log_conc <- NULL
+  
   zeta <- par[1]
   slope <- par[2]
   beta_max <- par[3]
@@ -63,11 +66,12 @@ min_RSS_h1 <- function(data, par, len_temp)
 #   )
 # }
 
-min_RSS_h1_trim <- function(data, par, len_temp)
-# Optimization function for fitting an dose-response model to a 
-# protein's 2D thermal profile by minimizing the trimmed sum of 
-# squared errors
-{
+min_RSS_h1_trim <- function(data, par, len_temp){
+  # Optimization function for fitting an dose-response model to a 
+  # protein's 2D thermal profile by minimizing the trimmed sum of 
+  # squared errors
+  temp_i <- log2_value <- log_conc <- NULL
+  
   zeta <- par[1]
   slope <- par[2]
   beta_max <- par[3]
@@ -104,6 +108,8 @@ min_RSS_h1_trim <- function(data, par, len_temp)
 
 min_RSS_h0_gradient <- function(data, par, len_temp){
   # Analytically solved gradient function for min_RSS_h1
+  temp_i <- log2_value <- NULL
+  
   beta_0 <- par[seq_len(len_temp)]
   
   data <- full_join(data, expand.grid(log_conc = unique(data$log_conc),
@@ -122,6 +128,8 @@ min_RSS_h0_gradient <- function(data, par, len_temp){
 
 min_RSS_h0_gradient_trim <- function(data, par, len_temp){
   # Analytically solved gradient function for min_RSS_h1
+  temp_i <- log2_value <- NULL
+  
   beta_0 <- par[seq_len(len_temp)]
   
   data <- full_join(data, expand.grid(log_conc = unique(data$log_conc),
@@ -140,6 +148,8 @@ min_RSS_h0_gradient_trim <- function(data, par, len_temp){
 
 min_RSS_h1_gradient <- function(data, par, len_temp){
   # Analytically solved gradient function for min_RSS_h1
+  temp_i <- log2_value <- log_conc <- NULL
+  
   zeta <- par[1]
   slope <- par[2]
   beta_max <- par[3]
@@ -171,6 +181,8 @@ min_RSS_h1_gradient <- function(data, par, len_temp){
 
 min_RSS_h1_gradient_trim <- function(data, par, len_temp){
   # Analytically solved gradient function for min_RSS_h1_trim
+  temp_i <- log2_value <- log_conc <- NULL
+  
   zeta <- par[1]
   slope <- par[2]
   beta_max <- par[3]

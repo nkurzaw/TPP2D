@@ -548,6 +548,9 @@ checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
 #' @importFrom stats median
 medianNormalizeRatios <- function(dataLong){
   # internal function to perform median normalization of ratios
+  rel_value <- temperature <- conc <- 
+    raw_rel_value <- NULL
+  
   dataOut <- dataLong %>%
     rename(raw_rel_value = rel_value) %>%
     group_by(temperature, conc) %>%
@@ -561,6 +564,8 @@ medianNormalizeRatios <- function(dataLong){
 renameColumns <- function(dataLong, idVar, geneNameVar){
   # internal function to rename column names to match lazyeval variable
   # names of main function
+  clustername <- representative <- NULL
+  
   dplyr::rename_(dataLong, "representative" = idVar, 
                  "clustername" = geneNameVar) %>%
     group_by(clustername) %>%

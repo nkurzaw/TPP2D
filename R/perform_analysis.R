@@ -88,7 +88,6 @@ fitH0Model <- function(df,
 #' 
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
-#'   filter(clustername %in% paste0("protein", 1:20)) %>% 
 #'   group_by(representative) %>% 
 #'   mutate(nObs = n()) %>% 
 #'   ungroup
@@ -289,7 +288,6 @@ computeFstat <- function(h0_df, h1_df){
 #' @examples 
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
-#'   filter(clustername %in% paste0("protein", 1:20)) %>% 
 #'   group_by(representative) %>% 
 #'   mutate(nObs = n()) %>% 
 #'   ungroup 
@@ -329,7 +327,8 @@ fitAndEvalDataset <- function(df, maxit = 500,
 minObsFilter <- function(df, minObs = 20){
   # Filter data frame for a minimal number of observations
   # per protein
-  representative <- clustername <- rel_value <- NULL
+  representative <- clustername <- rel_value <- 
+    nObs <- NULL
   
   df_fil <- df %>%
     group_by(representative, clustername) %>%
