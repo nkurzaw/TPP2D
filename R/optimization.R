@@ -49,6 +49,26 @@ min_RSS_h1 <- function(data, par, len_temp){
   )
 }
 
+min_RSS_h1_slope_pEC50 <- function(data, par, len_temp){
+  # Optimization function for fitting an dose-response model to a 
+  # protein's 2D thermal profile by minimizing the sum of squared errors
+  temp_i <- log2_value <- log_conc <- NULL
+  
+  zeta <- par[1]
+  zeta_slope <- par[2]
+  slope <- par[3]
+  beta_max <- par[4]
+  beta_0 <- par[5:(len_temp + 4)]
+  alpha <- par[(5 + len_temp):(4 + len_temp*2)]
+  
+  sum(
+    with(data, 
+         (beta_0[temp_i] + (alpha[temp_i] * beta_max)/
+            (1 + exp(-slope * (log_conc - (zeta + zeta_slope * temperature)))) -
+            log2_value)^2)
+  )
+}
+
 # min_RSS_h1_cpp <- function(data, par, len_temp)
 #   # Optimization function for fitting an dose-response model to a 
 #   # protein's 2D thermal profile by minimizing the sum of squared errors

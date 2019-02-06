@@ -8,7 +8,7 @@ and compute F statistic}
 fitAndEvalDataset(df, maxit = 500, optim_fun_h0 = min_RSS_h0,
   optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = NULL, gr_fun_h0 = NULL,
   gr_fun_h1 = NULL, gr_fun_h1_2 = NULL, ec50_lower_limit = NULL,
-  ec50_upper_limit = NULL)
+  ec50_upper_limit = NULL, slopEC50 = FALSE)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 
@@ -41,6 +41,10 @@ default is NULL}
 \item{ec50_lower_limit}{lower limit of ec50 parameter}
 
 \item{ec50_upper_limit}{lower limit of ec50 parameter}
+
+\item{slopEC50}{logical flag indicating whether the h1 model is
+fitted with a linear model describing the shift od the pEC50 over 
+temperatures}
 }
 \value{
 data frame with H0 and H1 model characteristics for each

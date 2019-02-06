@@ -78,6 +78,9 @@ fitH0Model <- function(df,
 #' default is NULL
 #' @param ec50_lower_limit lower limit of ec50 parameter
 #' @param ec50_upper_limit lower limit of ec50 parameter
+#' @param slopEC50 logical flag indicating whether the h1 model is
+#' fitted with a linear model describing the shift od the pEC50 over 
+#' temperatures
 #' 
 #' @return data frame with H1 model characteristics for each
 #' protein
@@ -108,7 +111,8 @@ fitH1Model <- function(df,
                        gr_fun = NULL,
                        gr_fun_2 = NULL,
                        ec50_lower_limit = NULL,
-                       ec50_upper_limit = NULL){
+                       ec50_upper_limit = NULL,
+                       slopEC50 = FALSE){
   
   representative <- clustername <- nObs <- 
     temperature <- . <- NULL
@@ -130,13 +134,15 @@ fitH1Model <- function(df,
       len_temp <- length(unique_temp)
       start_par = getStartParameters(
         df = ., unique_temp = unique_temp, 
-        len_temp = len_temp)
-      lower = c(ec50_lower_limit,
-                rep(-Inf, 2 + len_temp), #(length(start_par)-3)/2),
-                rep(0, len_temp)) #(length(start_par)-3)/2))
-      upper = c(ec50_upper_limit,
-                rep(Inf, 2 + len_temp), #(length(start_par)-3)/2),
-                rep(1, len_temp)) #(length(start_par)-3)/2))
+        len_temp = len_temp, 
+        slopEC50 = slopEC50)
+      opt_limits <- getOptLimits(
+        ec50Limits = c(ec50_lower_limit,
+                       ec50_upper_limit),
+        len_temp = len_temp, 
+        slopEC50 = slopEC50)
+      lower = opt_limits$lower 
+      upper = opt_limits$upper
       h1_model = try(optim(par = start_par,
                        fn = optim_fun,
                        len_temp = len_temp,
@@ -169,23 +175,37 @@ fitH1Model <- function(df,
 
 #' @importFrom methods is
 eval_optim_result <- function(optim_result, hypothesis = "H1",
-                              data, len_temp = NULL){
+                              data, len_temp = NULL,
+                              slopEC50 = FALSE){
   # evaluate optimization results for H0 or H1 models 
   
   if(!is(optim_result, "try-error")){
     if(hypothesis == "H1"){
       
       pEC50 = -optim_result$par[1]
-      slope = optim_result$par[2]
+      if(!slopEC50){
+        slope = optim_result$par[2]
+      }else{
+        pEC50_slope = optim_result$par[2]
+        slope = optim_result$par[3]
+      }
       rss = optim_result$value
       nCoeffs = length(optim_result$par)
       fitStats <- data.frame(rss = rss,
                              nCoeffs = nCoeffs,
                              pEC50 = pEC50,
                              slope = slope)
+      if(slopEC50){
+        fitStats$pEC50_slope <- pEC50_slope
+      }
       
       if(!is.null(len_temp)){
-        alpha <- optim_result$par[(4 + len_temp):(3 + len_temp*2)]
+        if(!slopEC50){
+          alpha <- optim_result$par[(4 + len_temp):(3 + len_temp*2)]
+        }else{
+          alpha <- optim_result$par[(5 + len_temp):(4 + len_temp*2)]
+        }
+        
         if(alpha[1] > (max(alpha[-1])/3)){
           fitStats$detected_effect <- 
             "expression/solubility"
@@ -281,6 +301,9 @@ computeFstat <- function(h0_df, h1_df){
 #' default is NULL
 #' @param ec50_lower_limit lower limit of ec50 parameter
 #' @param ec50_upper_limit lower limit of ec50 parameter
+#' @param slopEC50 logical flag indicating whether the h1 model is
+#' fitted with a linear model describing the shift od the pEC50 over 
+#' temperatures
 #' 
 #' @return data frame with H0 and H1 model characteristics for each
 #' protein and respectively computed F statistics
@@ -302,7 +325,8 @@ fitAndEvalDataset <- function(df, maxit = 500,
                               gr_fun_h1 = NULL,
                               gr_fun_h1_2 = NULL,
                               ec50_lower_limit = NULL,
-                              ec50_upper_limit = NULL){
+                              ec50_upper_limit = NULL,
+                              slopEC50 = FALSE){
   
   h0_df <- fitH0Model(df = df,
                       maxit = maxit,
@@ -316,7 +340,8 @@ fitAndEvalDataset <- function(df, maxit = 500,
                       gr_fun = gr_fun_h1,
                       gr_fun_2 = gr_fun_h1_2,
                       ec50_lower_limit = ec50_lower_limit,
-                      ec50_upper_limit = ec50_upper_limit)
+                      ec50_upper_limit = ec50_upper_limit,
+                      slopEC50 = slopEC50)
   
   sum_df <- computeFstat(h0_df, h1_df)
   
@@ -394,6 +419,9 @@ getEC50Limits <- function(df){
 #' default is NULL
 #' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
 #' default is NULL
+#' @param slopEC50 logical flag indicating whether the h1 model is
+#' fitted with a linear model describing the shift od the pEC50 over 
+#' temperatures
 #' 
 #' @return data frame summarising the fit characteristics of H0 and
 #' H1 models and therof resulting computed F statistics per protein
@@ -417,7 +445,8 @@ competeModels <- function(df, fcThres = 1.5,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = NULL,
                           gr_fun_h1_2 = NULL,
-                          maxit = 750){
+                          maxit = 750,
+                          slopEC50 = FALSE){
   
   
   ec50_limits <- getEC50Limits(df)
@@ -437,7 +466,8 @@ competeModels <- function(df, fcThres = 1.5,
     optim_fun_h1 = optim_fun_h1,
     optim_fun_h1_2 = optim_fun_h1_2,
     ec50_lower_limit = ec50_limits[1],
-    ec50_upper_limit = ec50_limits[2])
+    ec50_upper_limit = ec50_limits[2],
+    slopEC50 = slopEC50)
   
   return(sum_df)
 }

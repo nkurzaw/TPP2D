@@ -27,6 +27,9 @@
 #' default is NULL
 #' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
 #' default is NULL
+#' @param slopEC50 logical flag indicating whether the h1 model is
+#' fitted with a linear model describing the shift od the pEC50 over 
+#' temperatures
 #' @param ncores numeric value of numbers of cores that the function 
 #' should use to parallelize
 #' @param B numeric value of rounds of bootstrap, default: 3
@@ -61,6 +64,7 @@ bootstrapNull <- function(df, maxit = 500,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = NULL,
                           gr_fun_h1_2 = NULL,
+                          slopEC50 = FALSE,
                           ncores = 1,
                           B = 3){
   
@@ -97,7 +101,8 @@ bootstrapNull <- function(df, maxit = 500,
                                   gr_fun_h1 = gr_fun_h1,
                                   gr_fun_h1_2 = gr_fun_h1_2,
                                   ec50_lower_limit = ec50_limits[1],
-                                  ec50_upper_limit = ec50_limits[2])
+                                  ec50_upper_limit = ec50_limits[2],
+                                  slopEC50 = slopEC50)
       
       return(sum_df)
     })
