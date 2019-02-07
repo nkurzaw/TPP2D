@@ -419,9 +419,6 @@ getEC50Limits <- function(df){
 #' default is NULL
 #' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
 #' default is NULL
-#' @param slopEC50 logical flag indicating whether the h1 model is
-#' fitted with a linear model describing the shift od the pEC50 over 
-#' temperatures
 #' 
 #' @return data frame summarising the fit characteristics of H0 and
 #' H1 models and therof resulting computed F statistics per protein
@@ -445,9 +442,15 @@ competeModels <- function(df, fcThres = 1.5,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = NULL,
                           gr_fun_h1_2 = NULL,
-                          maxit = 750,
-                          slopEC50 = FALSE){
+                          maxit = 750){
   
+  checkDfColumns(df)
+  
+  if(identical(optim_fun_h1, min_RSS_h1_slope_pEC50)){
+    slopEC50 = TRUE
+  }else{
+    slopEC50 = FALSE
+  }
   
   ec50_limits <- getEC50Limits(df)
   

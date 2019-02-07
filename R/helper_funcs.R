@@ -53,3 +53,20 @@ getOptLimits <- function(ec50Limits, len_temp,
   }
   return(out_list)
 }
+
+checkDfColumns <- function(df){
+  # internal function to check all needed columns
+  # are presented in supplied input data frame
+  req_coln <- c("representative",
+                "clustername",
+                "temperature",
+                "log_conc",
+                "log2_value")
+  coln_df <- colnames(df)
+  if(!all(req_coln %in% coln_df)){
+    stop(paste(c("Input data frame, requires at least the", 
+                 "following columns: representative,", 
+                 "clustername temperature, log_conc,",
+                 "log2_value!"), collapse = " "))
+  }
+}

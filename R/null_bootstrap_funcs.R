@@ -27,9 +27,6 @@
 #' default is NULL
 #' @param gr_fun_h1_2 optional gradient function for optim_fun_h1_2,
 #' default is NULL
-#' @param slopEC50 logical flag indicating whether the h1 model is
-#' fitted with a linear model describing the shift od the pEC50 over 
-#' temperatures
 #' @param ncores numeric value of numbers of cores that the function 
 #' should use to parallelize
 #' @param B numeric value of rounds of bootstrap, default: 3
@@ -64,11 +61,18 @@ bootstrapNull <- function(df, maxit = 500,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = NULL,
                           gr_fun_h1_2 = NULL,
-                          slopEC50 = FALSE,
                           ncores = 1,
                           B = 3){
   
   clustername <- prot <- log2_value <- NULL
+  
+  checkDfColumns(df)
+  
+  if(identical(optim_fun_h1, min_RSS_h1_slope_pEC50)){
+    slopEC50 = TRUE
+  }else{
+    slopEC50 = FALSE
+  }
   
   ec50_limits <- getEC50Limits(df)
   

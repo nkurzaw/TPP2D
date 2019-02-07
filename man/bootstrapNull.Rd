@@ -8,7 +8,7 @@ bootstrapNull(df, maxit = 500, independentFiltering = FALSE,
   fcThres = 1.5, minObs = 20, optim_fun_h0 = min_RSS_h0_trim,
   optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = min_RSS_h1_trim,
   gr_fun_h0 = NULL, gr_fun_h1 = NULL, gr_fun_h1_2 = NULL,
-  slopEC50 = FALSE, ncores = 1, B = 3)
+  ncores = 1, B = 3)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 
@@ -48,10 +48,6 @@ default is NULL}
 
 \item{gr_fun_h1_2}{optional gradient function for optim_fun_h1_2,
 default is NULL}
-
-\item{slopEC50}{logical flag indicating whether the h1 model is
-fitted with a linear model describing the shift od the pEC50 over 
-temperatures}
 
 \item{ncores}{numeric value of numbers of cores that the function 
 should use to parallelize}

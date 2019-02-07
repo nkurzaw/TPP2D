@@ -8,7 +8,7 @@ competeModels(df, fcThres = 1.5, independentFiltering = FALSE,
   minObs = 20, optim_fun_h0 = min_RSS_h0_trim,
   optim_fun_h1 = min_RSS_h1, optim_fun_h1_2 = min_RSS_h1_trim,
   gr_fun_h0 = NULL, gr_fun_h1 = NULL, gr_fun_h1_2 = NULL,
-  maxit = 750, slopEC50 = FALSE)
+  maxit = 750)
 }
 \arguments{
 \item{df}{tidy data frame retrieved after import of a 2D-TPP 
@@ -48,10 +48,6 @@ default is NULL}
 
 \item{maxit}{maximal number of iterations the optimization
 should be given, default is set to 500}
-
-\item{slopEC50}{logical flag indicating whether the h1 model is
-fitted with a linear model describing the shift od the pEC50 over 
-temperatures}
 }
 \value{
 data frame summarising the fit characteristics of H0 and
