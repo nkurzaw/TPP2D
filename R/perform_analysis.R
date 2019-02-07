@@ -165,7 +165,8 @@ fitH1Model <- function(df,
                          control = list(maxit = maxit)))
       }
         eval_optim_result(h1_model, hypothesis = "H1",
-                          data = ., len_temp = len_temp)
+                          data = ., len_temp = len_temp,
+                          slopEC50 = slopEC50)
     }) %>%
     group_by(representative, clustername) %>%
     ungroup()
