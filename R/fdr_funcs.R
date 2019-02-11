@@ -30,34 +30,25 @@ computeFdr <- function(df_out, df_null){
     null_cumsum <- representative <- clustername <- 
     dataset <- fdr <- NULL
   
-  out_df <- bind_rows(lapply(unique(df_null$dataset), function(boot){
-    null_df <- filter(df_null, dataset == boot)
-    fdr_df <- bind_rows(
-      df_out %>% 
-        mutate(dataset = "true"), null_df) %>%
-      mutate(nObsRound = round(nObs/10)*10) %>%
-      group_by(nObsRound) %>%
-      arrange(desc(F_statistic)) %>%
-      mutate(max_rank = n(),
-             rank = dense_rank(desc(F_statistic)),
-             is_decoy = ifelse(dataset != "true", 1, 0)) %>%
-      mutate(true_cumsum = cumsum(!is_decoy),
-             null_cumsum = cumsum(is_decoy)) %>%
-      mutate(pi = ((max_rank/2) - true_cumsum)/
-               ((max_rank/2) - null_cumsum)) %>%
-      mutate(fdr = null_cumsum/(true_cumsum)) %>%
-      # mutate(fdr = 2*null_cumsum/true_cumsum) %>% 
-      ungroup()
-  })) %>%
-    group_by(representative, clustername, dataset) %>%
-    mutate(pi = mean(pi)) %>%
-    mutate(fdr = pi * mean(fdr),
-           rank = mean(rank)) %>%
-    # mutate(fdr = mean(fdr),
-    #        rank = mean(rank)) %>%
-    filter(!duplicated(clustername)) %>%
-    ungroup %>%
-    arrange(rank)
+  B <- max(as.numeric(
+    gsub("bootstrap_", "", unique(df_null$dataset))))
+  
+  nrow_out <- nrow(df_out)
+  
+  out_df <- bind_rows(df_out %>% 
+                        mutate(dataset = "true"), 
+                      df_null) %>%
+    mutate(nObsRound = round(nObs/10)*10) %>%
+    group_by(nObsRound) %>%
+    arrange(desc(F_statistic)) %>%
+    mutate(max_rank = n(),
+           rank = dense_rank(desc(F_statistic)),
+           is_decoy = ifelse(dataset != "true", 1, 0)) %>%
+    mutate(true_cumsum = cumsum(!is_decoy),
+           null_cumsum = cumsum(is_decoy)/(B/10)) %>% 
+    mutate(pi = (nrow_out-true_cumsum)/(nrow_out-null_cumsum)) %>% 
+    mutate(fdr = pi * null_cumsum/true_cumsum) %>% 
+    ungroup()
   
   return(out_df)
 }
@@ -91,6 +82,8 @@ findHits <- function(fdr_df, alpha){
   
   hits_df <- fdr_df %>% 
     group_by(nObsRound) %>% 
+    mutate(min_rank_true = min(rank[dataset == "true"])) %>% 
+    filter(rank >= min_rank_true) %>% 
     mutate(max_rank_fdr = min(rank[fdr > alpha], na.rm = TRUE)) %>% 
     filter(rank < max_rank_fdr) %>% 
     filter(dataset == "true") %>% 
