@@ -78,7 +78,7 @@ computeFdr <- function(df_out, df_null){
 findHits <- function(fdr_df, alpha){
   
   nObsRound <- fdr <- max_rank_fdr <- 
-    dataset <- NULL
+    dataset <- min_rank_true <- NULL
   
   hits_df <- fdr_df %>% 
     group_by(nObsRound) %>% 
