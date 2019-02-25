@@ -112,7 +112,7 @@ fitH1Model <- function(df,
                        gr_fun_2 = NULL,
                        ec50_lower_limit = NULL,
                        ec50_upper_limit = NULL,
-                       slopEC50 = FALSE){
+                       slopEC50 = TRUE){
   
   representative <- clustername <- nObs <- 
     temperature <- . <- NULL
@@ -177,7 +177,7 @@ fitH1Model <- function(df,
 #' @importFrom methods is
 eval_optim_result <- function(optim_result, hypothesis = "H1",
                               data, len_temp = NULL,
-                              slopEC50 = FALSE){
+                              slopEC50 = TRUE){
   # evaluate optimization results for H0 or H1 models 
   
   if(!is(optim_result, "try-error")){
@@ -327,7 +327,7 @@ fitAndEvalDataset <- function(df, maxit = 500,
                               gr_fun_h1_2 = NULL,
                               ec50_lower_limit = NULL,
                               ec50_upper_limit = NULL,
-                              slopEC50 = FALSE){
+                              slopEC50 = TRUE){
   
   h0_df <- fitH0Model(df = df,
                       maxit = maxit,

@@ -1,5 +1,6 @@
 ## Tests for import2dDataset()
 ## library(TPP2D); library(testthat); source("setup-raw-2dtpp-dataset.R"); source("test-import-raw_data.R")
+context("import data")
 
 test_that("import2dDataset works as expected", {
   import_df <- import2dDataset(configTable = config_tab, 
