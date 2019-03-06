@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Abstract
-Thermal proteome profiling (TPP) [@Savitski2014, @Franken2015] is an unbiased mass spectrometry-based method to assess protein-ligand interactions. It works by employing the cellular thermal shift assay (CETSA) [@Molina2013] on a proteome-wide scale which in brief monitors the profiles of proteins in cells over a temperature gradient and tries to detect shifts induced by ligand-protein interactions in a treatment versus a control sample. 2D-TPP represents a refined version of the assay [@Becher2016] which uses a concentration gradient of the ligand of interest over a temperature gradient. This package aims to analyze data retrieved from 2D-TPP experiments by a functional analysis approach.
+Thermal proteome profiling (TPP) [@Savitski2014; @Franken2015] is an unbiased mass spectrometry-based method to assess protein-ligand interactions. It works by employing the cellular thermal shift assay (CETSA) [@Molina2013] on a proteome-wide scale which in brief monitors the profiles of proteins in cells over a temperature gradient and tries to detect shifts induced by ligand-protein interactions in a treatment versus a control sample. 2D-TPP represents a refined version of the assay [@Becher2016] which uses a concentration gradient of the ligand of interest over a temperature gradient. This package aims to analyze data retrieved from 2D-TPP experiments by a functional analysis approach.
 
 # General information
 

@@ -17,3 +17,21 @@ test_that("fitH1Model works as expected", {
   fit_df <- fitH1Model(temp_df)
   expect_identical(round(fit_df$rssH1, 2), 0.06)
 })
+
+test_that("computeFstat works as expected", {
+  temp_df <- simulated_cell_extract_df %>% 
+    filter(clustername == "tp1") %>% 
+    mutate(nObs = n()) 
+  h0_df <- fitH0Model(temp_df)
+  h1_df <- fitH1Model(temp_df)
+  f_df <- computeFstat(h0_df, h1_df)
+  expect_identical(round(f_df$F_statistic, 2), 78.82)
+})
+
+test_that("fitAndEvalDataset works as expected", {
+  temp_df <- simulated_cell_extract_df %>% 
+    filter(clustername == "tp1") %>% 
+    mutate(nObs = n()) 
+  f_df <- fitAndEvalDataset(temp_df)
+  expect_identical(round(f_df$F_statistic, 2), 78.82)
+})
