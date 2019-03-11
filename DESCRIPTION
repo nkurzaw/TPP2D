@@ -11,7 +11,7 @@ Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: true
 biocViews: Proteomics, DataImport, Software
-RoxygenNote: 6.1.0
-Depends: R (>= 3.5.0), stats, utils, dplyr, methods
+RoxygenNote: 6.1.1.9000
+Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, RCurl
 Suggests: knitr, testthat

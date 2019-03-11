@@ -1,10 +1,14 @@
-#' Recompute robust signal intensities based on bootstrapped TMT channel ratios
+#' Recompute robust signal intensities based on 
+#' bootstrapped TMT channel ratios
 #' 
-#' @param df tidy data_frame retrieved after import of a 2D-TPP dataset
+#' @param df tidy data_frame retrieved after 
+#' import of a 2D-TPP dataset
 #' 
-#' @return A data_frame with recomputed signal intensities (columname: value) 
-#' and log2 transformed signal intensities (columnanme: log2_value) that more 
-#' reliably reflect relative ratios between the TMT channels
+#' @return A data_frame with recomputed signal 
+#' intensities (columname: value) and log2 
+#' transformed signal intensities (columnanme: log2_value) 
+#' that more reliably reflect relative ratios 
+#' between the TMT channels
 #' 
 #' @export
 #'
@@ -15,8 +19,9 @@
 #' 
 #' @import dplyr
 recomputeSignalFromRatios <- function(df){
-  clustername <- log2_value <- raw_value <- rel_value <- representative <- sum_raw <- 
-  sum_rel <- temperature <- value <- NULL
+  clustername <- log2_value <- raw_value <- rel_value <- 
+    representative <- sum_raw <- sum_rel <- temperature <- 
+    value <- NULL
   
   df_recomp <- df %>%
     group_by(representative, clustername, temperature) %>%

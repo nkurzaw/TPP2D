@@ -6,9 +6,9 @@ package: TPP2D
 output:
     BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Introduction to TPP2D for 2D-TPP analysis}
-  %\VignetteEngine{knitr::rmarkdown}
-  %VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{Introduction to TPP2D for 2D-TPP analysis}
+    %\VignetteEngine{knitr::rmarkdown}
+    %VignetteEncoding{UTF-8}
 bibliography: bibliography.bib
 csl: cell.csl
 ---
@@ -59,19 +59,20 @@ config_tab
 
 We then call the import function (note: we here supply a list of data frames for the "data" argument, replacing the raw data files that would be normally specified in the above mentioned column of the config table. If this is supplied the argument "data" can simply be ignored):
 ```{r, warning=FALSE}
-import_df <- import2dDataset(configTable = config_tab, 
-                             data = raw_dat_list,
-                             idVar = "protein_id",
-                             intensityStr = "signal_sum_",
-                             fcStr = "rel_fc_",
-                             nonZeroCols = "qusm",
-                             geneNameVar = "gene_name",
-                             addCol = NULL,
-                             qualColName = "qupm",
-                             naStrs = c("NA", "n/d", "NaN"),
-                             concFactor = 1e6,
-                             medianNormalizeFC = TRUE,
-                             filterContaminants = TRUE)
+import_df <- import2dDataset(
+    configTable = config_tab,
+    data = raw_dat_list,
+    idVar = "protein_id",
+    intensityStr = "signal_sum_",
+    fcStr = "rel_fc_",
+    nonZeroCols = "qusm",
+    geneNameVar = "gene_name",
+    addCol = NULL,
+    qualColName = "qupm",
+    naStrs = c("NA", "n/d", "NaN"),
+    concFactor = 1e6,
+    medianNormalizeFC = TRUE,
+    filterContaminants = TRUE)
 
 recomp_sig_df <- recomputeSignalFromRatios(import_df)
 ```
@@ -79,38 +80,41 @@ Please refer to the help page of the function to retrieve in-depth description o
 The imported synthetic dataset consists of 17 simulated protein 2D thermal profiles (protein1-17) and 3 spiked-in true positives (tp1-3). It represents a data frame with the columns:
 ```{r, echo=FALSE}
 knitr::kable(tibble(
-  column = colnames(recomp_sig_df),
-  description = c("protein identifier",
-                  "number of unique quantified peptides",
-                  "number of unique spectra",
-                  "gene name",
-                  "temperature incubated at",
-                  "experiment identifier",
-                  "TMT label",
-                  "RefCol",
-                  "treatment concentration",
-                  "raw reporter ion intensity sum",
-                  "raw relative fold change compared to vehicle condition at the same temperature",
-                  "log10 treatment concentration",
-                  "median normalized fold change",
-                  "recomputed reporter ion intensity",
-                  "recomputed log2 reporter ion intensity"),
-  required = c("Yes",
-               "No",
-               "No",
-               "Yes",
-               "Yes",
-               "No",
-               "No",
-               "No",
-               "No",
-               "No",
-               "No",
-               "Yes",
-               "No",
-               "No",
-               "Yes"))
-  )
+    column = colnames(recomp_sig_df),
+    description = 
+            c("protein identifier",
+            "number of unique quantified peptides",
+            "number of unique spectra",
+            "gene name",
+            "temperature incubated at",
+            "experiment identifier",
+            "TMT label",
+            "RefCol",
+            "treatment concentration",
+            "raw reporter ion intensity sum",
+            paste("raw relative fold change compared to",
+                    "vehicle condition at the same temperature"),
+            "log10 treatment concentration",
+            "median normalized fold change",
+            "recomputed reporter ion intensity",
+            "recomputed log2 reporter ion intensity"),
+    required = 
+            c("Yes",
+            "No",
+            "No",
+            "Yes",
+            "Yes",
+            "No",
+            "No",
+            "No",
+            "No",
+            "No",
+            "No",
+            "Yes",
+            "No",
+            "No",
+            "Yes"))
+)
 ```
 
 Here the column "required" indicated which of these columns is neccessary for usage of the downstream functions.    
@@ -119,10 +123,10 @@ Here the column "required" indicated which of these columns is neccessary for us
 We then begin our actual data analysis by fitting two competing models to each protein profile. 
 ```{r}
 competed_models <- competeModels(
-  df = recomp_sig_df,
-  optim_fun_h0 = TPP2D:::min_RSS_h0,
-  optim_fun_h1 = TPP2D:::min_RSS_h1_slope_pEC50,
-  optim_fun_h1_2 = NULL)
+    df = recomp_sig_df,
+    optim_fun_h0 = TPP2D:::min_RSS_h0,
+    optim_fun_h1 = TPP2D:::min_RSS_h1_slope_pEC50,
+    optim_fun_h1_2 = NULL)
 ```
 
 Then we create a null model using our dataset to be able to estimate the FDR for a given F statistic in the next step.
@@ -130,11 +134,11 @@ Then we create a null model using our dataset to be able to estimate the FDR for
 ```{r}
 set.seed(12, kind = "L'Ecuyer-CMRG")
 null_model <- bootstrapNull(
-  df = recomp_sig_df,
-  optim_fun_h0 = TPP2D:::min_RSS_h0,
-  optim_fun_h1 = TPP2D:::min_RSS_h1_slope_pEC50,
-  optim_fun_h1_2 = NULL,
-  ncores = 1, B = 2)
+    df = recomp_sig_df,
+    optim_fun_h0 = TPP2D:::min_RSS_h0,
+    optim_fun_h1 = TPP2D:::min_RSS_h1_slope_pEC50,
+    optim_fun_h1_2 = NULL,
+    ncores = 1, B = 2)
 ```
 
 Please note that setting B = 2 is not enough to guarantee faithful FDR estimation, this has simply been set for fast demonstration purposes. We recommend to use at least B = 20 for applications in praxis.    
@@ -143,14 +147,15 @@ To estimate the FDR for all given F statistics and retrieve all significant hits
 
 ```{r, warning=FALSE}
 fdr_tab <- computeFdr( 
-  df_out = competed_models,
-  df_null = null_model)
+    df_out = competed_models,
+    df_null = null_model)
 
 hits <- findHits(
-  fdr_df = fdr_tab,
-  alpha = 0.1)
+    fdr_df = fdr_tab,
+    alpha = 0.1)
 
-hits %>% dplyr::select(clustername, nObs, F_statistic, fdr)
+hits %>% 
+    dplyr::select(clustername, nObs, F_statistic, fdr)
 ```
 
 Finally we can fit and plot proteins that have come up as significant in our analysis by using:
@@ -159,7 +164,8 @@ plot2dTppFit(recomp_sig_df, "tp1")
 ```
 or respectively for the H1 model:
 ```{r}
-plot2dTppFit(recomp_sig_df, "tp1", model_type = "H1", optim_fun = TPP2D:::min_RSS_h1)
+plot2dTppFit(recomp_sig_df, "tp1", model_type = "H1", 
+                optim_fun = TPP2D:::min_RSS_h1)
 ```
 
 ```{r}

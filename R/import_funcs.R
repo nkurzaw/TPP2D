@@ -1,46 +1,48 @@
 TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
-  # internal function copied from TPP package to avoid 
-  # import of non-exported package functions
-  . <- NULL
-  isDF <- !is.null(dataframes)
-  isF <- !is.null(files)
-  isBoth <- isDF & isF
-  isNone <- !(isDF | isF)
-  if (isBoth) {
-    stop("Data import function received a filename AND a dataframe object. \n
-         Please specify only one.")
-  }
-  else if (isNone) {
-    stop("Data import function requires a filename or a dataframe object. \n
-         Please specify one.")
-  }
-  if (isDF) {
-    isClassList <- is.list(dataframes) && !is.data.frame(dataframes)
-    isClassDF <- is.data.frame(dataframes)
-    if (isClassList) {
-      classesInList <- dataframes %>% 
-        vapply(. %>% inherits(., "data.frame"), TRUE)
-      if (!all(classesInList)) {
-        stop(paste("Argument 'dataframes' contains elements that are", 
-                   "not of type 'data.frame' at the following positions: "), 
-             which(!classesInList) %>% paste(collapse = ", "), 
-             ".")
-      }
+    # internal function copied from TPP package to avoid 
+    # import of non-exported package functions
+    . <- NULL
+    isDF <- !is.null(dataframes)
+    isF <- !is.null(files)
+    isBoth <- isDF & isF
+    isNone <- !(isDF | isF)
+    if (isBoth) {
+        stop("Data import function received a",
+             " filename AND a dataframe object. \n",
+             "Please specify only one.")
     }
-    else if (isClassDF) {
-      dataframes <- list(dataframes)
-      names(dataframes) <- expNames
+    else if (isNone) {
+        stop("Data import function requires a", 
+             " filename or a dataframe object. \n",
+             "Please specify one.")
     }
-    else {
-      stop("Argument 'dataframes' must be either an object of class \n
-           'data.frame', or a list of such objects.")
+    if (isDF) {
+        isClassList <- is.list(dataframes) && !is.data.frame(dataframes)
+        isClassDF <- is.data.frame(dataframes)
+        if (isClassList) {
+            classesInList <- dataframes %>% 
+            vapply(. %>% inherits(., "data.frame"), TRUE)
+            if (!all(classesInList)) {
+                stop(paste("Argument 'dataframes' contains", 
+                           "elements that are not of type", 
+                           "'data.frame' at the following positions: "), 
+                     which(!classesInList) %>% paste(collapse = ", "), ".")
+            }
+          }
+          else if (isClassDF) {
+              dataframes <- list(dataframes)
+              names(dataframes) <- expNames
+          }
+          else {
+              stop("Argument 'dataframes' must be either an object of class \n
+                   'data.frame', or a list of such objects.")
+          }
     }
-  }
-  if (isF) {
-    files <- as.character(files)
-    names(files) <- expNames
-  }
-  return(list(files = files, dataframes = dataframes))
+    if (isF) {
+        files <- as.character(files)
+        names(files) <- expNames
+    }
+    return(list(files = files, dataframes = dataframes))
 }
 
 #' @importFrom utils read.delim
@@ -95,7 +97,8 @@ TPP_importFct_removeDuplicates <- function(inDF, refColName,
     }
     retDF = rbind(retDF, tmpDF[useRow, ])
   }
-  message(nrow(retDF), " out of ", nrow(inDF), " rows kept for further analysis.")
+  message(nrow(retDF), " out of ", nrow(inDF), 
+          " rows kept for further analysis.")
   return(retDF)
 }
 
@@ -128,14 +131,16 @@ TPP_importFct_checkExperimentCol <- function(expCol){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   if (is.null(expCol)) {
-    m <- "Config table needs an 'Experiment' column with unique experiment IDs."
+    m <- paste("Config table needs an 'Experiment'", 
+               "column with unique experiment IDs.")
     stop(m, "\n")
   }
   oldExpNames <- expCol
   newExpNames <- gsub("([^[:alnum:]])", "_", expCol)
   iChanged <- oldExpNames != newExpNames
   if (any(iChanged)) {
-    m1 <- "Replaced non-alphanumeric characters in the 'Experiment' column entries:"
+    m1 <- paste("Replaced non-alphanumeric characters", 
+                "in the 'Experiment' column entries:")
     m2 <- paste("'", paste(oldExpNames[iChanged], collapse = "', '"), 
                 "'\nby\n'", paste(newExpNames[iChanged], collapse = "', '"), 
                 sep = "")
@@ -197,32 +202,42 @@ TPP_importFct_checkConditions <- function(condInfo,
   # import of non-exported package functions
   flagGenerateConds <- FALSE
   if (is.null(condInfo)) {
-    message("No information about experimental conditions given. Assigning NA instead.\n
-            Reminder: recognition of Vehicle and Treatment groups during pairwise \n
-            comparisons is only possible when they are specified in the config table.\n")
+    message("No information about experimental conditions given.", 
+            "Assigning NA instead.\n",
+            "Reminder: recognition of Vehicle and Treatment groups", 
+            "during pairwise \n",
+            "comparisons is only possible when they are specified ",
+            "in the config table.\n")
     condInfo <- rep(NA_character_, expectedLength)
   }
   else {
-    condInfo <- as.character(condInfo) %>% stringr::str_to_title()
+    condInfo <- as.character(condInfo) %>% 
+      stringr::str_to_title()
     condLevels <- unique(condInfo)
-    invalidLevels = setdiff(condLevels, c("Treatment", "Vehicle"))
+    invalidLevels = 
+      setdiff(condLevels, c("Treatment", "Vehicle"))
     if (length(invalidLevels) > 0) {
       stop("The entry '", invalidLevels, 
-           paste("' in the condition column is invalid. Only the values 'Treatment' and", 
-                 "'Vehicle' are allowed. Please correct this and start again."))
+           paste("' in the condition column is invalid.", 
+                 "Only the values 'Treatment' and", 
+                 "'Vehicle' are allowed. Please correct", 
+                 "this and start again."))
     }
   }
   return(condInfo)
 }
 
-TPP_checkFunctionArgs <- function(functionCall, expectedArguments){
+TPP_checkFunctionArgs <- 
+  function(functionCall, expectedArguments){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   myArgs <- names(functionCall)
   lapply(expectedArguments, function(arg) {
     if (!arg %in% myArgs) {
-      stop("Error in ", paste(functionCall)[1], ": argument '", 
-           arg, "' is missing, with no default", call. = FALSE)
+      stop("Error in ", paste(functionCall)[1], 
+           ": argument '", 
+           arg, "' is missing, with no default", 
+           call. = FALSE)
     }
   })
 }
@@ -244,11 +259,13 @@ TPP_nonLabelColumns <- function(){
   return(out)
 }
 
-TPP_detectLabelColumnsInConfigTable <- function(allColumns){
+TPP_detectLabelColumnsInConfigTable <- 
+  function(allColumns){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   TPP_checkFunctionArgs(match.call(), c("allColumns"))
-  noLabelCols <- TPP_nonLabelColumns()$column %>% as.character %>% 
+  noLabelCols <- TPP_nonLabelColumns()$column %>% 
+    as.character %>% 
     unique
   compCols <- grep("comparison", allColumns, value = TRUE, 
                    ignore.case = TRUE)
@@ -265,7 +282,8 @@ TPP_importCheckTemperatures <- function(temp){
   naRows <- apply(is.na(tempMatrix), 1, all)
   if (any(naRows)) {
     stop("Row(s) ", paste(which(naRows), collapse = ", "), 
-         " in the configuration table contain only missing temperature values.")
+         " in the configuration table contain", 
+         " only missing temperature values.")
   }
   return(tempMatrix)
 }
@@ -280,24 +298,28 @@ TPP_importFct_readConfigTable <- function(cfg){
       strChunks <- strsplit(cfg, "\\.")[[1]]
       fileExtension <- strChunks[length(strChunks)]
       if (fileExtension == "txt") {
-        tab <- read.table(file = cfg, header = TRUE, 
-                          check.names = FALSE, stringsAsFactors = FALSE, 
-                          sep = "\t")
+        tab <- read.table(
+          file = cfg, header = TRUE, 
+          check.names = FALSE, stringsAsFactors = FALSE, 
+          sep = "\t")
       }
       else if (fileExtension == "csv") {
-        tab <- read.table(file = cfg, header = TRUE, 
-                          check.names = FALSE, stringsAsFactors = FALSE, 
-                          sep = ",")
+        tab <- read.table(
+          file = cfg, header = TRUE, 
+          check.names = FALSE, stringsAsFactors = FALSE, 
+          sep = ",")
       }
       else if (fileExtension == "xlsx") {
         tab <- openxlsx::read.xlsx(cfg)
       }
       else {
-        stop("Error during data import: ", cfg, " does not belong to a valid configuration file.")
+        stop("Error during data import: ", cfg, 
+             " does not belong to a valid configuration file.")
       }
     }
     else {
-      stop("Error during data import: ", cfg, " does not belong to a valid configuration file.")
+      stop("Error during data import: ", cfg, 
+           " does not belong to a valid configuration file.")
     }
     cfg <- tab
   }
@@ -311,21 +333,25 @@ TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
   Experiment = Path = Compound <- NULL
   isValidDF <- FALSE
   if (is.data.frame(infoTable)) {
-    if ((ncol(infoTable) > 1) & ("Experiment" %in% colnames(infoTable))) {
+    if ((ncol(infoTable) > 1) & 
+        ("Experiment" %in% colnames(infoTable))) {
       isValidDF <- TRUE
     }
   }
   if (!is.character(infoTable) & !isValidDF) {
-    stop("'infoTable' must either be a data frame with an 'Experiment' column \n
-         and at least one isobaric label column, or a filename pointing at a \n
-         table that fulfills the same criteria")
+    stop("'infoTable' must either be a data frame", 
+         " with an 'Experiment' column \n",
+         "and at least one isobaric label column,", 
+         "or a filename pointing at a \n",
+         "table that fulfills the same criteria")
   }
   isValidType <- type %in% c("2D")
   if (!isValidType) {
     stop("'type' must have this value: '2D'")
   }
   infoTable <- TPP_importFct_readConfigTable(cfg = infoTable)
-  infoTable$Experiment <- TPP_importFct_checkExperimentCol(infoTable$Experiment)
+  infoTable$Experiment <- 
+    TPP_importFct_checkExperimentCol(infoTable$Experiment)
   infoTable <- subset(infoTable, Experiment != "")
   givenPaths <- NULL
   if (any("Path" %in% colnames(infoTable))) {
@@ -360,31 +386,38 @@ TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
   if (type == "2D") {
     temperatures <- infoTable$Temperature
     if (is.null(temperatures) | length(temperatures) < 2) {
-      m1 <- "Insufficient temperatures (<2) specified in config file."
-      m2 <- "Does your configuration table have the correct column names?"
+      m1 <- paste("Insufficient temperatures (<2)", 
+                  "specified in config file.")
+      m2 <- paste("Does your configuration table", 
+                  "have the correct column names?")
       stop(m1, "\n", m2)
     }
     else if (length(which(!infoTable$RefCol %in% labelColsNew)) != 
              0) {
-      stop("Labels in reference column not found in any of teh label columns.")
+      stop("Labels in reference column not found", 
+           "in any of teh label columns.")
     }
     hasCompoundCol <- any(allCols == "Compound")
     if (!hasCompoundCol) {
-      m <- "Config table of a 2D-TPP experiment needs a 'Compound' column."
+      m <- paste("Config table of a 2D-TPP experiment", 
+                 "needs a 'Compound' column.")
       stop(m, "\n")
     }
     else {
-      infoTable <- infoTable %>% mutate(Compound = gsub("([^[:alnum:]])", 
-                                                        "_", Compound))
+      infoTable <- infoTable %>% 
+        mutate(Compound = 
+                 gsub("([^[:alnum:]])", "_", Compound))
     }
     out <- infoTable
   }
   else {
     temperatures <- subset(infoTable, select = labelColsNew)
     tempMatrix <- TPP_importCheckTemperatures(temp = temperatures)
-    infoList <- list(expNames = as.character(infoTable$Experiment), 
-                     expCond = infoTable$Condition, files = givenPaths, 
-                     compStrs = compStrs, labels = labelColsNew, tempMatrix = tempMatrix)
+    infoList <- list(
+      expNames = as.character(infoTable$Experiment), 
+      expCond = infoTable$Condition, files = givenPaths, 
+      compStrs = compStrs, labels = labelColsNew, 
+      tempMatrix = tempMatrix)
     out <- infoList
   }
   return(out)
@@ -504,9 +537,11 @@ annotateDataList <- function(dataList, geneNameVar, configLong,
     datLong <- dat %>% tbl_df() %>%
       gather(channel, signal, matches(intensityStr), matches(fcStr)) %>%
       mutate(label = gsub(fcStr, "", gsub(intensityStr, "", channel))) %>%
-      left_join(configLong %>% dplyr::select(Temperature, RefCol, label, conc),
+      left_join(configLong %>% 
+                  dplyr::select(Temperature, RefCol, label, conc),
                 by = c("temperature" = "Temperature", "label")) %>%
-      mutate(spread_var = ifelse(grepl(fcStr, channel), "rel_value", "raw_value")) %>%
+      mutate(spread_var = 
+               ifelse(grepl(fcStr, channel), "rel_value", "raw_value")) %>%
       dplyr::select(-channel, -unique_ID) %>%
       spread(spread_var, signal)
   }))
@@ -520,11 +555,13 @@ filterOutContaminants <- function(dataLong){
 }
 
 checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
-  # internal function to check that protein fold changes are computed
+  # internal function to check that protein 
+  # fold changes are computed
   # relative to the correct TMT channel
   label <- RefCol <- rel_value <- raw_value <- conc <- NULL
   
-  if(!all(filter(dataLong, label == RefCol)$rel_value == 1, na.rm = TRUE)){
+  if(!all(filter(dataLong, label == RefCol)$rel_value == 1, 
+          na.rm = TRUE)){
     message("Recomputing ratios!")
     dataOut <- dataLong %>%
       dplyr::group_by_(idVar, "temperature") %>%
@@ -547,7 +584,8 @@ checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
 
 #' @importFrom stats median
 medianNormalizeRatios <- function(dataLong){
-  # internal function to perform median normalization of ratios
+  # internal function to perform median normalization 
+  # of ratios
   rel_value <- temperature <- conc <- 
     raw_rel_value <- NULL
   
@@ -562,7 +600,8 @@ medianNormalizeRatios <- function(dataLong){
 }
 
 renameColumns <- function(dataLong, idVar, geneNameVar){
-  # internal function to rename column names to match lazyeval variable
+  # internal function to rename column names to 
+  # match lazyeval variable
   # names of main function
   clustername <- representative <- NULL
   
@@ -570,7 +609,8 @@ renameColumns <- function(dataLong, idVar, geneNameVar){
                  "clustername" = geneNameVar) %>%
     group_by(clustername) %>%
     mutate(representative =
-             paste_rmNA(unique(unlist(strsplit(representative, split = "\\|"))), 
+             paste_rmNA(unique(unlist(strsplit(representative, 
+                                               split = "\\|"))), 
                         sep = "|")) %>%
     ungroup()
 }
@@ -610,7 +650,8 @@ renameColumns <- function(dataLong, idVar, geneNameVar){
 #' @examples 
 #' data("config_tab")
 #' data("raw_dat_list")
-#' import_df <- import2dDataset(configTable = config_tab, data = raw_dat_list,
+#' import_df <- import2dDataset(configTable = config_tab, 
+#'                              data = raw_dat_list,
 #'                              idVar = "protein_id",
 #'                              intensityStr = "signal_sum_",
 #'                              fcStr = "rel_fc_",
@@ -637,7 +678,8 @@ import2dDataset <- function(configTable, data,
                             medianNormalizeFC = TRUE,
                             filterContaminants = TRUE){
   
-  configWide <- TPP_importCheckConfigTable(infoTable = configTable, type = "2D")
+  configWide <- TPP_importCheckConfigTable(
+    infoTable = configTable, type = "2D")
   configLong <- configWide2Long(configWide = configWide)
   
   dataList <- import2dMain(configTable = configWide,
