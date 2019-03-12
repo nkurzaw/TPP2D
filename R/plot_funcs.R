@@ -147,6 +147,15 @@ plot2dTppFit <- function(df, name,
   clustername <- temperature <- temp_i <- 
     log_conc <- y_hat <- log2_value <- NULL
   
+  checkDfColumns(df)
+  
+  if(model_type == "H1"){
+    optim_fun <- min_RSS_h1_slope_pEC50
+    slopEC50 <-  TRUE
+  }else{
+    slopEC50 <-  FALSE
+  }
+  
   df_fil <- filter(df, clustername == name) %>% 
     mutate(temp_i = dense_rank(temperature))
   unique_temp <- unique(df_fil$temperature)
@@ -163,79 +172,97 @@ plot2dTppFit <- function(df, name,
                            control = list(maxit = maxit)))
         
       fit_df <-
-        tibble(log_conc = 
-                 rep(seq(-9, -3, by = 0.1), 
-                     length(unique(df_fil$temperature))),
-               temperature = 
-                 rep(unique(df_fil$temperature), 
-                     each = length(seq(-9, -3, by = 0.1))),
-               temp_i = 
-                 rep(seq_len(length(unique(df_fil$temperature))), 
-                     each = length(seq(-9, -3, by = 0.1))),
-               len_temp = length(unique(df_fil$temperature))) %>%
-        mutate(y_hat = h0_model$par[temp_i])
-      
-      ggplot(fit_df, aes(log_conc, y_hat)) +
-        geom_line() +
-        geom_point(aes(log_conc, log2_value), data = df_fil) +
-        facet_wrap(~temperature) +
-        ggtitle(name) +
-        labs(x = xlab, y = ylab)
+        getFitDf(df_fil, model_type = model_type,
+                 optim_model = h0_model,
+                 slopEC50 = slopEC50)
   }else if(model_type == "H1"){
-    start_par = getStartParameters(
-      df = df_fil, 
-      unique_temp = unique_temp, 
-      len_temp = len_temp)
-    lower = c(min(unique(df_fil$log_conc)[
-      which(is.finite(unique(df_fil$log_conc)))]),
-              rep(-Inf, 2 + len_temp), 
-              rep(0, len_temp)) 
-    upper = c(max(unique(df_fil$log_conc)[
-      which(is.finite(unique(df_fil$log_conc)))]),
-              rep(Inf, 2 + len_temp), 
-              rep(1, len_temp)) 
-    h1_model = try(optim(par = start_par,
-                         fn = optim_fun,
-                         len_temp = len_temp,
-                         data = df_fil,
-                         method = "L-BFGS-B",
-                         upper = upper,
-                         lower = lower,
-                         control = list(maxit = maxit)))
-    if(!is.null(optim_fun_2) & 
-       !is(h1_model, "try-error")){
-      h1_model = try(optim(par = h1_model$par,
-                           fn = optim_fun_2,
-                           len_temp = len_temp,
-                           data = df_fil,
-                           method = "L-BFGS-B",
-                           upper = upper,
-                           lower = lower,
-                           control = list(maxit = maxit)))
-    }
-      
-      fit_df <-
-        tibble(log_conc = 
-                 rep(seq(-9, -3, by = 0.1), 
-                     length(unique(df_fil$temperature))),
-               temperature = 
-                 rep(unique(df_fil$temperature), 
-                     each = length(seq(-9, -3, by = 0.1))),
-               temp_i = 
-                 rep(seq_len(length(unique(df_fil$temperature))), 
-                     each = length(seq(-9, -3, by = 0.1))),
-               len_temp = length(unique(df_fil$temperature))) %>%
-        mutate(y_hat = h1_model$par[3 + temp_i] + 
-                 (h1_model$par[3 + len_temp + temp_i] * h1_model$par[3])/
-                 (1 + exp(-h1_model$par[2] * (log_conc - h1_model$par[1]))))
-      
-      ggplot(fit_df, aes(log_conc, y_hat)) +
-        geom_line() +
-        geom_point(aes(log_conc, log2_value), data = df_fil) +
-        facet_wrap(~temperature) +
-        ggtitle(name) +
-        labs(x = xlab, y = ylab)
+    h1_model <- fitEvalH1(df_fil = df_fil,
+                          unique_temp = unique_temp, 
+                          len_temp = len_temp,
+                          optim_fun = optim_fun, 
+                          optim_fun_2 = optim_fun_2,
+                          slopEC50 = slopEC50, 
+                          maxit = maxit)
+    fit_df <-
+      getFitDf(df_fil, model_type = model_type,
+               optim_model = h1_model,
+               slopEC50 = slopEC50)
   }else{
     stop("Please specify a valid model_type! Either H0 or H1!")
   }
+  ggplot(fit_df, aes(log_conc, y_hat)) +
+    geom_line() +
+    geom_point(aes(log_conc, log2_value), data = df_fil) +
+    facet_wrap(~temperature) +
+    ggtitle(name) +
+    labs(x = xlab, y = ylab)
+}
+
+
+getFitDf <- function(df_fil, conc_vec = seq(-9, -3, by = 0.1),
+                     model_type = "H0", optim_model, 
+                     slopEC50 = TRUE){
+  # internal function to retrieve data frame with data
+  # and predicted model values
+  temp_i <- len_temp <- log_conc <- temperature <- NULL
+  unique_temp <- unique(df_fil$temperature)
+  unique_temp_len <- length(unique_temp)
+  conc_len = length(conc_vec)
+  
+  if(model_type == "H0"){
+    fit_df <-
+      tibble(
+        log_conc = rep(conc_vec, unique_temp_len),
+        temperature = rep(unique_temp,
+                          each = conc_len),
+        temp_i = rep(seq_len(unique_temp_len), 
+                     each = conc_len),
+        len_temp = unique_temp_len) %>%
+      mutate(y_hat = optim_model$par[temp_i])
+    
+  }else if(model_type == "H1"){
+    if(slopEC50){
+      fit_df <-
+        tibble(
+          log_conc = rep(conc_vec, unique_temp_len),
+          temperature = rep(unique_temp, each = conc_len),
+          temp_i = rep(seq_len(unique_temp_len), 
+                       each = conc_len),
+          len_temp = unique_temp_len) %>%
+        mutate(y_hat = evalH1SlopeEC50Model(
+          optim_model = optim_model,
+          temp_i = temp_i, len_temp = len_temp,
+          log_conc = log_conc, temperature = temperature))
+    }else{
+      fit_df <-
+        tibble(
+          log_conc = rep(conc_vec, unique_temp_len),
+          temperature = rep(unique_temp, each = conc_len),
+          temp_i = rep(seq_len(unique_temp_len), 
+                     each = conc_len),
+          len_temp = unique_temp_len) %>%
+        mutate(y_hat = evalH1Model(
+          optim_model = optim_model,
+          temp_i = temp_i, len_temp = len_temp,
+          log_conc = log_conc))
+    }
+  }else{
+    stop("'model type' has to be either 'H0' or 'H1'!")
+  }
+  return(fit_df)
+}
+
+evalH1Model <- function(optim_model, temp_i, log_conc, len_temp){
+  optim_model$par[3 + temp_i] + 
+    (optim_model$par[3 + len_temp + temp_i] * optim_model$par[3])/
+    (1 + exp(-optim_model$par[2] * (log_conc - optim_model$par[1])))
+}
+
+evalH1SlopeEC50Model <- function(optim_model, temp_i, len_temp,
+                                 log_conc, temperature){
+  optim_model$par[4 + temp_i] + 
+    (optim_model$par[4 + len_temp + temp_i] * optim_model$par[4])/
+    (1 + exp(-optim_model$par[3] * 
+               (log_conc - (optim_model$par[1] + 
+                  optim_model$par[2] * temperature))))
 }

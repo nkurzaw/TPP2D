@@ -61,7 +61,8 @@ Import 2D-TPP dataset using a config table
 \examples{
 data("config_tab")
 data("raw_dat_list")
-import_df <- import2dDataset(configTable = config_tab, data = raw_dat_list,
+import_df <- import2dDataset(configTable = config_tab, 
+                             data = raw_dat_list,
                              idVar = "protein_id",
                              intensityStr = "signal_sum_",
                              fcStr = "rel_fc_",

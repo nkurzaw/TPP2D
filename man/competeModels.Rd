@@ -5,7 +5,7 @@
 \title{Compete H0 and H1 models per protein and obtain F statistic}
 \usage{
 competeModels(df, fcThres = 1.5, independentFiltering = FALSE,
-  minObs = 20, optim_fun_h0 = min_RSS_h0_trim,
+  minObs = 20, optim_fun_h0 = min_RSS_h0,
   optim_fun_h1 = min_RSS_h1_slope_pEC50, optim_fun_h1_2 = NULL,
   gr_fun_h0 = NULL, gr_fun_h1 = NULL, gr_fun_h1_2 = NULL,
   maxit = 750)

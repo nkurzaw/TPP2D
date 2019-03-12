@@ -60,6 +60,58 @@ fitH0Model <- function(df,
   return(h0_df)
 }
 
+fitEvalH1 <- function(df_fil, unique_temp, len_temp,
+                      optim_fun = min_RSS_h1_slopeEC50, 
+                      optim_fun_2 = NULL,
+                      gr_fun = NULL,
+                      gr_fun_2 = NULL,
+                      ec50_lower_limit = NULL,
+                      ec50_upper_limit= NULL,
+                      slopEC50 = TRUE, maxit = 500){
+  min_RSS_h1_slopeEC50 <- NULL
+  if(is.null(ec50_lower_limit)){
+    ec50_lower_limit <- min(unique(df_fil$log_conc)[
+      which(is.finite(unique(df_fil$log_conc)))])
+  }
+  if(is.null(ec50_upper_limit)){
+    ec50_upper_limit <- max(unique(df_fil$log_conc)[
+      which(is.finite(unique(df_fil$log_conc)))])
+  }
+  start_par = getStartParameters(
+    df = df_fil, 
+    unique_temp = unique_temp, 
+    len_temp = len_temp, 
+    slopEC50 = slopEC50)
+  opt_limits <- getOptLimits(
+    ec50Limits = c(ec50_lower_limit, ec50_upper_limit),
+    len_temp = len_temp, 
+    slopEC50 = slopEC50)
+  lower = opt_limits$lower 
+  upper = opt_limits$upper
+  h1_model = try(optim(par = start_par,
+                       fn = optim_fun,
+                       gr = gr_fun,
+                       len_temp = len_temp,
+                       data = df_fil,
+                       method = "L-BFGS-B",
+                       upper = upper,
+                       lower = lower,
+                       control = list(maxit = maxit)))
+  if(!is.null(optim_fun_2) & 
+     !is(h1_model, "try-error")){
+    h1_model = try(optim(par = h1_model$par,
+                         fn = optim_fun_2,
+                         gr = gr_fun_2,
+                         len_temp = len_temp,
+                         data = df_fil,
+                         method = "L-BFGS-B",
+                         upper = upper,
+                         lower = lower,
+                         control = list(maxit = maxit)))
+  }
+  return(h1_model)
+}
+
 #' Fit H1 model and evaluate fit statistics
 #' 
 #' @param df tidy data_frame retrieved after import of a 2D-TPP 
@@ -132,41 +184,18 @@ fitH1Model <- function(df,
     do({
       unique_temp <- unique(.$temperature)
       len_temp <- length(unique_temp)
-      start_par = getStartParameters(
-        df = ., unique_temp = unique_temp, 
-        len_temp = len_temp, 
-        slopEC50 = slopEC50)
-      opt_limits <- getOptLimits(
-        ec50Limits = c(ec50_lower_limit,
-                       ec50_upper_limit),
-        len_temp = len_temp, 
-        slopEC50 = slopEC50)
-      lower = opt_limits$lower 
-      upper = opt_limits$upper
-      h1_model = try(optim(par = start_par,
-                       fn = optim_fun,
-                       len_temp = len_temp,
-                       data = .,
-                       method = "L-BFGS-B",
-                       upper = upper,
-                       lower = lower,
-                       gr = gr_fun,
-                       control = list(maxit = maxit)))
-      if(!is.null(optim_fun_2) & 
-         !is(h1_model, "try-error")){
-        h1_model = try(optim(par = h1_model$par,
-                         fn = optim_fun_2,
-                         len_temp = len_temp,
-                         data = .,
-                         method = "L-BFGS-B",
-                         upper = upper,
-                         lower = lower,
-                         gr = gr_fun_2,
-                         control = list(maxit = maxit)))
-      }
-        eval_optim_result(h1_model, hypothesis = "H1",
-                          data = ., len_temp = len_temp,
-                          slopEC50 = slopEC50)
+      h1_model <- fitEvalH1(df_fil = .,
+                            unique_temp = unique_temp, 
+                            len_temp = len_temp,
+                            optim_fun = optim_fun, 
+                            optim_fun_2 = optim_fun_2,
+                            gr_fun = gr_fun,
+                            gr_fun_2 = gr_fun_2,
+                            slopEC50 = slopEC50, 
+                            maxit = maxit)
+      eval_optim_result(h1_model, hypothesis = "H1",
+                        data = ., len_temp = len_temp,
+                        slopEC50 = slopEC50)
     }) %>%
     group_by(representative, clustername) %>%
     ungroup()
@@ -179,10 +208,8 @@ eval_optim_result <- function(optim_result, hypothesis = "H1",
                               data, len_temp = NULL,
                               slopEC50 = TRUE){
   # evaluate optimization results for H0 or H1 models 
-  
   if(!is(optim_result, "try-error")){
     if(hypothesis == "H1"){
-      
       pEC50 = -optim_result$par[1]
       if(!slopEC50){
         slope = optim_result$par[2]
@@ -192,45 +219,37 @@ eval_optim_result <- function(optim_result, hypothesis = "H1",
       }
       rss = optim_result$value
       nCoeffs = length(optim_result$par)
-      fitStats <- data.frame(rss = rss,
-                             nCoeffs = nCoeffs,
-                             pEC50 = pEC50,
-                             slope = slope)
+      fitStats <- 
+        data.frame(rss = rss, nCoeffs = nCoeffs,
+                   pEC50 = pEC50, slope = slope)
       if(slopEC50){
         fitStats$pEC50_slope <- pEC50_slope
       }
-      
       if(!is.null(len_temp)){
         if(!slopEC50){
           alpha <- optim_result$par[(4 + len_temp):(3 + len_temp*2)]
         }else{
           alpha <- optim_result$par[(5 + len_temp):(4 + len_temp*2)]
         }
-        
         if(alpha[1] > (max(alpha[-1])/3)){
-          fitStats$detected_effect <- 
-            "expression/solubility"
+          fitStats$detected_effect <- "expression/solubility"
         }else{
-          fitStats$detected_effect <- 
-            "stability"
+          fitStats$detected_effect <- "stability"
         }
       }
       names(fitStats) <- paste0(names(fitStats), hypothesis)
       return(fitStats)
-      
     }else{
       rss = optim_result$value
       nCoeffs = length(optim_result$par)
-      fitStats <- data.frame(rss = rss,
-                             nCoeffs = nCoeffs)
+      fitStats <- data.frame(rss = rss,  nCoeffs = nCoeffs)
       names(fitStats) <- paste0(names(fitStats), hypothesis)
       return(fitStats)
     }
   }else{
-    fitStats <- data.frame(rss = NA,
-                           nCoeffs = NA,
-                           pEC50 = NA,
-                           slope = NA)
+    fitStats <- 
+      data.frame(rss = NA,nCoeffs = NA,
+                 pEC50 = NA, slope = NA)
     names(fitStats) <- paste0(names(fitStats), hypothesis)
     return(fitStats)
   }
@@ -437,7 +456,7 @@ getEC50Limits <- function(df){
 competeModels <- function(df, fcThres = 1.5,
                           independentFiltering = FALSE,
                           minObs = 20,
-                          optim_fun_h0 = min_RSS_h0_trim,
+                          optim_fun_h0 = min_RSS_h0,
                           optim_fun_h1 = min_RSS_h1_slope_pEC50,
                           optim_fun_h1_2 = NULL,
                           gr_fun_h0 = NULL,

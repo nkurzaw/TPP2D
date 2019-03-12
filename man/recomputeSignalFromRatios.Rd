@@ -2,20 +2,25 @@
 % Please edit documentation in R/prepare_data.R
 \name{recomputeSignalFromRatios}
 \alias{recomputeSignalFromRatios}
-\title{Recompute robust signal intensities based on bootstrapped TMT channel ratios}
+\title{Recompute robust signal intensities based on 
+bootstrapped TMT channel ratios}
 \usage{
 recomputeSignalFromRatios(df)
 }
 \arguments{
-\item{df}{tidy data_frame retrieved after import of a 2D-TPP dataset}
+\item{df}{tidy data_frame retrieved after 
+import of a 2D-TPP dataset}
 }
 \value{
-A data_frame with recomputed signal intensities (columname: value) 
-and log2 transformed signal intensities (columnanme: log2_value) that more 
-reliably reflect relative ratios between the TMT channels
+A data_frame with recomputed signal 
+intensities (columname: value) and log2 
+transformed signal intensities (columnanme: log2_value) 
+that more reliably reflect relative ratios 
+between the TMT channels
 }
 \description{
-Recompute robust signal intensities based on bootstrapped TMT channel ratios
+Recompute robust signal intensities based on 
+bootstrapped TMT channel ratios
 }
 \examples{
 
