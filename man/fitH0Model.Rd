@@ -31,7 +31,7 @@ Fit H0 model and evaluate fit statistics
 
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
-  filter(clustername \%in\% paste0("protein", 1:10)) \%>\% 
+  filter(clustername \%in\% paste0("protein", 1:5)) \%>\% 
   group_by(representative) \%>\% 
   mutate(nObs = n()) \%>\% 
   ungroup 

@@ -1,7 +1,7 @@
 ---
 title: "Introduction to TPP2D for 2D-TPP analysis"
 author: "Nils Kurzawa"
-date: "2/25/2019"
+date: "13/3/2019"
 package: TPP2D
 output:
     BiocStyle::html_document
@@ -40,14 +40,20 @@ devtools::install_github("nkurzaw/TPP2D")
 
 # Introduction
 
-The 2D-TPP assay is usually set up in a way that for each temperature 5 different ligand concentrations (including a vehicle condition) are used and two adjacent temperatures each are multiplexed together and in a single mass spectrometry (MS) run. Typically up to 12 temperatures are used in total that add up to 6 MS runs (Figure 1).
+The 2D-TPP assay is usually set up in a way that for each temperature 5 different ligand concentrations (including a vehicle condition) are used and two adjacent temperatures each are multiplexed in a single mass spectrometry (MS) run. Typically up to 10 or 12 temperatures are used in total that add up to 5 or 6 MS runs respectively (Figure 1).  
+```{r tpp_schematic, echo=FALSE, fig.cap="Experimental 2D-TPP workflow."}
+knitr::include_graphics(file.path(system.file(package = "TPP2D"), "tpp_2d_schematic.jpg"))
+```
+This package aims at providing a tool for finding 'hits' (proteins affected in their thermal stability by the treatment used in the experiment) at a given false disscovery rate (FDR). Please note that a change in thermal satbility of a protein is not a guarantee for it interacting with the molecule used as treatment. However, we try to give the user additional information by specifying whether an observed effects is likely due to stabilization or a change in expression or solubility of a given protein to make the interpretation of detected hits as easy as possible.
+
+# Step-by-step workflow
 
 ```{r, message=FALSE, warning=FALSE}
 library(dplyr)
 library(TPP2D)
 ```
 
-After having loaded `dplyr` the `TPP2D` package itself we start by loading example dataset which is supplied with the package. We therefor use the `import2dDataset` function.     
+After having loaded `dplyr` the `TPP2D` package itself we start by loading an example dataset which is supplied with the package. Therefore, we use the `import2dDataset` function.     
 For this puporse we need to supply a config table that essentially describes which experimental conditions the different TMT labels used correspond to and supplies paths to the raw data files (note: since this example dataset is included in the package it does not contain a "Path" column, this is however mandatory if the data should be read in from external raw files).
 ```{r}
 data("config_tab")
@@ -117,16 +123,13 @@ knitr::kable(tibble(
 )
 ```
 
-Here the column "required" indicated which of these columns is neccessary for usage of the downstream functions.    
+Here the column "required" indicates which of these columns is neccessary for usage of the downstream functions.    
     
     
 We then begin our actual data analysis by fitting two competing models to each protein profile. 
 ```{r}
 competed_models <- competeModels(
-    df = recomp_sig_df,
-    optim_fun_h0 = TPP2D:::min_RSS_h0,
-    optim_fun_h1 = TPP2D:::min_RSS_h1_slope_pEC50,
-    optim_fun_h1_2 = NULL)
+    df = recomp_sig_df)
 ```
 
 Then we create a null model using our dataset to be able to estimate the FDR for a given F statistic in the next step.
@@ -135,9 +138,6 @@ Then we create a null model using our dataset to be able to estimate the FDR for
 set.seed(12, kind = "L'Ecuyer-CMRG")
 null_model <- bootstrapNull(
     df = recomp_sig_df,
-    optim_fun_h0 = TPP2D:::min_RSS_h0,
-    optim_fun_h1 = TPP2D:::min_RSS_h1_slope_pEC50,
-    optim_fun_h1_2 = NULL,
     ncores = 1, B = 2)
 ```
 
@@ -164,8 +164,7 @@ plot2dTppFit(recomp_sig_df, "tp1")
 ```
 or respectively for the H1 model:
 ```{r}
-plot2dTppFit(recomp_sig_df, "tp1", model_type = "H1", 
-                optim_fun = TPP2D:::min_RSS_h1)
+plot2dTppFit(recomp_sig_df, "tp1", model_type = "H1")
 ```
 
 ```{r}

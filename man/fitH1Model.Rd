@@ -48,14 +48,11 @@ Fit H1 model and evaluate fit statistics
 
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
+  filter(clustername \%in\% paste0("protein", 1:5)) \%>\% 
   group_by(representative) \%>\% 
   mutate(nObs = n()) \%>\% 
   ungroup
   
 fitH1Model(temp_df)
-
-fitH1Model(temp_df,
-           optim_fun_2 = 
-             TPP2D:::min_RSS_h1_trim)
 
 }
