@@ -44,7 +44,7 @@ The 2D-TPP assay is usually set up in a way that for each temperature 5 differen
 ```{r tpp_schematic, echo=FALSE, fig.cap="Experimental 2D-TPP workflow."}
 knitr::include_graphics(file.path(system.file(package = "TPP2D"), "tpp_2d_schematic.jpg"))
 ```
-This package aims at providing a tool for finding 'hits' (proteins affected in their thermal stability by the treatment used in the experiment) at a given false disscovery rate (FDR). Please note that a change in thermal satbility of a protein is not a guarantee for it interacting with the molecule used as treatment. However, we try to give the user additional information by specifying whether an observed effects is likely due to stabilization or a change in expression or solubility of a given protein to make the interpretation of detected hits as easy as possible.
+This package aims at providing a tool for finding 'hits' (proteins affected in their thermal stability by the treatment used in the experiment) at a given false disscovery rate (FDR). Please note that a change in thermal satbility of a protein is not a guarantee for it interacting with the molecule used as treatment. However, we try to give the user additional information by specifying whether an observed effect is likely due to stabilization or a change in expression or solubility of a given protein to make the interpretation of detected hits as easy as possible.
 
 # Step-by-step workflow
 
@@ -53,7 +53,7 @@ library(dplyr)
 library(TPP2D)
 ```
 
-After having loaded `dplyr` the `TPP2D` package itself we start by loading an example dataset which is supplied with the package. Therefore, we use the `import2dDataset` function.     
+After having loaded `dplyr` and the `TPP2D` package itself we start by loading an example dataset which is supplied with the package. Therefore, we use the `import2dDataset` function.     
 For this puporse we need to supply a config table that essentially describes which experimental conditions the different TMT labels used correspond to and supplies paths to the raw data files (note: since this example dataset is included in the package it does not contain a "Path" column, this is however mandatory if the data should be read in from external raw files).
 ```{r}
 data("config_tab")
@@ -126,13 +126,13 @@ knitr::kable(tibble(
 Here the column "required" indicates which of these columns is neccessary for usage of the downstream functions.    
     
     
-We then begin our actual data analysis by fitting two competing models to each protein profile. 
+We then begin our actual data analysis by fitting two competing models to each protein profil: A H0 model that is expected when a protein profile remains unaffected by a given treatment and a H1 that fits a contrained sigmoidal dose-response model across all temperatures. The goodness of fit of both models for each protein is then compared and a $F$ statistic is computed.
 ```{r}
 competed_models <- competeModels(
     df = recomp_sig_df)
 ```
 
-Then we create a null model using our dataset to be able to estimate the FDR for a given F statistic in the next step.
+Then we create a null model using our dataset to be able to estimate the FDR for a given $F$ statistic in the next step.
 
 ```{r}
 set.seed(12, kind = "L'Ecuyer-CMRG")
@@ -141,9 +141,9 @@ null_model <- bootstrapNull(
     ncores = 1, B = 2)
 ```
 
-Please note that setting B = 2 is not enough to guarantee faithful FDR estimation, this has simply been set for fast demonstration purposes. We recommend to use at least B = 20 for applications in praxis.    
+Please note that setting $B = 2$ is not enough to guarantee faithful FDR estimation, this has simply been set for fast demonstration purposes. We recommend to use at least $B = 20$ for applications in praxis.    
     
-To estimate the FDR for all given F statistics and retrieve all significant hits at a set FDR $\alpha$ we use the following functions:
+To estimate the FDR for all given $F$ statistics and retrieve all significant hits at a set FDR $\alpha$ we use the following functions:
 
 ```{r, warning=FALSE}
 fdr_tab <- computeFdr( 
@@ -160,7 +160,7 @@ hits %>%
 
 Finally we can fit and plot proteins that have come up as significant in our analysis by using:
 ```{r}
-plot2dTppFit(recomp_sig_df, "tp1")
+plot2dTppFit(recomp_sig_df, "tp1", model_type = "H0")
 ```
 or respectively for the H1 model:
 ```{r}
