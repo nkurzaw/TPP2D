@@ -1,6 +1,6 @@
 Package: TPP2D
 Title: FDR-controlled analysis of 2D-TPP experiments
-Version: 0.99.5
+Version: 0.99.6
 Authors@R: person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de",
                   role = c("aut", "cre"))
 Maintainer: Nils Kurzawa <nils.kurzawa@embl.de>
@@ -13,5 +13,6 @@ LazyData: true
 biocViews: Proteomics, DataImport, Software
 RoxygenNote: 6.1.1.9000
 Depends: R (>= 3.6.0), stats, utils, dplyr, methods
-Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, RCurl
+Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
+  RCurl, parallel
 Suggests: knitr, testthat

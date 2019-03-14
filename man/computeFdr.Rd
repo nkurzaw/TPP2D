@@ -23,7 +23,6 @@ Compute FDR for given F statistics based on true and
 null dataset
 }
 \examples{
-\dontrun{
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
   filter(clustername \%in\% paste0("protein", 1:10)) \%>\% 
@@ -33,5 +32,5 @@ temp_df <- simulated_cell_extract_df \%>\%
 example_out <- fitAndEvalDataset(temp_df)
 example_null <- bootstrapNull(temp_df, B = 2)
 computeFdr(example_out, example_null)
-}  
+ 
 }

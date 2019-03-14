@@ -18,7 +18,6 @@ data frame of significant hits at FDR = alpha
 Find hits according to FDR threshold
 }
 \examples{
-\dontrun{
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
   filter(clustername \%in\% paste0("protein", 1:10)) \%>\% 
@@ -29,5 +28,5 @@ example_out <- fitAndEvalDataset(temp_df)
 example_null <- bootstrapNull(temp_df, B = 2)
 fdr_df <- computeFdr(example_out, example_null)
 findHits(fdr_df, 0.1)
-}
+
 }

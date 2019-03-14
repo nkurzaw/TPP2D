@@ -35,7 +35,7 @@
 #' permuted 2D thermal profiles that are informative on the Null
 #' distribution of F statistics
 #' 
-#' @examples \dontrun{ 
+#' @examples
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
 #'   filter(clustername %in% paste0("protein", 1:3)) %>% 
@@ -43,7 +43,7 @@
 #'   mutate(nObs = n()) %>% 
 #'   ungroup 
 #' boot_df <- bootstrapNull(temp_df, B = 2)  
-#' }
+#' 
 #' @export
 #'
 #' @importFrom stats lm
@@ -51,6 +51,8 @@
 #' @importFrom foreach foreach
 #' @importFrom foreach %dopar%
 #' @importFrom doParallel registerDoParallel
+#' @importFrom parallel makeCluster
+#' @importFrom parallel stopCluster
 #' @import dplyr
 bootstrapNull <- function(df, maxit = 500,
                           independentFiltering = FALSE,
@@ -83,8 +85,8 @@ bootstrapNull <- function(df, maxit = 500,
             any values crossing the threshold.")
     df_fil <- independentFilter(df_fil, fcThres = fcThres) 
   }
-  
-  registerDoParallel(cores = ncores)
+  cl <- makeCluster(ncores)
+  registerDoParallel(cl)
   unique_names <- unique(df_fil$clustername)
   null_list <- foreach(prot = unique_names) %dopar% {
     df_prot <- filter(df_fil, clustername == prot)
@@ -111,6 +113,7 @@ bootstrapNull <- function(df, maxit = 500,
       return(sum_df)
     })
   }
+  stopCluster(cl)
   null_df <- bind_rows(lapply(null_list, function(x){
     bind_rows(lapply(seq_len(length(x)), function(i){
       x[[i]] %>%

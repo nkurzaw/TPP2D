@@ -9,7 +9,7 @@
 #' @return data frame annotating each protein with a FDR based on 
 #' it's F statistic and number of obsevations
 #' 
-#' @examples \dontrun{
+#' @examples 
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
 #'   filter(clustername %in% paste0("protein", 1:10)) %>% 
@@ -19,7 +19,7 @@
 #' example_out <- fitAndEvalDataset(temp_df)
 #' example_null <- bootstrapNull(temp_df, B = 2)
 #' computeFdr(example_out, example_null)
-#' }  
+#'  
 #' @export
 #'
 #' @import dplyr
@@ -58,7 +58,7 @@ computeFdr <- function(df_out, df_null){
 #' 
 #' @return data frame of significant hits at FDR = alpha
 #' 
-#' @examples \dontrun{
+#' @examples 
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
 #'   filter(clustername %in% paste0("protein", 1:10)) %>% 
@@ -69,7 +69,7 @@ computeFdr <- function(df_out, df_null){
 #' example_null <- bootstrapNull(temp_df, B = 2)
 #' fdr_df <- computeFdr(example_out, example_null)
 #' findHits(fdr_df, 0.1)
-#' }
+#' 
 #' @export
 #' 
 #' @import dplyr
