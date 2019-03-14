@@ -63,6 +63,7 @@ distribution of F statistics
 Bootstrap null distribution of F statistics for FDR estimation
 }
 \examples{
+\dontrun{ 
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
   filter(clustername \%in\% paste0("protein", 1:3)) \%>\% 
@@ -70,6 +71,5 @@ temp_df <- simulated_cell_extract_df \%>\%
   mutate(nObs = n()) \%>\% 
   ungroup 
 boot_df <- bootstrapNull(temp_df, B = 2)  
-rm(boot_df)
-
+}
 }

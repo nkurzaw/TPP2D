@@ -35,7 +35,7 @@
 #' permuted 2D thermal profiles that are informative on the Null
 #' distribution of F statistics
 #' 
-#' @examples 
+#' @examples \dontrun{ 
 #' data("simulated_cell_extract_df")
 #' temp_df <- simulated_cell_extract_df %>% 
 #'   filter(clustername %in% paste0("protein", 1:3)) %>% 
@@ -43,8 +43,7 @@
 #'   mutate(nObs = n()) %>% 
 #'   ungroup 
 #' boot_df <- bootstrapNull(temp_df, B = 2)  
-#' rm(boot_df)
-#' 
+#' }
 #' @export
 #'
 #' @importFrom stats lm
