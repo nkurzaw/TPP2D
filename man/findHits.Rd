@@ -20,12 +20,12 @@ Find hits according to FDR threshold
 \examples{
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
-  filter(clustername \%in\% paste0("protein", 1:10)) \%>\% 
+  filter(clustername \%in\% paste0("protein", 1:5)) \%>\% 
   group_by(representative) \%>\% 
   mutate(nObs = n()) \%>\% 
   ungroup 
 example_out <- fitAndEvalDataset(temp_df)
-example_null <- bootstrapNull(temp_df, B = 2)
+example_null <- bootstrapNull(temp_df, B = 2/10)
 fdr_df <- computeFdr(example_out, example_null)
 findHits(fdr_df, 0.1)
 
