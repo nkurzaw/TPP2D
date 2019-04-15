@@ -16,7 +16,7 @@ bootstrapNull}
 }
 \value{
 data frame annotating each protein with a FDR based on 
-it's F statistic and number of obsevations
+it's F statistic and number of observations
 }
 \description{
 Compute FDR for given F statistics based on true and

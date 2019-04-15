@@ -7,7 +7,7 @@
 #' bootstrapNull
 #' 
 #' @return data frame annotating each protein with a FDR based on 
-#' it's F statistic and number of obsevations
+#' it's F statistic and number of observations
 #' 
 #' @examples 
 #' data("simulated_cell_extract_df")

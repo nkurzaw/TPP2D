@@ -68,7 +68,7 @@ bootstrapNull <- function(df, maxit = 500,
   
   clustername <- prot <- log2_value <- NULL
   
-  checkDfColumns(df)
+  .checkDfColumns(df)
   
   if(identical(optim_fun_h1, min_RSS_h1_slope_pEC50)){
     slopEC50 = TRUE
@@ -76,14 +76,14 @@ bootstrapNull <- function(df, maxit = 500,
     slopEC50 = FALSE
   }
   
-  ec50_limits <- getEC50Limits(df)
+  ec50_limits <- .getEC50Limits(df)
   
-  df_fil <- minObsFilter(df, minObs = minObs)
+  df_fil <- .minObsFilter(df, minObs = minObs)
   
   if(independentFiltering){
     message("Independent Filtering: removing proteins without 
             any values crossing the threshold.")
-    df_fil <- independentFilter(df_fil, fcThres = fcThres) 
+    df_fil <- .independentFilter(df_fil, fcThres = fcThres) 
   }
   cl <- makeCluster(ncores)
   registerDoParallel(cl)
@@ -94,7 +94,7 @@ bootstrapNull <- function(df, maxit = 500,
                   data = df_prot)
     len_res <- length(residuals(prot_h0))
     
-    out_list <- lapply(seq_len(B), function(boot){
+    out_list <- lapply(seq_len(B*10), function(boot){
       df_resample_prot <- df_prot %>%
         mutate(log2_value = log2_value - residuals(prot_h0) +
                  sample(residuals(prot_h0), size = len_res, replace = TRUE))

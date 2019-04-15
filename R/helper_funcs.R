@@ -1,6 +1,6 @@
 #' @importFrom stats lm
 #' @importFrom stats coef
-getStartParameters <- function(df, unique_temp, len_temp,
+.getStartParameters <- function(df, unique_temp, len_temp,
                                slopEC50 = FALSE){
   # function to generate vector of start parameters
   # for h1 model optimization
@@ -26,13 +26,13 @@ getStartParameters <- function(df, unique_temp, len_temp,
     return(start_par)
 }
 
-paste_rmNA <- function(x, sep = "|"){
+.paste_rmNA <- function(x, sep = "|"){
   # function that pastes non-dedundant and na-filtered
   # vector elements into a string
   return(paste(x[!is.na(x)], collapse = sep))
 }
 
-getOptLimits <- function(ec50Limits, len_temp, 
+.getOptLimits <- function(ec50Limits, len_temp, 
                          slopEC50 = FALSE){
   # function to generate list of vectors defining lower 
   # and upper limits of optimization parameters
@@ -54,7 +54,7 @@ getOptLimits <- function(ec50Limits, len_temp,
   return(out_list)
 }
 
-checkDfColumns <- function(df){
+.checkDfColumns <- function(df){
   # internal function to check all needed columns
   # are presented in supplied input data frame
   req_coln <- c("representative",

@@ -5,7 +5,7 @@ context("bootstrap null")
 test_that("bootstrapNull works as expected", {
   boot_df <- bootstrapNull(simulated_cell_extract_df %>% 
                              filter(clustername == "tp1"),
-                           B = 3)
+                           B = 3/10)
   expect_equal(nrow(boot_df), 3)
   expect_gte(boot_df$F_statistic[1], 0)
 })

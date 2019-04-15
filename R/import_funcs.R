@@ -1,4 +1,4 @@
-TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
+.TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
     # internal function copied from TPP package to avoid 
     # import of non-exported package functions
     . <- NULL
@@ -47,7 +47,7 @@ TPP_importFct_CheckDataFormat <- function (files, dataframes, expNames){
 
 #' @importFrom utils read.delim
 #' @importFrom RCurl url.exists
-TPP_importFct_readFiles <- function (files, naStrs){
+.TPP_importFct_readFiles <- function (files, naStrs){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   expNames <- names(files)
@@ -66,51 +66,53 @@ TPP_importFct_readFiles <- function (files, naStrs){
   return(data)
 }
 
-TPP_importFct_removeDuplicates <- function(inDF, refColName, 
+.TPP_importFct_removeDuplicates <- function(inDF, refColName, 
                                            nonNAColNames, qualColName){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   message("Removing duplicate identifiers using quality column '", 
           qualColName, "'...")
-  nonUniques = unique(inDF[duplicated(inDF[[refColName]]), 
+  nonUniques <- unique(inDF[duplicated(inDF[[refColName]]), 
                            refColName])
-  retDF = subset(inDF, !(get(refColName) %in% nonUniques))
-  for (nU in nonUniques) {
-    tmpDF = subset(inDF, get(refColName) == nU)
-    nonNArows = NULL
-    for (r in seq_len(nrow(tmpDF))) {
-      if (any(!is.na(tmpDF[r, nonNAColNames]))) {
-        nonNArows = c(nonNArows, r)
+  retDF <- subset(inDF, !(get(refColName) %in% nonUniques))
+  if(nrow(nonUniques)){
+      for (nU in nonUniques) {
+          tmpDF <- subset(inDF, get(refColName) == nU)
+          nonNArows <- NULL
+          for (r in seq_len(nrow(tmpDF))) {
+              if (any(!is.na(tmpDF[r, nonNAColNames]))) {
+                  nonNArows <- c(nonNArows, r)
+              }
+          }
+          if (length(nonNArows) > 1) {
+              if (is.null(qualColName)) {
+                  useRow <- 1
+              }
+              else {
+                  qualVals <- tmpDF[nonNArows, qualColName]
+                  useRow <- match(max(qualVals), qualVals)
+              }
+          }
+          else {
+              useRow <- nonNArows[1]
+          }
+          retDF <- rbind(retDF, tmpDF[useRow, ])
       }
-    }
-    if (length(nonNArows) > 1) {
-      if (is.null(qualColName)) {
-        useRow = 1
-      }
-      else {
-        qualVals = tmpDF[nonNArows, qualColName]
-        useRow = match(max(qualVals), qualVals)
-      }
-    }
-    else {
-      useRow = nonNArows[1]
-    }
-    retDF = rbind(retDF, tmpDF[useRow, ])
   }
   message(nrow(retDF), " out of ", nrow(inDF), 
           " rows kept for further analysis.")
   return(retDF)
 }
 
-TPP_replaceZeros <- function(x){
+.TPP_replaceZeros <- function(x){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   x[which(x == 0)] <- NA
   return(x)
 }
 
-TPP_importFct_rmZeroSias <- function(configTable, data.list, 
-                                     intensityStr){
+.TPP_importFct_rmZeroSias <- function(data.list, 
+                                      intensityStr){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   out <- lapply(names(data.list), function(l.name) {
@@ -119,7 +121,7 @@ TPP_importFct_rmZeroSias <- function(configTable, data.list,
     intensity.cols <- grep(intensityStr, colsTmp, value = TRUE)
     intensity.df <- subset(datTmp, select = intensity.cols) %>% 
       mutate_all(as.character) %>% mutate_all(as.numeric)
-    new.intensity.df <- intensity.df %>% mutate_all(TPP_replaceZeros)
+    new.intensity.df <- intensity.df %>% mutate_all(.TPP_replaceZeros)
     datTmp[, intensity.cols] <- new.intensity.df
     return(datTmp)
   })
@@ -127,7 +129,7 @@ TPP_importFct_rmZeroSias <- function(configTable, data.list,
   return(out)
 }
 
-TPP_importFct_checkExperimentCol <- function(expCol){
+.TPP_importFct_checkExperimentCol <- function(expCol){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   if (is.null(expCol)) {
@@ -149,7 +151,7 @@ TPP_importFct_checkExperimentCol <- function(expCol){
   return(newExpNames)
 }
 
-TPP_importFct_checkComparisons <- function(confgTable){
+.TPP_importFct_checkComparisons <- function(confgTable){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   expConds <- confgTable$Condition
@@ -167,7 +169,7 @@ TPP_importFct_checkComparisons <- function(confgTable){
   }
   validCompCols <- compCols[!comp_unequal_two]
   allCompStrs <- c()
-  if (length(validCompCols) > 0) {
+  if (length(validCompCols)) {
     message("Comparisons will be performed between the following experiments:")
     for (colName in validCompCols) {
       current_compEntries <- confgTable[[colName]]
@@ -196,7 +198,7 @@ TPP_importFct_checkComparisons <- function(confgTable){
 }
 
 #' @importFrom stringr str_to_title
-TPP_importFct_checkConditions <- function(condInfo, 
+.TPP_importFct_checkConditions <- function(condInfo, 
                                           expectedLength){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
@@ -227,7 +229,7 @@ TPP_importFct_checkConditions <- function(condInfo,
   return(condInfo)
 }
 
-TPP_checkFunctionArgs <- 
+.TPP_checkFunctionArgs <- 
   function(functionCall, expectedArguments){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
@@ -242,7 +244,7 @@ TPP_checkFunctionArgs <-
   })
 }
 
-TPP_nonLabelColumns <- function(){
+.TPP_nonLabelColumns <- function(){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   out <- data.frame(
@@ -259,12 +261,12 @@ TPP_nonLabelColumns <- function(){
   return(out)
 }
 
-TPP_detectLabelColumnsInConfigTable <- 
+.TPP_detectLabelColumnsInConfigTable <- 
   function(allColumns){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
-  TPP_checkFunctionArgs(match.call(), c("allColumns"))
-  noLabelCols <- TPP_nonLabelColumns()$column %>% 
+  .TPP_checkFunctionArgs(match.call(), c("allColumns"))
+  noLabelCols <- .TPP_nonLabelColumns()$column %>% 
     as.character %>% 
     unique
   compCols <- grep("comparison", allColumns, value = TRUE, 
@@ -274,7 +276,7 @@ TPP_detectLabelColumnsInConfigTable <-
   return(labelCols)
 }
 
-TPP_importCheckTemperatures <- function(temp){
+.TPP_importCheckTemperatures <- function(temp){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   tempMatrix <- as.matrix(temp)
@@ -290,7 +292,7 @@ TPP_importCheckTemperatures <- function(temp){
 
 #' @importFrom openxlsx read.xlsx
 #' @importFrom utils read.table
-TPP_importFct_readConfigTable <- function(cfg){
+.TPP_importFct_readConfigTable <- function(cfg){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   if (is.character(cfg)) {
@@ -326,11 +328,23 @@ TPP_importFct_readConfigTable <- function(cfg){
   return(cfg)
 }
 
-TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
-  # internal function copied from TPP package to avoid 
-  # import of non-exported package functions
-  TPP_checkFunctionArgs(match.call(), c("infoTable", "type"))
-  Experiment = Path = Compound <- NULL
+#' Import and chech configuration table
+#' 
+#' @param infoTable character string of a file path to
+#' a config table (excel,txt or csv file) or data frame
+#' containing a config table
+#' @param type charater string indicating dataset type
+#' default is 2D
+#' 
+#' @return data frame with config table
+#' 
+#' @examples 
+#' data("config_tab")
+#' TPP_importCheckConfigTable(config_tab, type = "2D")
+#' @export
+TPP_importCheckConfigTable <- function(infoTable, type = "2D"){
+  .TPP_checkFunctionArgs(match.call(), c("infoTable", "type"))
+  Experiment <- Path <- Compound <- NULL
   isValidDF <- FALSE
   if (is.data.frame(infoTable)) {
     if ((ncol(infoTable) > 1) & 
@@ -349,9 +363,9 @@ TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
   if (!isValidType) {
     stop("'type' must have this value: '2D'")
   }
-  infoTable <- TPP_importFct_readConfigTable(cfg = infoTable)
+  infoTable <- .TPP_importFct_readConfigTable(cfg = infoTable)
   infoTable$Experiment <- 
-    TPP_importFct_checkExperimentCol(infoTable$Experiment)
+    .TPP_importFct_checkExperimentCol(infoTable$Experiment)
   infoTable <- subset(infoTable, Experiment != "")
   givenPaths <- NULL
   if (any("Path" %in% colnames(infoTable))) {
@@ -366,7 +380,7 @@ TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
   compStrs <- NA
   infoTable$Condition <- NULL
   allCols <- colnames(infoTable)
-  labelCols <- TPP_detectLabelColumnsInConfigTable(allColumns = allCols)
+  labelCols <- .TPP_detectLabelColumnsInConfigTable(allColumns = allCols)
   labelValues <- infoTable[, labelCols]
   labelValuesNum <- suppressWarnings(labelValues %>% apply(2, 
                                                            as.numeric))
@@ -412,7 +426,7 @@ TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
   }
   else {
     temperatures <- subset(infoTable, select = labelColsNew)
-    tempMatrix <- TPP_importCheckTemperatures(temp = temperatures)
+    tempMatrix <- .TPP_importCheckTemperatures(temp = temperatures)
     infoList <- list(
       expNames = as.character(infoTable$Experiment), 
       expCond = infoTable$Condition, files = givenPaths, 
@@ -423,6 +437,45 @@ TPP_importCheckConfigTable <- function (infoTable, type = "2D"){
   return(out)
 }
 
+#' Import 2D-TPP dataset main function
+#' 
+#' @param configTable character string of a file path to a config table
+#' @param data possible list of datasets from different MS runs 
+#' corresponding to a 2D-TPP dataset, circumvents loading datasets 
+#' referencend in config table, default is NULL
+#' @param idVar character string indicating which data column provides the 
+#' unique identifiers for each protein.
+#' @param intensityStr character string indicating which columns contain 
+#' raw intensities measurements
+#' @param fcStr character string indicating which columns contain the actual 
+#' fold change values. Those column names containing the suffix \code{fcStr} 
+#' will be regarded as containing fold change values.
+#' @param naStrs character vector indicating missing values in the data table. 
+#' When reading data from file, this value will be passed on to the argument 
+#' \code{na.strings} in function \code{read.delim}.
+#' @param addCol character string indicating additional column to import
+#' @param nonZeroCols column like default qssm that should be imported and
+#' requested to be non-zero in analyzed data
+#' @param qualColName character string indicating which column can be used for 
+#' additional quality criteria when deciding between different non-unique 
+#' protein identifiers.
+#' 
+#' @return list of data frames containing different
+#' datasets
+#' 
+#' @examples 
+#' data("config_tab")
+#' data("raw_dat_list")
+#' dataList <- import2dMain(configTable = config_tab,
+#'                          data = raw_dat_list,
+#'                          idVar = "protein_id",
+#'                          fcStr = "rel_fc_",
+#'                          addCol = "gene_name",
+#'                          naStrs = NA,
+#'                          intensityStr = "signal_sum_",
+#'                          nonZeroCols = "qusm",
+#'                          qualColName = "qupm")
+#' @export
 import2dMain <- function(configTable, data, idVar, fcStr,
                          addCol, naStrs, intensityStr,
                          qualColName, nonZeroCols){
@@ -434,20 +487,18 @@ import2dMain <- function(configTable, data, idVar, fcStr,
       files <- NULL
     }
   }
-  Experiment = Compound = Temperature = RefCol <- NULL
+  Experiment <- Compound <- Temperature <- RefCol <- NULL
   expNames <- configTable$Experiment
-  argList <- TPP_importFct_CheckDataFormat(dataframes = data, 
+  argList <- .TPP_importFct_CheckDataFormat(dataframes = data, 
                                            files = files,
                                            expNames = expNames)
   data <- argList[["dataframes"]]
   files <- argList[["files"]]
   if (!is.null(files)) {
     files2 <- files[!duplicated(names(files))]
-    data <- TPP_importFct_readFiles(files = files2, 
+    data <- .TPP_importFct_readFiles(files = files2, 
                                     naStrs = naStrs)
   }
-  configTable %>% group_by(Experiment, Compound,
-                           Temperature, RefCol)
   iVec <- seq_len(nrow(configTable))
   dataList <- lapply(iVec, function(iTmp) {
     rowTmp <- configTable[iTmp, ]
@@ -459,7 +510,7 @@ import2dMain <- function(configTable, data, idVar, fcStr,
                   "RefCol", "Path", "Condition")
     allCols <- colnames(rowTmp)
     labelCols <- setdiff(allCols, noFCCols)
-    labelValues <- suppressMessages(rowTmp[, labelCols] %>%
+    labelValues <- suppressWarnings(rowTmp[, labelCols] %>%
                                       as.numeric)
     labelColsNum <- labelCols[!is.na(labelValues)]
     signalCols <- paste(intensityStr, labelColsNum, sep = "")
@@ -480,7 +531,7 @@ import2dMain <- function(configTable, data, idVar, fcStr,
            notFound, paste("'. Please check the suffices and the", 
                            "additional column names you have specified."))
     }
-    dataFiltered <- TPP_importFct_removeDuplicates(
+    dataFiltered <- .TPP_importFct_removeDuplicates(
       inDF = dataTmp,refColName = idVar, 
       nonNAColNames = dataCols, 
       qualColName = qualColName[1])
@@ -498,17 +549,24 @@ import2dMain <- function(configTable, data, idVar, fcStr,
     return(newName)
   }, "")
   names(dataList) <- newNames
-  out <- TPP_importFct_rmZeroSias(configTable = configTable, 
-                                  data.list = dataList,
-                                  intensityStr = intensityStr)
+  out <- .TPP_importFct_rmZeroSias(data.list = dataList,
+                                   intensityStr = intensityStr)
   return(out)
 }
 
+#' Tranform configuration table from wide to long
+#' 
+#' @param configWide data frame containing a config table
+#' @return data frame containing config table in long format 
+#' 
 #' @importFrom tidyr gather
+#' @examples 
+#' data("config_tab")
+#' configWide2Long(configWide = config_tab)
+#' 
+#' @export
 configWide2Long <- function(configWide){
-  # internal function to tranform config table into long format
-  
-  Path <- label <- conc <- Compound <- Experiment <- 
+ Path <- label <- conc <- Compound <- Experiment <- 
     Temperature <- RefCol <- NULL
   
   if(any(grepl("Path", colnames(configWide)))){
@@ -525,11 +583,45 @@ configWide2Long <- function(configWide){
   }
 }
 
+#' Annotate imported data list using a config table
+#' @param dataList list of datasets from different MS runs 
+#' corresponding to a 2D-TPP dataset
+#' @param geneNameVar character string of the column name that describes
+#' the gene name of a given protein in the raw data files
+#' @param configLong long formatted data frame of a corresponding
+#' config table
+#' @param intensityStr character string indicating which columns contain 
+#' raw intensities measurements
+#' @param fcStr character string indicating which columns contain the actual 
+#' fold change values. Those column names containing the suffix \code{fcStr} 
+#' will be regarded as containing fold change values.
+#' 
+#' @return data frame containing all data annotated
+#' by information supplied in the config table
+#'   
 #' @importFrom tidyr spread
+#' 
+#' @examples 
+#' data("config_tab")
+#' data("raw_dat_list")
+#' dataList <- import2dMain(configTable = config_tab,
+#'                          data = raw_dat_list,
+#'                          idVar = "protein_id",
+#'                          fcStr = "rel_fc_",
+#'                          addCol = "gene_name",
+#'                          naStrs = NA,
+#'                          intensityStr = "signal_sum_",
+#'                          nonZeroCols = "qusm",
+#'                          qualColName = "qupm")
+#' configLong <- configWide2Long(configWide = config_tab)
+#' annotateDataList(dataList = dataList,
+#'                  geneNameVar = "gene_name",
+#'                  configLong = configLong,
+#'                  intensityStr = "signal_sum_",
+#'                  fcStr = "rel_fc_")
+#' @export
 annotateDataList <- function(dataList, geneNameVar, configLong,
                              intensityStr, fcStr){
-  # internal function to annotate list of 2D-TPP data subtables with
-  # information from config table
   channel <- signal <- Temperature <- RefCol <- label <- 
     conc <- unique_ID <- spread_var <- NULL
   
@@ -548,13 +640,25 @@ annotateDataList <- function(dataList, geneNameVar, configLong,
   return(combinedTab)
 }
 
+#' Filter out contaminants
+#' 
+#' @param dataLong long format data frame of imported dataset
+#' 
+#' @return data frame containing full dataset filtered to 
+#' contain no contaminants
+#' 
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' filterOutContaminants(simulated_cell_extract_df)
+#' 
+#' @export
 filterOutContaminants <- function(dataLong){
   # internal function to filter out contaminants
   representative <- NULL
   filter(dataLong, !grepl("##", representative))
 }
 
-checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
+.checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
   # internal function to check that protein 
   # fold changes are computed
   # relative to the correct TMT channel
@@ -583,7 +687,7 @@ checkRatioRef <- function(dataLong, idVar, concFactor = 1e6){
 }
 
 #' @importFrom stats median
-medianNormalizeRatios <- function(dataLong){
+.medianNormalizeRatios <- function(dataLong){
   # internal function to perform median normalization 
   # of ratios
   rel_value <- temperature <- conc <- 
@@ -599,17 +703,48 @@ medianNormalizeRatios <- function(dataLong){
   return(dataOut)
 }
 
+#' Rename columns of imported data frame
+#' 
+#' @param dataLong long format data frame of imported dataset
+#' @param idVar character string indicating which data column provides the 
+#' unique identifiers for each protein.
+#' @param geneNameVar character string of the column name that describes
+#' the gene name of a given protein in the raw data files
+#' 
+#' @return data frame containing imported data with renamed
+#' columns
+#' 
+#' @examples 
+#' data("config_tab")
+#' data("raw_dat_list")
+#' 
+#' dataList <- import2dMain(configTable = config_tab,
+#'                          data = raw_dat_list,
+#'                          idVar = "protein_id",
+#'                          fcStr = "rel_fc_",
+#'                          addCol = "gene_name",
+#'                          naStrs = NA,
+#'                          intensityStr = "signal_sum_",
+#'                          nonZeroCols = "qusm",
+#'                          qualColName = "qupm")
+#' configLong <- configWide2Long(configWide = config_tab)
+#' annoDat <- annotateDataList(dataList = dataList,
+#'                             geneNameVar = "gene_name",
+#'                             configLong = configLong,
+#'                             intensityStr = "signal_sum_",
+#'                             fcStr = "rel_fc_")
+#' renameColumns(annoDat, 
+#'               idVar = "protein_id", 
+#'               geneNameVar = "gene_name")
+#' @export
 renameColumns <- function(dataLong, idVar, geneNameVar){
-  # internal function to rename column names to 
-  # match lazyeval variable
-  # names of main function
   clustername <- representative <- NULL
   
   dplyr::rename_(dataLong, "representative" = idVar, 
                  "clustername" = geneNameVar) %>%
     group_by(clustername) %>%
     mutate(representative =
-             paste_rmNA(unique(unlist(strsplit(representative, 
+             .paste_rmNA(unique(unlist(strsplit(representative, 
                                                split = "\\|"))), 
                         sep = "|")) %>%
     ungroup()
@@ -698,12 +833,12 @@ import2dDataset <- function(configTable, data,
                                intensityStr = intensityStr,
                                fcStr = fcStr)
   
-  dataRatioChecked <- checkRatioRef(dataLong, idVar = idVar,
-                                    concFactor = concFactor)
+  dataRatioChecked <- .checkRatioRef(dataLong, idVar = idVar,
+                                     concFactor = concFactor)
   
   if(medianNormalizeFC){
     message("Median normalizing fold changes...")
-    dataNorm <- medianNormalizeRatios(dataRatioChecked)
+    dataNorm <- .medianNormalizeRatios(dataRatioChecked)
   }else{
     dataNorm <- dataRatioChecked
   }

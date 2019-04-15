@@ -147,7 +147,7 @@ plot2dTppFit <- function(df, name,
   clustername <- temperature <- temp_i <- 
     log_conc <- y_hat <- log2_value <- NULL
   
-  checkDfColumns(df)
+  .checkDfColumns(df)
   
   if(model_type == "H1"){
     optim_fun <- min_RSS_h1_slope_pEC50
@@ -172,11 +172,11 @@ plot2dTppFit <- function(df, name,
                            control = list(maxit = maxit)))
         
       fit_df <-
-        getFitDf(df_fil, model_type = model_type,
+        .getFitDf(df_fil, model_type = model_type,
                  optim_model = h0_model,
                  slopEC50 = slopEC50)
   }else if(model_type == "H1"){
-    h1_model <- fitEvalH1(df_fil = df_fil,
+    h1_model <- .fitEvalH1(df_fil = df_fil,
                           unique_temp = unique_temp, 
                           len_temp = len_temp,
                           optim_fun = optim_fun, 
@@ -184,7 +184,7 @@ plot2dTppFit <- function(df, name,
                           slopEC50 = slopEC50, 
                           maxit = maxit)
     fit_df <-
-      getFitDf(df_fil, model_type = model_type,
+      .getFitDf(df_fil, model_type = model_type,
                optim_model = h1_model,
                slopEC50 = slopEC50)
   }else{
@@ -199,7 +199,7 @@ plot2dTppFit <- function(df, name,
 }
 
 
-getFitDf <- function(df_fil, conc_vec = seq(-9, -3, by = 0.1),
+.getFitDf <- function(df_fil, conc_vec = seq(-9, -3, by = 0.1),
                      model_type = "H0", optim_model, 
                      slopEC50 = TRUE){
   # internal function to retrieve data frame with data
@@ -229,7 +229,7 @@ getFitDf <- function(df_fil, conc_vec = seq(-9, -3, by = 0.1),
           temp_i = rep(seq_len(unique_temp_len), 
                        each = conc_len),
           len_temp = unique_temp_len) %>%
-        mutate(y_hat = evalH1SlopeEC50Model(
+        mutate(y_hat = .evalH1SlopeEC50Model(
           optim_model = optim_model,
           temp_i = temp_i, len_temp = len_temp,
           log_conc = log_conc, temperature = temperature))
@@ -241,7 +241,7 @@ getFitDf <- function(df_fil, conc_vec = seq(-9, -3, by = 0.1),
           temp_i = rep(seq_len(unique_temp_len), 
                      each = conc_len),
           len_temp = unique_temp_len) %>%
-        mutate(y_hat = evalH1Model(
+        mutate(y_hat = .evalH1Model(
           optim_model = optim_model,
           temp_i = temp_i, len_temp = len_temp,
           log_conc = log_conc))
@@ -252,13 +252,13 @@ getFitDf <- function(df_fil, conc_vec = seq(-9, -3, by = 0.1),
   return(fit_df)
 }
 
-evalH1Model <- function(optim_model, temp_i, log_conc, len_temp){
+.evalH1Model <- function(optim_model, temp_i, log_conc, len_temp){
   optim_model$par[3 + temp_i] + 
     (optim_model$par[3 + len_temp + temp_i] * optim_model$par[3])/
     (1 + exp(-optim_model$par[2] * (log_conc - optim_model$par[1])))
 }
 
-evalH1SlopeEC50Model <- function(optim_model, temp_i, len_temp,
+.evalH1SlopeEC50Model <- function(optim_model, temp_i, len_temp,
                                  log_conc, temperature){
   optim_model$par[4 + temp_i] + 
     (optim_model$par[4 + len_temp + temp_i] * optim_model$par[4])/

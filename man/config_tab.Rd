@@ -29,3 +29,20 @@ function should be a path to an txt, csv or xlsx file containing
 an additional column "Path" listing for each row the respective
 path to a searched protein output file.
 }
+\examples{
+data("config_tab")
+data("raw_dat_list")
+import_df <- import2dDataset(configTable = config_tab, 
+data = raw_dat_list,
+idVar = "protein_id",
+intensityStr = "signal_sum_",
+fcStr = "rel_fc_",
+nonZeroCols = "qusm",
+geneNameVar = "gene_name",
+addCol = NULL,
+qualColName = "qupm",
+naStrs = c("NA", "n/d", "NaN"),
+concFactor = 1e6,
+medianNormalizeFC = TRUE,
+filterContaminants = TRUE)
+}

@@ -51,7 +51,7 @@ fitH0Model <- function(df,
                        method = "L-BFGS-B",
                        gr = gr_fun,
                        control = list(maxit = maxit)))
-      eval_optim_result(h0_model, hypothesis = "H0",
+      .eval_optim_result(h0_model, hypothesis = "H0",
                         data = .)
     }) %>%
     group_by(representative, clustername) %>%
@@ -60,7 +60,7 @@ fitH0Model <- function(df,
   return(h0_df)
 }
 
-fitEvalH1 <- function(df_fil, unique_temp, len_temp,
+.fitEvalH1 <- function(df_fil, unique_temp, len_temp,
                       optim_fun = min_RSS_h1_slopeEC50, 
                       optim_fun_2 = NULL,
                       gr_fun = NULL,
@@ -77,12 +77,12 @@ fitEvalH1 <- function(df_fil, unique_temp, len_temp,
     ec50_upper_limit <- max(unique(df_fil$log_conc)[
       which(is.finite(unique(df_fil$log_conc)))])
   }
-  start_par = getStartParameters(
+  start_par = .getStartParameters(
     df = df_fil, 
     unique_temp = unique_temp, 
     len_temp = len_temp, 
     slopEC50 = slopEC50)
-  opt_limits <- getOptLimits(
+  opt_limits <- .getOptLimits(
     ec50Limits = c(ec50_lower_limit, ec50_upper_limit),
     len_temp = len_temp, 
     slopEC50 = slopEC50)
@@ -181,7 +181,7 @@ fitH1Model <- function(df,
     do({
       unique_temp <- unique(.$temperature)
       len_temp <- length(unique_temp)
-      h1_model <- fitEvalH1(df_fil = .,
+      h1_model <- .fitEvalH1(df_fil = .,
                             unique_temp = unique_temp, 
                             len_temp = len_temp,
                             optim_fun = optim_fun, 
@@ -190,7 +190,7 @@ fitH1Model <- function(df,
                             gr_fun_2 = gr_fun_2,
                             slopEC50 = slopEC50, 
                             maxit = maxit)
-      eval_optim_result(h1_model, hypothesis = "H1",
+      .eval_optim_result(h1_model, hypothesis = "H1",
                         data = ., len_temp = len_temp,
                         slopEC50 = slopEC50)
     }) %>%
@@ -201,7 +201,8 @@ fitH1Model <- function(df,
 }
 
 #' @importFrom methods is
-eval_optim_result <- function(optim_result, hypothesis = "H1",
+#' @importFrom stats fft
+.eval_optim_result <- function(optim_result, hypothesis = "H1",
                               data, len_temp = NULL,
                               slopEC50 = TRUE){
   # evaluate optimization results for H0 or H1 models 
@@ -224,14 +225,20 @@ eval_optim_result <- function(optim_result, hypothesis = "H1",
       }
       if(!is.null(len_temp)){
         if(!slopEC50){
-          alpha <- optim_result$par[(4 + len_temp):(3 + len_temp*2)]
+            alpha <- optim_result$par[(4 + len_temp):(3 + len_temp*2)]
         }else{
-          alpha <- optim_result$par[(5 + len_temp):(4 + len_temp*2)]
+            alpha <- optim_result$par[(5 + len_temp):(4 + len_temp*2)]
         }
-        if(alpha[1] > (max(alpha[-1])/3)){
-          fitStats$detected_effect <- "expression/solubility"
+        alpha_fft_df <- data.frame(freq = seq_len(length(alpha)),
+                                   strength = Mod(fft(alpha)))
+        alpha_fft_fit <- lm(strength ~ poly(freq, 2), 
+                            data = alpha_fft_df[-1,])
+        if(coef(alpha_fft_fit)[3] < 0){
+            fitStats$detected_effect <- "carry-over"
+        }else if(alpha[1] > (max(alpha[-1])/3)){
+            fitStats$detected_effect <- "expression/solubility"
         }else{
-          fitStats$detected_effect <- "stability"
+            fitStats$detected_effect <- "stability"
         }
       }
       names(fitStats) <- paste0(names(fitStats), hypothesis)
@@ -366,7 +373,7 @@ fitAndEvalDataset <- function(df, maxit = 500,
 }
 
 
-minObsFilter <- function(df, minObs = 20){
+.minObsFilter <- function(df, minObs = 20){
   # Filter data frame for a minimal number of observations
   # per protein
   representative <- clustername <- rel_value <- 
@@ -381,7 +388,7 @@ minObsFilter <- function(df, minObs = 20){
   return(df_fil)
 }
 
-independentFilter <- function(df, fcThres = 1.5){
+.independentFilter <- function(df, fcThres = 1.5){
   # Filter data frame independently based on maximal 
   # fold change per protein
   representative <- clustername <- rel_value <- NULL
@@ -395,7 +402,7 @@ independentFilter <- function(df, fcThres = 1.5){
 }
 
 
-getEC50Limits <- function(df){
+.getEC50Limits <- function(df){
   log_conc <- NULL
   
   ec50_lower_limit <- min(unique(df$log_conc)[
@@ -461,7 +468,7 @@ competeModels <- function(df, fcThres = 1.5,
                           gr_fun_h1_2 = NULL,
                           maxit = 750){
   
-  checkDfColumns(df)
+  .checkDfColumns(df)
   
   if(identical(optim_fun_h1, min_RSS_h1_slope_pEC50)){
     slopEC50 = TRUE
@@ -469,14 +476,14 @@ competeModels <- function(df, fcThres = 1.5,
     slopEC50 = FALSE
   }
   
-  ec50_limits <- getEC50Limits(df)
+  ec50_limits <- .getEC50Limits(df)
   
-  df_fil <- minObsFilter(df, minObs = minObs)
+  df_fil <- .minObsFilter(df, minObs = minObs)
   
   if(independentFiltering){
     message(paste("Independent Filtering: removing proteins without", 
             "any values crossing the set threshold."))
-    df_fil <- independentFilter(df_fil, fcThres = fcThres) 
+    df_fil <- .independentFilter(df_fil, fcThres = fcThres) 
   }
 
   sum_df <- fitAndEvalDataset(

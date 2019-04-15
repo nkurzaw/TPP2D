@@ -10,6 +10,10 @@
 #' @format data frame with columns representative (protein id), 
 #' clustername (gene name), temperature, log_conc, raw_value, 
 #' rel_value, value and log2_value
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' cm_df <- competeModels(simulated_cell_extract_df %>% 
+#'       filter(clustername == "tp1"))
 NULL
 
 #' @title Example raw data for a subset of a simulated 
@@ -24,6 +28,22 @@ NULL
 #' @format list of data frames with columns representative 
 #' (protein id), clustername (gene name), temperature, log_conc, 
 #' raw_value, rel_value, value and log2_value
+#' @examples
+#' data("raw_dat_list")
+#' data("config_tab")
+#' import_df <- import2dDataset(configTable = config_tab, 
+#' data = raw_dat_list,
+#' idVar = "protein_id",
+#' intensityStr = "signal_sum_",
+#' fcStr = "rel_fc_",
+#' nonZeroCols = "qusm",
+#' geneNameVar = "gene_name",
+#' addCol = NULL,
+#' qualColName = "qupm",
+#' naStrs = c("NA", "n/d", "NaN"),
+#' concFactor = 1e6,
+#' medianNormalizeFC = TRUE,
+#' filterContaminants = TRUE)
 NULL
 
 #' @title Example config table for a import of a simulated 
@@ -52,4 +72,20 @@ NULL
 #' the respective TMT labels "126"-"131L", RefCol referring to
 #' the label used as a reference label for computing relative
 #' fold changes (usually the label used for the control treatment).
+#' @examples
+#' data("config_tab")
+#' data("raw_dat_list")
+#' import_df <- import2dDataset(configTable = config_tab, 
+#' data = raw_dat_list,
+#' idVar = "protein_id",
+#' intensityStr = "signal_sum_",
+#' fcStr = "rel_fc_",
+#' nonZeroCols = "qusm",
+#' geneNameVar = "gene_name",
+#' addCol = NULL,
+#' qualColName = "qupm",
+#' naStrs = c("NA", "n/d", "NaN"),
+#' concFactor = 1e6,
+#' medianNormalizeFC = TRUE,
+#' filterContaminants = TRUE)
 NULL
