@@ -69,6 +69,6 @@ temp_df <- simulated_cell_extract_df \%>\%
   group_by(representative) \%>\% 
   mutate(nObs = n()) \%>\% 
   ungroup 
-boot_df <- bootstrapNull(temp_df, B = 2)  
+boot_df <- bootstrapNull(temp_df, B = 2/10)  
 
 }
