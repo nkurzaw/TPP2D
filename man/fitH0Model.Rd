@@ -4,7 +4,7 @@
 \alias{fitH0Model}
 \title{Fit H0 model and evaluate fit statistics}
 \usage{
-fitH0Model(df, maxit = 500, optim_fun = min_RSS_h0, gr_fun = NULL)
+fitH0Model(df, maxit = 500, optim_fun = .min_RSS_h0, gr_fun = NULL)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 

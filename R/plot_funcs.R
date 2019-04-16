@@ -138,7 +138,7 @@ plot2dTppRelProfile <- function(df, name){
 #' @import ggplot2
 plot2dTppFit <- function(df, name,
                          model_type = "H0",
-                         optim_fun = min_RSS_h0,
+                         optim_fun = .min_RSS_h0,
                          optim_fun_2 = NULL,
                          maxit = 500,
                          xlab = "-log10(conc.)",
@@ -150,7 +150,7 @@ plot2dTppFit <- function(df, name,
   .checkDfColumns(df)
   
   if(model_type == "H1"){
-    optim_fun <- min_RSS_h1_slope_pEC50
+    optim_fun <- .min_RSS_h1_slope_pEC50
     slopEC50 <-  TRUE
   }else{
     slopEC50 <-  FALSE

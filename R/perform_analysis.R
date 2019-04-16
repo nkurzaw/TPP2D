@@ -30,7 +30,7 @@
 #' @importFrom stats optim
 fitH0Model <- function(df, 
                        maxit = 500,
-                       optim_fun = min_RSS_h0,
+                       optim_fun = .min_RSS_h0,
                        gr_fun = NULL){
   
   representative <- clustername <- nObs <- 
@@ -61,14 +61,14 @@ fitH0Model <- function(df,
 }
 
 .fitEvalH1 <- function(df_fil, unique_temp, len_temp,
-                      optim_fun = min_RSS_h1_slopeEC50, 
+                      optim_fun = .min_RSS_h1_slopeEC50, 
                       optim_fun_2 = NULL,
                       gr_fun = NULL,
                       gr_fun_2 = NULL,
                       ec50_lower_limit = NULL,
                       ec50_upper_limit= NULL,
                       slopEC50 = TRUE, maxit = 500){
-  min_RSS_h1_slopeEC50 <- NULL
+  .min_RSS_h1_slopeEC50 <- NULL
   if(is.null(ec50_lower_limit)){
     ec50_lower_limit <- min(unique(df_fil$log_conc)[
       which(is.finite(unique(df_fil$log_conc)))])
@@ -155,7 +155,7 @@ fitH0Model <- function(df,
 #' @importFrom methods is
 fitH1Model <- function(df, 
                        maxit = 500,
-                       optim_fun = min_RSS_h1_slope_pEC50,
+                       optim_fun = .min_RSS_h1_slope_pEC50,
                        optim_fun_2 = NULL,
                        gr_fun = NULL,
                        gr_fun_2 = NULL,
@@ -342,8 +342,8 @@ computeFstat <- function(h0_df, h1_df){
 #' 
 #' @export
 fitAndEvalDataset <- function(df, maxit = 500,
-                              optim_fun_h0 = min_RSS_h0,
-                              optim_fun_h1 = min_RSS_h1_slope_pEC50,
+                              optim_fun_h0 = .min_RSS_h0,
+                              optim_fun_h1 = .min_RSS_h1_slope_pEC50,
                               optim_fun_h1_2 = NULL,
                               gr_fun_h0 = NULL,
                               gr_fun_h1 = NULL,
@@ -460,8 +460,8 @@ fitAndEvalDataset <- function(df, maxit = 500,
 competeModels <- function(df, fcThres = 1.5,
                           independentFiltering = FALSE,
                           minObs = 20,
-                          optim_fun_h0 = min_RSS_h0,
-                          optim_fun_h1 = min_RSS_h1_slope_pEC50,
+                          optim_fun_h0 = .min_RSS_h0,
+                          optim_fun_h1 = .min_RSS_h1_slope_pEC50,
                           optim_fun_h1_2 = NULL,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = NULL,
@@ -470,7 +470,7 @@ competeModels <- function(df, fcThres = 1.5,
   
   .checkDfColumns(df)
   
-  if(identical(optim_fun_h1, min_RSS_h1_slope_pEC50)){
+  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50)){
     slopEC50 = TRUE
   }else{
     slopEC50 = FALSE

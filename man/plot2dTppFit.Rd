@@ -5,7 +5,7 @@
 \title{Plot H0 or H1 fit of 2D thermal profile intensities of 
 a protein of choice}
 \usage{
-plot2dTppFit(df, name, model_type = "H0", optim_fun = min_RSS_h0,
+plot2dTppFit(df, name, model_type = "H0", optim_fun = .min_RSS_h0,
   optim_fun_2 = NULL, maxit = 500, xlab = "-log10(conc.)",
   ylab = "log2(summed intensities)")
 }

@@ -57,8 +57,8 @@
 bootstrapNull <- function(df, maxit = 500,
                           independentFiltering = FALSE,
                           fcThres = 1.5, minObs = 20,
-                          optim_fun_h0 = min_RSS_h0,
-                          optim_fun_h1 = min_RSS_h1_slope_pEC50,
+                          optim_fun_h0 = .min_RSS_h0,
+                          optim_fun_h1 = .min_RSS_h1_slope_pEC50,
                           optim_fun_h1_2 = NULL,
                           gr_fun_h0 = NULL,
                           gr_fun_h1 = NULL,
@@ -70,7 +70,7 @@ bootstrapNull <- function(df, maxit = 500,
   
   .checkDfColumns(df)
   
-  if(identical(optim_fun_h1, min_RSS_h1_slope_pEC50)){
+  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50)){
     slopEC50 = TRUE
   }else{
     slopEC50 = FALSE
