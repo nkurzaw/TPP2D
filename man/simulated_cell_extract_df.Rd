@@ -8,6 +8,9 @@ extract dataset}
 \format{data frame with columns representative (protein id), 
 clustername (gene name), temperature, log_conc, raw_value, 
 rel_value, value and log2_value}
+\usage{
+simulated_cell_extract_df
+}
 \description{
 Simulated example dataset obtained by 2D-TPP 
 experiments for analysis by the TPP2D-package. It contains 
@@ -15,8 +18,4 @@ a tidy data frame after import and recomputing of robust
 signal intensities with 200 simulated protein profiles 
 (protein1-200) and 3 spiked-in true positives (TP1-3)
 }
-\examples{
-data("simulated_cell_extract_df")
-cm_df <- competeModels(simulated_cell_extract_df \%>\% 
-      filter(clustername == "tp1"))
-}
+\keyword{datasets}
