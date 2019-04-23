@@ -8,5 +8,4 @@ test_that("bootstrapNull works as expected", {
                            B = 3/10,
                            gr_fun_h1 = TPP2D:::.min_RSS_h1_slope50_gradient)
   expect_equal(nrow(boot_df), 3)
-  expect_gte(boot_df$F_statistic[1], 0)
 })
