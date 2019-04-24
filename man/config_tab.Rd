@@ -32,4 +32,7 @@ function should be a path to an txt, csv or xlsx file containing
 an additional column "Path" listing for each row the respective
 path to a searched protein output file.
 }
+\examples{
+data("config_tab")
+}
 \keyword{datasets}

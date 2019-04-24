@@ -18,4 +18,7 @@ a tidy data frame after import and recomputing of robust
 signal intensities with 200 simulated protein profiles 
 (protein1-200) and 3 spiked-in true positives (TP1-3)
 }
+\examples{
+data("simulated_cell_extract_df")
+}
 \keyword{datasets}

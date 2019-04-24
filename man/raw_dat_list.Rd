@@ -18,4 +18,7 @@ a list of data frames resembling raw data files returned
 from a MS database search with 200 simulated protein profiles 
 (protein1-200) and 3 spiked-in true positives (TP1-3).
 }
+\examples{
+data("raw_dat_list")
+}
 \keyword{datasets}
