@@ -66,13 +66,14 @@
   return(data)
 }
 
+#' @import dplyr
 .TPP_importFct_removeDuplicates <- function(inDF, refColName, 
                                            nonNAColNames, qualColName){
   # internal function copied from TPP package to avoid 
   # import of non-exported package functions
   message("Removing duplicate identifiers using quality column '", 
           qualColName, "'...")
-  nonUniques <- unique(inDF[duplicated(inDF[[refColName]]), 
+  nonUniques <- unique(as_tibble(inDF)[duplicated(inDF[[refColName]]), 
                            refColName])
   retDF <- subset(inDF, !(get(refColName) %in% nonUniques))
   if(nrow(nonUniques)){
