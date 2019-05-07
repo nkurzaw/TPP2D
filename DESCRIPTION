@@ -1,8 +1,12 @@
 Package: TPP2D
 Title: FDR-controlled analysis of 2D-TPP experiments
-Version: 1.1.0
-Authors@R: person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de",
-                  role = c("aut", "cre"))
+Version: 1.1.1
+Authors@R: c(
+    person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de", 
+        role = c("aut", "cre")),
+    person("Simon", "Anders", role = c("aut")),
+    person("Wolfgang", "Huber", role = c("aut")),
+    person("Mikhail M.", "Savitski", role = c("aut")))
 Description: FDR-controlled analysis of 2D-TPP experiments by
   functional analysis of dose-response curves across temperatures.
 License: GPL-3
@@ -10,10 +14,10 @@ Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: false
 biocViews: Software, Proteomics, DataImport
-BugReports: https://github.com/nkurzaw/TPP2D
-URL: https://github.com/nkurzaw/TPP2D
+BugReports: https://support.bioconductor.org/
+URL: http://bioconductor.org/packages/TPP2D
 RoxygenNote: 6.1.1.9000
-Depends: R (>= 3.6.0), stats, utils, dplyr, methods
+Depends: R (>= 3.5.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
-  RCurl, parallel
+  RCurl, parallel, MASS
 Suggests: knitr, testthat

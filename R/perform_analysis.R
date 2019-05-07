@@ -202,10 +202,12 @@ fitH1Model <- function(df,
 
 #' @importFrom methods is
 #' @importFrom stats fft
+#' @importFrom MASS lda
 .eval_optim_result <- function(optim_result, hypothesis = "H1",
                               data, len_temp = NULL,
                               slopEC50 = TRUE){
   # evaluate optimization results for H0 or H1 models 
+  spec <- NULL
   if(!is(optim_result, "try-error")){
     if(hypothesis == "H1"){
       pEC50 = -optim_result$par[1]
@@ -229,11 +231,17 @@ fitH1Model <- function(df,
         }else{
             alpha <- optim_result$par[(5 + len_temp):(4 + len_temp*2)]
         }
-        alpha_fft_df <- data.frame(freq = seq_len(length(alpha)),
-                                   strength = Mod(fft(alpha)))
-        alpha_fft_fit <- lm(strength ~ poly(freq, 2), 
-                            data = alpha_fft_df[-1,])
-        if(coef(alpha_fft_fit)[3] < 0){
+        # alpha_fft_df <- data.frame(freq = seq_len(length(alpha)),
+        #                            strength = Mod(fft(alpha)))
+        # alpha_fft_fit <- lm(strength ~ poly(freq, 2), 
+        #                     data = alpha_fft_df[-1,])
+        freq <- Mod(fft(c(alpha, rep(0, 12-length(alpha)))))
+        alpha_fft_df <- tibble(freq) %>% 
+            mutate(spec = paste0("T", 1:n())) %>% 
+            arrange(spec) %>% 
+            spread(spec, freq)
+        lda_pred <- predict(lda_model, alpha_fft_df)
+        if(lda_pred$class == "yes"){
             fitStats$detected_effect <- "carry-over"
         }else if(alpha[1] > (max(alpha[-1])/3)){
             fitStats$detected_effect <- "expression/solubility"

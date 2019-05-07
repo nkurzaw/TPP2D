@@ -1,2 +1,10 @@
+Changes in version 1.1.0 (2019-05-06)                       
++ Carry-over detection now works via a LDA
+  model
+
+Changes in version 1.0.0 (2019-05-01)                       
++ Package added to Bioconductor
++ Bioc-submission branch merged with master
+
 Changes in version 0.99.0 (2019-03-12)
 + Submitted to Bioconductor
