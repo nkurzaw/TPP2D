@@ -17,7 +17,7 @@ biocViews: Software, Proteomics, DataImport
 BugReports: https://support.bioconductor.org/
 URL: http://bioconductor.org/packages/TPP2D
 RoxygenNote: 6.1.1.9000
-Depends: R (>= 3.5.0), stats, utils, dplyr, methods
+Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
   RCurl, parallel, MASS
 Suggests: knitr, testthat
