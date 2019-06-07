@@ -43,7 +43,7 @@ computeFdr <- function(df_out, df_null){
                rank = dense_rank(desc(F_statistic)),
                is_decoy = ifelse(dataset != "true", 1, 0)) %>%
         mutate(true_cumsum = cumsum(!is_decoy),
-               null_cumsum = cumsum(is_decoy)/(B/10)) %>% 
+               null_cumsum = cumsum(is_decoy)/B) %>% 
         mutate(pi = (nrow_out-true_cumsum)/(nrow_out-null_cumsum)) %>% 
         mutate(fdr = pi * null_cumsum/true_cumsum) %>% 
         ungroup()

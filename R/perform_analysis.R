@@ -478,7 +478,8 @@ competeModels <- function(df, fcThres = 1.5,
   
   .checkDfColumns(df)
   
-  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50)){
+  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50)|
+     identical(optim_fun_h1, .min_RSS_h1_slope_pEC50_qupm_weight)){
     slopEC50 = TRUE
   }else{
     slopEC50 = FALSE
@@ -487,6 +488,14 @@ competeModels <- function(df, fcThres = 1.5,
   ec50_limits <- .getEC50Limits(df)
   
   df_fil <- .minObsFilter(df, minObs = minObs)
+  
+  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50_qupm_weight)){
+      df_fil <- df_fil %>% 
+          mutate(weight = ifelse(qupm > 1, 1, 0.25)) %>% 
+          group_by(representative) %>% 
+          mutate(weight = weight * length(weight)/sum(weight)) %>% 
+          ungroup
+  }
   
   if(independentFiltering){
     message(paste("Independent Filtering: removing proteins without", 
