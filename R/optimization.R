@@ -64,8 +64,9 @@
                  log_conc - (zeta + zeta_slope * temperature)
                ))) -
                log2_value
-           ) ^ 2))
+           )^ 2))
 }
+
 
 .min_RSS_h1_trim <- function(data, par, len_temp) {
   # Optimization function for fitting an dose-response model to a

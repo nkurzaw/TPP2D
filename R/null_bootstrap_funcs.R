@@ -69,15 +69,13 @@ bootstrapNull <- function(df, maxit = 500,
                           gr_fun_h1_2 = NULL,
                           ncores = 1,
                           B = 20,
-                          byMsExp = TRUE,
-                          byQupm = FALSE){
+                          byMsExp = TRUE){
   
   clustername <- prot <- log2_value <- experiment <- NULL
   
   .checkDfColumns(df)
   
-  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50)|
-     identical(optim_fun_h1, .min_RSS_h1_slope_pEC50_qupm_weight)){
+  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50)){
     slopEC50 = TRUE
   }else{
     slopEC50 = FALSE
@@ -92,13 +90,13 @@ bootstrapNull <- function(df, maxit = 500,
             any values crossing the threshold.")
     df_fil <- .independentFilter(df_fil, fcThres = fcThres) 
   }
-  if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50_qupm_weight)){
-      df_fil <- df_fil %>% 
-          mutate(weight = ifelse(qupm > 1, 1, 0.25)) %>% 
-          group_by(representative) %>% 
-          mutate(weight = weight * length(weight)/sum(weight)) %>% 
-          ungroup
-  }
+  # if(identical(optim_fun_h1, .min_RSS_h1_slope_pEC50_qupm_weight)){
+  #     df_fil <- df_fil %>% 
+  #         mutate(weight = ifelse(qupm > 1, 1, 0.25)) %>% 
+  #         group_by(representative) %>% 
+  #         mutate(weight = weight * length(weight)/sum(weight)) %>% 
+  #         ungroup
+  # }
   cl <- makeCluster(ncores)
   registerDoParallel(cl)
   unique_names <- unique(df_fil$clustername)
