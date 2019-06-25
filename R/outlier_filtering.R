@@ -7,7 +7,7 @@
         group_by(representative, temperature, conc) %>% 
         filter_(paste(qualColName, " == max(", qualColName, ")",
                       collapse = "")) %>% 
-        filter(value == max(value)) %>% 
+        filter(raw_value == max(raw_value)) %>% 
         group_by(representative) %>% 
         filter_(paste("any(", qualColName, " > 1)", collapse = "")) %>% 
         arrange(temperature, conc) %>% 
@@ -37,10 +37,14 @@
                                       temp_repr$conc_id[i] + 1), 
                                 !(temp_id == temp_repr$temp_id[i] & 
                                       conc_id == temp_repr$conc_id[i]))
-                factor_sd <- abs(log2(filter(temp_repr, temp_id == temp_repr$temp_id[i] & 
-                                                 conc_id == temp_repr$conc_id[i])$rel_value) - 
-                                     mean(log2(temp2$rel_value), na.rm = TRUE))/ 
+                factor_sd1 <- abs(log2(filter(temp_repr, temp_id == temp_repr$temp_id[i] & 
+                                                  conc_id == temp_repr$conc_id[i])$rel_value) - 
+                                      mean(log2(temp2$rel_value), na.rm = TRUE))/ 
                     sd(log2(temp2$rel_value), na.rm = TRUE)
+                factor_sd2 <- abs(log2(filter(temp_repr, temp_id == temp_repr$temp_id[i] & 
+                                                  conc_id == temp_repr$conc_id[i])$rel_value) - 
+                                      mean(log2(temp2$rel_value), na.rm = TRUE))/ 
+                    sd(log2(temp_repr$rel_value), na.rm = TRUE)
                 temp3 <- filter(temp_repr, temp_id %in% 
                                     c(temp_repr$temp_id[i] - 1, 
                                       temp_repr$temp_id[i], 
@@ -49,19 +53,27 @@
                                     c(temp_repr$conc_id[i] - 1, 
                                       temp_repr$conc_id[i], 
                                       temp_repr$conc_id[i] + 1))
-                return(list("factor" = factor_sd,
-                            "shrinked_value" = mean(temp3$rel_value, na.rm = TRUE)))
+                return(list("factor1" = factor_sd1,
+                            "factor2" = factor_sd2,
+                            "shrinked_value" = mean(temp3$rel_value, na.rm = TRUE),
+                            "conc_edge" = (temp_repr$conc_id[i] == max(temp_repr$conc_id))))
             })
         if(!is.null(outlier_score)){
             temp_df <- temp_repr 
-            temp_df$outlier_score = 
-                sapply(outlier_score, function(x) x[["factor"]])
+            temp_df$outlier_score_local = 
+                sapply(outlier_score, function(x) x[["factor1"]])
+            temp_df$outlier_score_global =
+                sapply(outlier_score, function(x) x[["factor2"]])
             temp_df$shrinked_value = 
                 sapply(outlier_score, function(x) x[["shrinked_value"]])
+            temp_df$conc_edge = 
+                sapply(outlier_score, function(x) x[["conc_edge"]])
         }else{
             temp_df <- temp_repr %>% 
-                mutate(outlier_score = NA,
-                       shrinked_value = NA)
+                mutate(outlier_score_local = NA,
+                       outlier_score_global = NA,
+                       shrinked_value = NA,
+                       conc_edge = NA)
         }
         
         return(temp_df)
@@ -87,7 +99,7 @@
 #' @export
 #' @import dplyr
 moderateOutliers <- function(df, 
-                             outlier_quantile = 0.98,
+                             outlier_quantile = 0.95,
                              qualColName = "qupm"){
     
     filtered_df <- .removeAmbiguousMeasurements(df, 
@@ -97,11 +109,15 @@ moderateOutliers <- function(df,
     
     moderated_df <- 
         mutate(out_detected_df, rel_value = 
-                   case_when(outlier_score < 
-                                 quantile(out_detected_df$outlier_score, 
+                   case_when(conc_edge ~ rel_value,
+                             outlier_score_local < 
+                                 quantile(out_detected_df$outlier_score_local, 
                                           outlier_quantile, na.rm = TRUE) ~ rel_value,
+                             outlier_score_global <
+                                 quantile(out_detected_df$outlier_score_global,
+                                          outlier_quantile, na.rm = TRUE)  ~ rel_value,
                              TRUE ~ shrinked_value))
     out_df <- recomputeSignalFromRatios(moderated_df)
-        
+    
     return(out_df)
 }
