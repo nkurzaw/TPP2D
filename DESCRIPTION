@@ -1,6 +1,6 @@
 Package: TPP2D
 Title: FDR-controlled analysis of 2D-TPP experiments
-Version: 1.1.6
+Version: 1.1.7
 Authors@R: c(
     person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de", 
         role = c("aut", "cre")),

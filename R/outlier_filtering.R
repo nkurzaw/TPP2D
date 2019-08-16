@@ -1,7 +1,8 @@
 #' @import dplyr
 .removeAmbiguousMeasurements <- function(in_df, 
                                          qualColName = "qupm"){
-    representative <- temperature <- conc <- value <- NULL
+    representative <- temperature <- conc <- value <- 
+        raw_value <- NULL
     
     out_df <- in_df %>% 
         group_by(representative, temperature, conc) %>% 
@@ -78,46 +79,6 @@
         
         return(temp_df)
     }))
-    
-    return(out_df)
-}
-
-#' Moderate outlier measurements
-#' 
-#' @param df tidy data frame retrieved after import of a 2D-TPP 
-#' dataset
-#' @param outlier_quantile quantile that should be used as a cutoff to 
-#' define outliers, default: 0.98
-#' @param qualColName column indicating how many unique peptides 
-#' were used for protein quantification
-#' 
-#' @return data frame containing outlier moderated 2D-TPP data
-#' 
-#' @examples
-#' data("simulated_cell_extract_df")
-#' moderateOutliers(simulated_cell_extract_df) 
-#' @export
-#' @import dplyr
-moderateOutliers <- function(df, 
-                             outlier_quantile = 0.95,
-                             qualColName = "qupm"){
-    
-    filtered_df <- .removeAmbiguousMeasurements(df, 
-                                                qualColName = qualColName)
-    
-    out_detected_df <- .detectOutliers(in_df = filtered_df)
-    
-    moderated_df <- 
-        mutate(out_detected_df, rel_value = 
-                   case_when(conc_edge ~ rel_value,
-                             outlier_score_local < 
-                                 quantile(out_detected_df$outlier_score_local, 
-                                          outlier_quantile, na.rm = TRUE) ~ rel_value,
-                             outlier_score_global <
-                                 quantile(out_detected_df$outlier_score_global,
-                                          outlier_quantile, na.rm = TRUE)  ~ rel_value,
-                             TRUE ~ shrinked_value))
-    out_df <- recomputeSignalFromRatios(moderated_df)
     
     return(out_df)
 }
