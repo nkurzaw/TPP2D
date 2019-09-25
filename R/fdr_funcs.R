@@ -26,27 +26,28 @@
 computeFdr <- function(df_out, df_null){
 
     dataset <- nObs <- nObsRound <- F_statistic <- 
-        is_decoy <- max_rank <- true_cumsum <- 
-        null_cumsum <- representative <- clustername <- 
-        dataset <- fdr <- NULL
-
+    is_decoy <- max_rank <- true_cumsum <- 
+    null_cumsum <- representative <- clustername <- 
+    dataset <- fdr <- NULL
+    
     B <- max(as.numeric(
-        gsub("bootstrap_", "", unique(df_null$dataset))))
-  
-    nrow_out <- nrow(df_out)
+    gsub("bootstrap_", "", unique(df_null$dataset))))
+    
     out_df <- bind_rows(df_out %>% mutate(dataset = "true"),
-                        df_null) %>%
-        mutate(nObsRound = round(nObs/10)*10) %>%
-        group_by(nObsRound) %>%
-        arrange(desc(F_statistic)) %>%
-        mutate(max_rank = n(),
-               rank = dense_rank(desc(F_statistic)),
-               is_decoy = ifelse(dataset != "true", 1, 0)) %>%
-        mutate(true_cumsum = cumsum(!is_decoy),
-               null_cumsum = cumsum(is_decoy)/B) %>% 
-        mutate(pi = (nrow_out-true_cumsum)/(nrow_out-null_cumsum)) %>% 
-        mutate(fdr = pi * null_cumsum/true_cumsum) %>% 
-        ungroup()
+                      df_null) %>%
+    mutate(nObsRound = round(nObs/10)*10) %>%
+    group_by(nObsRound) %>%
+    arrange(desc(F_statistic)) %>%
+    mutate(max_rank = n(),
+           rank = dense_rank(desc(F_statistic)),
+           is_decoy = ifelse(dataset != "true", 1, 0)) %>%
+    mutate(all_null = sum(is_decoy),
+           all_true = sum(!is_decoy),
+           true_cumsum = cumsum(!is_decoy),
+           null_cumsum = cumsum(is_decoy)) %>% 
+    mutate(pi = (all_true-true_cumsum)/((all_null-null_cumsum)/B)) %>% 
+    mutate(fdr = pi * (null_cumsum/B)/true_cumsum) %>% 
+    ungroup()
     
     return(out_df)
 }
