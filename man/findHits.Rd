@@ -25,7 +25,7 @@ temp_df <- simulated_cell_extract_df \%>\%
   mutate(nObs = n()) \%>\% 
   ungroup 
 example_out <- fitAndEvalDataset(temp_df)
-example_null <- bootstrapNull(temp_df, B = 2/10)
+example_null <- bootstrapNull(temp_df, B = 1)
 fdr_df <- computeFdr(example_out, example_null)
 findHits(fdr_df, 0.1)
 
