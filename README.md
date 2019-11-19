@@ -2,6 +2,8 @@
 
 This package contains functions to analyze 2D-thermal proteome profiles using a functional analysis approach. This is done by fitting two competing models (H0 and H1) to the thermal profile of each protein and asking whether the H1 model explains the variance in the data significantly better than H0.
 
+<img align="right" src="inst/tpp2DHexSticker.png" height="300"/>
+
 ## Installation
 
 ### Installation from Bioconductor (recommended)
