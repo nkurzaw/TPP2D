@@ -210,15 +210,15 @@ fitH1Model <- function(df,
   spec <- NULL
   if(!is(optim_result, "try-error")){
     if(hypothesis == "H1"){
-      pEC50 = -optim_result$par[1]
+      pEC50 <-  -optim_result$par[1]
       if(!slopEC50){
-        slope = optim_result$par[2]
+        slope <-  optim_result$par[2]
       }else{
-        pEC50_slope = optim_result$par[2]
-        slope = optim_result$par[3]
+        pEC50_slope <- optim_result$par[2]
+        slope <- optim_result$par[3]
       }
-      rss = optim_result$value
-      nCoeffs = length(optim_result$par)
+      rss <- optim_result$value
+      nCoeffs <- length(optim_result$par)
       fitStats <- 
         data.frame(rss = rss, nCoeffs = nCoeffs,
                    pEC50 = pEC50, slope = slope)
@@ -505,4 +505,14 @@ competeModels <- function(df, fcThres = 1.5,
     slopEC50 = slopEC50)
   
   return(sum_df)
+}
+
+.computeFStatFromParams <- function(params_df){
+    fstat_df <- params_df %>%
+        mutate(df1 = nCoeffsH1 - nCoeffsH0, df2 = nObs - nCoeffsH1) %>%
+        mutate(F_statistic = ((rssH0 - rssH1) / rssH1) * (df2/df1)) %>% 
+        dplyr::select(representative, clustername, nObs, 
+                      nCoeffsH0, nCoeffsH1, rssH0, rssH1,
+                      df1, df2, F_statistic)
+    return(fstat_df)
 }

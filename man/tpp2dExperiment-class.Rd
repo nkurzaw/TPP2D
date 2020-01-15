@@ -8,7 +8,7 @@
 \value{
 an object of class tpp2dExperiment
 with the following slots:
-1) configFilePath:
+1) configTable:
 }
 \description{
 S4 TPP2D Experiment Class
@@ -16,15 +16,17 @@ S4 TPP2D Experiment Class
 \section{Slots}{
 
 \describe{
-\item{\code{configFilePath}}{character.}
-
 \item{\code{configTable}}{data.frame.}
 
 \item{\code{tidyDataTable}}{data.frame.}
 
 \item{\code{modelParamsDf}}{data.frame}
 
-\item{\code{resultTable}}{}
+\item{\code{resultTable}}{data.frame}
+
+\item{\code{bootstrapNullDf}}{data.frame}
+
+\item{\code{hitTable}}{data.frame}
 }}
 
 \examples{

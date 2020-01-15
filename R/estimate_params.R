@@ -30,7 +30,10 @@
                 by = c("log_conc", "temp_i")) %>%
                 mutate(residuals = log2_value - y_hat)
             
-            tibble(rss = h0_model$value,
+            tibble(min_qupm = min(df_fil$qupm),
+                   max_qupm = max(df_fil$qupm),
+                   nCoeffs = length(h0_model$par),
+                   rss = h0_model$value,
                    par = list(h0_model$par),
                    estimate = list(fit_est_df$y_hat),
                    residuals = list(fit_est_df$residuals))
@@ -74,7 +77,8 @@
                 by = c("log_conc", "temp_i")) %>%
                 mutate(residuals = log2_value - y_hat)
             
-            tibble(rss = h1_model$value,
+            tibble(nCoeffs = length(h1_model$par),
+                   rss = h1_model$value,
                    par = list(h1_model$par),
                    estimate = list(fit_est_df$y_hat),
                    residuals = list(fit_est_df$residuals))
