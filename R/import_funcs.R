@@ -741,8 +741,8 @@ filterOutContaminants <- function(dataLong){
 renameColumns <- function(dataLong, idVar, geneNameVar){
   clustername <- representative <- NULL
   
-  dplyr::rename_(dataLong, "representative" = idVar, 
-                 "clustername" = geneNameVar) %>%
+  dplyr::rename(dataLong, "representative" = idVar, 
+                "clustername" = geneNameVar) %>%
     group_by(clustername) %>%
     mutate(representative =
              .paste_rmNA(unique(unlist(strsplit(representative, 
