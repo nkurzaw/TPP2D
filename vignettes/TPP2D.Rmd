@@ -177,25 +177,33 @@ Here the column "required" indicates which of these columns is
 neccessary for usage of the downstream functions.    
     
     
-We then begin our actual data analysis by fitting two competing models to 
-each protein profil: A H0 model that is expected when a protein profile 
-remains unaffected by a given treatment and a H1 that fits a contrained 
-sigmoidal dose-response model across all temperatures. The goodness of 
-fit of both models for each protein is then compared and a $F$ statistic 
-is computed.
+We then begin our actual data analysis by fitting two nested models to 
+each protein profil: A null model that is expected when a protein profile 
+remains unaffected by a given treatment and an alternative model which is 
+a contrained sigmoidal dose-response model across all temperatures. 
+
 ```{r}
-competed_models <- competeModels(
+model_params_df <- getModelParamsDf(
     df = recomp_sig_df)
 ```
+
+The goodness of fit of both models for each protein is then compared and 
+a $F$ statistic is computed.
+
+```{r}
+fstat_df <- computeFStatFromParams(model_params_df)
+```
+
 
 Then we create a null model using our dataset to be able to estimate the 
 FDR for a given $F$ statistic in the next step.
 
 ```{r}
 set.seed(12, kind = "L'Ecuyer-CMRG")
-null_model <- bootstrapNull(
+null_model <- bootstrapNullAlternativeModel(
     df = recomp_sig_df,
-    ncores = 1, B = 2)
+    params_df = model_params_df,
+    B = 2)
 ```
 
 Please note that setting $B = 2$ (corresponsing to $2$ 
@@ -208,7 +216,7 @@ significant hits at a set FDR $\alpha$ we use the following functions:
 
 ```{r, warning=FALSE}
 fdr_tab <- computeFdr( 
-    df_out = competed_models,
+    df_out = fstat_df,
     df_null = null_model)
 
 hits <- findHits(
@@ -216,7 +224,7 @@ hits <- findHits(
     alpha = 0.1)
 
 hits %>% 
-    dplyr::select(clustername, nObs, F_statistic, fdr)
+    dplyr::select(clustername, nObs, F_statistic, FDR)
 ```
 
 Finally we can fit and plot proteins that have come up as 

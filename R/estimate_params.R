@@ -2,7 +2,11 @@
                           optim_fun = .min_RSS_h0,
                           gr_fun = NULL,
                           slopEC50 = TRUE, 
-                          maxit = 500){
+                          maxit = 500,
+                          qualColName = "qupm"){
+    representative <- clustername <- nObs <- temperature <- 
+        temp_i <- log_conc <- log2_value <- y_hat <- . <- NULL
+    
     h0_param_df <- df %>% 
         group_by(representative, clustername, nObs) %>%
         mutate(temp_i = dense_rank(temperature)) %>%
@@ -30,8 +34,8 @@
                 by = c("log_conc", "temp_i")) %>%
                 mutate(residuals = log2_value - y_hat)
             
-            tibble(min_qupm = min(df_fil$qupm),
-                   max_qupm = max(df_fil$qupm),
+            tibble(min_qupm = min(.[[qualColName]]),
+                   max_qupm = max(.[[qualColName]]),
                    nCoeffs = length(h0_model$par),
                    rss = h0_model$value,
                    par = list(h0_model$par),
@@ -49,6 +53,9 @@
                          gr_fun_2 = NULL,
                          slopEC50 = TRUE, 
                          maxit = 500){
+    representative <- clustername <- nObs <- temperature <- 
+        temp_i <- log_conc <- log2_value <- y_hat <- . <- NULL
+    
     h1_param_df <- df %>% 
         group_by(representative, clustername, nObs) %>%
         mutate(temp_i = dense_rank(temperature)) %>%
@@ -65,6 +72,12 @@
                                    gr_fun_2 = gr_fun_2,
                                    slopEC50 = slopEC50, 
                                    maxit = maxit)
+            
+            key_params_df <- .eval_optim_result(
+                h1_model, hypothesis = "H1",
+                data = ., len_temp = len_temp,
+                slopEC50 = slopEC50)
+            
             fit_df <- .getFitDf(
                 df_fil = ., 
                 conc_vec = unique(.$log_conc),
@@ -81,7 +94,11 @@
                    rss = h1_model$value,
                    par = list(h1_model$par),
                    estimate = list(fit_est_df$y_hat),
-                   residuals = list(fit_est_df$residuals))
+                   residuals = list(fit_est_df$residuals),
+                   pEC50H1 = key_params_df$pEC50H1,
+                   slopeH1 = key_params_df$slopeH1,
+                   pEC50_slopeH1 = key_params_df$pEC50_slopeH1,
+                   detected_effectH1 = key_params_df$detected_effectH1)
             
         }) %>% 
         ungroup()
@@ -93,6 +110,8 @@
 #' @param df tidy data_frame retrieved after import of a 2D-TPP 
 #' dataset, potential filtering and addition of a column "nObs"
 #' containing the number of observations per protein
+#' @param minObs numeric value of minimal number of observations
+#' that should be required per protein
 #' @param maxit maximal number of iterations the optimization
 #' should be given, default is set to 500
 #' @param optim_fun_h0 optimization function that should be used
@@ -112,6 +131,9 @@
 #' @param slopEC50 logical flag indicating whether the h1 model is
 #' fitted with a linear model describing the shift od the pEC50 over 
 #' temperatures
+#' @param qualColName name of column indicating quantification
+#' quality e.g. number of unique peptides used for quantification,
+#' default: "qupm" 
 #' 
 #' @return a data.frame with fitted null and alternative model 
 #' parameters
@@ -120,8 +142,9 @@
 #' 
 #' @examples 
 #' data("simulated_cell_extract_df")
-#' getModelParamsDf(.minObsFilter(simulated_cell_extract_df))
+#' getModelParamsDf(simulated_cell_extract_df)
 getModelParamsDf <- function(df,
+                             minObs = 20,
                              optim_fun_h0 = .min_RSS_h0,
                              optim_fun_h1 = .min_RSS_h1_slope_pEC50,
                              optim_fun_h1_2 = NULL,
@@ -129,17 +152,20 @@ getModelParamsDf <- function(df,
                              gr_fun_h1 = NULL,
                              gr_fun_h1_2 = NULL,
                              slopEC50 = TRUE,
-                             maxit = 750){
+                             maxit = 750,
+                             qualColName = "qupm"){
+    
+    df_fil <- .minObsFilter(df, minObs = minObs)
     
     h0_param_df <- .fitH0ParamDf(
-        df,
+        df_fil,
         optim_fun = optim_fun_h0,
         gr_fun = gr_fun_h0,
         slopEC50 = slopEC50, 
         maxit = maxit)
     
     h1_param_df <- .fitH1ParamDf(
-        df,
+        df_fil,
         optim_fun = optim_fun_h1, 
         optim_fun_2 = optim_fun_h1_2,
         gr_fun = gr_fun_h1,

@@ -28,7 +28,7 @@ computeFdr <- function(df_out, df_null){
     dataset <- nObs <- nObsRound <- F_statistic <- 
     is_decoy <- max_rank <- true_cumsum <- 
     null_cumsum <- representative <- clustername <- 
-    dataset <- fdr <- all_true <- all_null <- NULL
+    dataset <- FDR <- all_true <- all_null <- NULL
     
     B <- max(as.numeric(
     gsub("bootstrap_", "", unique(df_null$dataset))))
@@ -46,7 +46,7 @@ computeFdr <- function(df_out, df_null){
            true_cumsum = cumsum(!is_decoy),
            null_cumsum = cumsum(is_decoy)) %>% 
     mutate(pi = (all_true-true_cumsum)/((all_null-null_cumsum)/B)) %>% 
-    mutate(fdr = pi * (null_cumsum/B)/true_cumsum) %>% 
+    mutate(FDR = pi * (null_cumsum/B)/true_cumsum) %>% 
     ungroup()
     
     return(out_df)
@@ -136,17 +136,24 @@ computePvalFromKernelDensity <- function(df_out, df_null){
 #' @import dplyr
 findHits <- function(fdr_df, alpha){
   
-  nObsRound <- fdr <- max_rank_fdr <- 
-    dataset <- min_rank_true <- NULL
+  nObsRound <- FDR <- max_rank_fdr <- dataset <- min_rank_true <- 
+      representative <- clustername <- nObs <- nCoeffsH0 <- 
+      nCoeffsH1 <- rssH0 <- rssH1 <- df1 <- df2 <- F_statistic <- 
+      pEC50H1 <- slopeH1 <- pEC50_slopeH1 <- detected_effectH1 <- 
+      df_fil <- NULL
   
   hits_df <- fdr_df %>% 
     group_by(nObsRound) %>% 
     mutate(min_rank_true = min(rank[dataset == "true"])) %>% 
     filter(rank >= min_rank_true) %>% 
-    mutate(max_rank_fdr = min(rank[fdr > alpha], na.rm = TRUE)) %>% 
+    mutate(max_rank_fdr = min(rank[FDR > alpha], na.rm = TRUE)) %>% 
     filter(rank < max_rank_fdr) %>% 
     filter(dataset == "true") %>% 
-    ungroup()
+    ungroup() %>% 
+    dplyr::select(representative, clustername, nObs, matches("qupm"),
+                  nCoeffsH0, nCoeffsH1, rssH0, rssH1, 
+                  df1, df2, F_statistic, pEC50H1, slopeH1, pEC50_slopeH1, 
+                  detected_effectH1, nObsRound, pi, FDR)
   
   return(hits_df)
 }

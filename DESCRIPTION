@@ -17,8 +17,8 @@ LazyData: false
 biocViews: Software, Proteomics, DataImport
 BugReports: https://support.bioconductor.org/
 URL: http://bioconductor.org/packages/TPP2D
-RoxygenNote: 6.1.1.9000
+RoxygenNote: 6.1.1
 Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
-  RCurl, parallel, MASS, sfsmisc
+  RCurl, parallel, MASS, sfsmisc, BiocParallel
 Suggests: knitr, testthat

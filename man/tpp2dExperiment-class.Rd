@@ -7,8 +7,6 @@
 \title{S4 TPP2D Experiment Class}
 \value{
 an object of class tpp2dExperiment
-with the following slots:
-1) configTable:
 }
 \description{
 S4 TPP2D Experiment Class
@@ -17,6 +15,48 @@ S4 TPP2D Experiment Class
 
 \describe{
 \item{\code{configTable}}{data.frame.}
+
+\item{\code{idVar}}{character.}
+
+\item{\code{intensityStr}}{character.}
+
+\item{\code{fcStr}}{character.}
+
+\item{\code{nonZeroCols}}{character.}
+
+\item{\code{geneNameVar}}{character.}
+
+\item{\code{qualColName}}{character.}
+
+\item{\code{naStrs}}{character.}
+
+\item{\code{concFactor}}{numeric.}
+
+\item{\code{medianNormalizeFC}}{logical.}
+
+\item{\code{filterContaminants}}{logical.}
+
+\item{\code{minObs}}{numeric.}
+
+\item{\code{independentFiltering}}{logical.}
+
+\item{\code{fcThres}}{numeric.}
+
+\item{\code{optim_fun_h0}}{function.}
+
+\item{\code{optim_fun_h1}}{function.}
+
+\item{\code{slopEC50}}{logical.}
+
+\item{\code{maxit}}{numeric.}
+
+\item{\code{BPPARAM}}{character.}
+
+\item{\code{B}}{numeric}
+
+\item{\code{byMsExp}}{logical.}
+
+\item{\code{alpha}}{numeric.}
 
 \item{\code{tidyDataTable}}{data.frame.}
 
@@ -30,6 +70,5 @@ S4 TPP2D Experiment Class
 }}
 
 \examples{
-tpp2dObj <- new("tpp2dExperiment", 
-   configFilePath = system.file(package = "TPP2D"))
+tpp2dObj <- new("tpp2dExperiment")
 }

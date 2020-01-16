@@ -4,15 +4,18 @@
 \alias{getModelParamsDf}
 \title{Get H0 and H1 model parameters}
 \usage{
-getModelParamsDf(df, optim_fun_h0 = .min_RSS_h0,
+getModelParamsDf(df, minObs = 20, optim_fun_h0 = .min_RSS_h0,
   optim_fun_h1 = .min_RSS_h1_slope_pEC50, optim_fun_h1_2 = NULL,
   gr_fun_h0 = NULL, gr_fun_h1 = NULL, gr_fun_h1_2 = NULL,
-  slopEC50 = TRUE, maxit = 750)
+  slopEC50 = TRUE, maxit = 750, qualColName = "qupm")
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 
 dataset, potential filtering and addition of a column "nObs"
 containing the number of observations per protein}
+
+\item{minObs}{numeric value of minimal number of observations
+that should be required per protein}
 
 \item{optim_fun_h0}{optimization function that should be used
 for fitting the H0 model}
@@ -40,6 +43,10 @@ temperatures}
 
 \item{maxit}{maximal number of iterations the optimization
 should be given, default is set to 500}
+
+\item{qualColName}{name of column indicating quantification
+quality e.g. number of unique peptides used for quantification,
+default: "qupm"}
 }
 \value{
 a data.frame with fitted null and alternative model 
@@ -50,5 +57,5 @@ Get H0 and H1 model parameters
 }
 \examples{
 data("simulated_cell_extract_df")
-getModelParamsDf(.minObsFilter(simulated_cell_extract_df))
+getModelParamsDf(simulated_cell_extract_df)
 }

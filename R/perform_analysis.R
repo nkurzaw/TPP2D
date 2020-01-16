@@ -235,15 +235,16 @@ fitH1Model <- function(df,
         #                            strength = Mod(fft(alpha)))
         # alpha_fft_fit <- lm(strength ~ poly(freq, 2), 
         #                     data = alpha_fft_df[-1,])
-        freq <- Mod(fft(c(alpha, rep(0, 12-length(alpha)))))
-        alpha_fft_df <- tibble(freq) %>% 
-            mutate(spec = paste0("T", 1:n())) %>% 
-            arrange(spec) %>% 
-            spread(spec, freq)
-        lda_pred <- predict(lda_model, alpha_fft_df)
-        if(lda_pred$class == "yes"){
-            fitStats$detected_effect <- "carry-over"
-        }else if(alpha[1] > (max(alpha[-1])/3)){
+        # freq <- Mod(fft(c(alpha, rep(0, 12-length(alpha)))))
+        # alpha_fft_df <- tibble(freq) %>% 
+        #     mutate(spec = paste0("T", 1:n())) %>% 
+        #     arrange(spec) %>% 
+        #     spread(spec, freq)
+        # lda_pred <- predict(lda_model, alpha_fft_df)
+        # if(lda_pred$class == "yes"){
+        #     fitStats$detected_effect <- "carry-over"
+        # }else 
+        if(alpha[1] > (max(alpha[-1])/3)){
             fitStats$detected_effect <- "expression/solubility"
         }else{
             fitStats$detected_effect <- "stability"
@@ -507,12 +508,36 @@ competeModels <- function(df, fcThres = 1.5,
   return(sum_df)
 }
 
-.computeFStatFromParams <- function(params_df){
+#' Compute F statistics from paramter data frame
+#' 
+#' @param params_df data frame listing all null and alternative
+#' model parameters as obtained by 'getModelParamsDf'
+#' 
+#' @return data frame of all proteins and computed F statistics
+#' and parameters that were used for the computation
+#' 
+#' @examples
+#' data("simulated_cell_extract_df")
+#' params_df <- getModelParamsDf(simulated_cell_extract_df)
+#' computeFStatFromParams(params_df)
+#'  
+#' @export
+#' 
+#' @import dplyr
+computeFStatFromParams <- function(params_df){
+    nCoeffsH0 <- nCoeffsH1 <- nObs <- rssH0 <- rssH1 <- df1 <- 
+        df2 <- representative <- clustername <- min_qupm <- 
+        max_qupm <- pEC50H1 <- slopeH1 <- pEC50_slopeH1 <- 
+        detected_effectH1 <- F_statistic <- NULL
+    
     fstat_df <- params_df %>%
         mutate(df1 = nCoeffsH1 - nCoeffsH0, df2 = nObs - nCoeffsH1) %>%
         mutate(F_statistic = ((rssH0 - rssH1) / rssH1) * (df2/df1)) %>% 
         dplyr::select(representative, clustername, nObs, 
+                      min_qupm, max_qupm,
                       nCoeffsH0, nCoeffsH1, rssH0, rssH1,
+                      pEC50H1, slopeH1, pEC50_slopeH1, 
+                      detected_effectH1,
                       df1, df2, F_statistic)
     return(fstat_df)
 }
