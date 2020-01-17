@@ -152,7 +152,7 @@ getModelParamsDf <- function(df,
                              gr_fun_h1 = NULL,
                              gr_fun_h1_2 = NULL,
                              slopEC50 = TRUE,
-                             maxit = 750,
+                             maxit = 500,
                              qualColName = "qupm"){
     
     df_fil <- .minObsFilter(df, minObs = minObs)

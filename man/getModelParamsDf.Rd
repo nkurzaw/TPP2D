@@ -7,7 +7,7 @@
 getModelParamsDf(df, minObs = 20, optim_fun_h0 = .min_RSS_h0,
   optim_fun_h1 = .min_RSS_h1_slope_pEC50, optim_fun_h1_2 = NULL,
   gr_fun_h0 = NULL, gr_fun_h1 = NULL, gr_fun_h1_2 = NULL,
-  slopEC50 = TRUE, maxit = 750, qualColName = "qupm")
+  slopEC50 = TRUE, maxit = 500, qualColName = "qupm")
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 
