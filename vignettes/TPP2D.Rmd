@@ -70,7 +70,7 @@ temperatures each are multiplexed in a single mass spectrometry (MS) run.
 Typically up to 10 or 12 temperatures are used in total that add up to 5 
 or 6 MS runs respectively (Figure 1).  
 ```{r tpp_schematic, echo=FALSE, fig.cap="Experimental 2D-TPP workflow."}
-knitr::include_graphics(file.path(system.file(package = "TPP2D"), "tpp_2d_schematic.jpg"))
+knitr::include_graphics("tpp_2d_schematic.jpg")
 ```
 This package aims at providing a tool for finding 'hits' (proteins affected 
 in their thermal stability by the treatment used in the experiment) at a given 
