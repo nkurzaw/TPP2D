@@ -1,5 +1,5 @@
-#' Compute FDR for given F statistics based on true and
-#' null dataset
+#' Get FDR for given F statistics based on true and
+#' null dataset 
 #' 
 #' @param df_out data frame containing results from analysis by
 #' fitAndEvalDataset
@@ -18,13 +18,75 @@
 #'   ungroup 
 #' example_out <- fitAndEvalDataset(temp_df)
 #' example_null <- bootstrapNull(temp_df, B = 1)
+#' getFDR(example_out, example_null)
+#'  
+#' @export
+#'
+#' @import dplyr
+getFDR <- function(df_out, df_null){
+    dataset <- nObs <- nObsRound <- F_statistic <- 
+        is_decoy <- max_rank <- true_cumsum <- 
+        null_cumsum <- representative <- clustername <- 
+        dataset <- FDR <- all_true <- all_null <- NULL
+    
+    B <- max(as.numeric(
+        gsub("bootstrap_", "", unique(df_null$dataset))))
+    
+    out_df <- bind_rows(df_out %>% mutate(dataset = "true"),
+                        df_null) %>%
+        mutate(nObsRound = round(nObs/10)*10) %>%
+        group_by(nObsRound) %>%
+        arrange(desc(F_statistic)) %>%
+        mutate(max_rank = n(),
+               rank = dense_rank(desc(F_statistic)),
+               is_decoy = ifelse(dataset != "true", 1, 0)) %>%
+        mutate(all_null = sum(is_decoy),
+               all_true = sum(!is_decoy),
+               true_cumsum = cumsum(!is_decoy),
+               null_cumsum = cumsum(is_decoy)) %>% 
+        mutate(pi = (all_true-true_cumsum)/((all_null-null_cumsum)/B)) %>% 
+        mutate(FDR = pi * (null_cumsum/B)/true_cumsum) %>% 
+        ungroup()
+    
+    return(out_df)
+}
+
+#' Compute FDR for given F statistics based on true and
+#' null dataset (old function)
+#' 
+#' @param df_out data frame containing results from analysis by
+#' fitAndEvalDataset
+#' @param df_null data frame containing results from analysis by
+#' bootstrapNull
+#' 
+#' @return data frame annotating each protein with a FDR based on 
+#' it's F statistic and number of observations
+#' 
+#' @name computeFdr-deprecated
+#' @seealso \code{\link{TPP2D-deprecated}}
+#' @keywords internal
+NULL
+
+#' @rdname TPP2D-deprecated
+#' @section \code{computeFdr}:
+#' For \code{computeFdr}, use \code{\link{getFDR}}.
+#'
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' temp_df <- simulated_cell_extract_df %>% 
+#'   filter(clustername %in% paste0("protein", 1:5)) %>% 
+#'   group_by(representative) %>% 
+#'   mutate(nObs = n()) %>% 
+#'   ungroup 
+#' example_out <- fitAndEvalDataset(temp_df)
+#' example_null <- bootstrapNull(temp_df, B = 1)
 #' computeFdr(example_out, example_null)
 #'  
 #' @export
 #'
 #' @import dplyr
 computeFdr <- function(df_out, df_null){
-
+    .Deprecated("getFDR")
     dataset <- nObs <- nObsRound <- F_statistic <- 
     is_decoy <- max_rank <- true_cumsum <- 
     null_cumsum <- representative <- clustername <- 
@@ -128,7 +190,7 @@ computePvalFromKernelDensity <- function(df_out, df_null){
 #'   ungroup 
 #' example_out <- fitAndEvalDataset(temp_df)
 #' example_null <- bootstrapNull(temp_df, B = 1)
-#' fdr_df <- computeFdr(example_out, example_null)
+#' fdr_df <- getFDR(example_out, example_null)
 #' findHits(fdr_df, 0.1)
 #' 
 #' @export

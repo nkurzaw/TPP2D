@@ -189,8 +189,8 @@ runTPP2D <- function(df = NULL,
     
     message("Computing FDR\n")
     
-    fdr_df <- computeFdr(df_out = fstat_df,
-                         df_null = null_df)
+    fdr_df <- getFDR(df_out = fstat_df,
+                     df_null = null_df)
     hits_df <- findHits(fdr_df = fdr_df,
                         alpha = alpha)
     
