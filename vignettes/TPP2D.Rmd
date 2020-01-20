@@ -1,7 +1,7 @@
 ---
 title: "Introduction to TPP2D for 2D-TPP analysis"
 author: "Nils Kurzawa"
-date: "15/4/2019"
+date: "20/1/2019"
 package: TPP2D
 output:
     BiocStyle::html_document
@@ -69,12 +69,12 @@ ligand concentrations (including a vehicle condition) are used and two adjacent
 temperatures each are multiplexed in a single mass spectrometry (MS) run. 
 Typically up to 10 or 12 temperatures are used in total that add up to 5 
 or 6 MS runs respectively (Figure 1).  
-```{r tpp_schematic, echo=FALSE, fig.cap="Experimental 2D-TPP workflow."}
-knitr::include_graphics(file.path(system.file(package = "TPP2D"), "tpp_2d_schematic.jpg"))
+```{r echo=FALSE, fig.cap="Experimental 2D-TPP workflow."}
+knitr::include_graphics("tpp_2d_schematic.jpg")
 ```
 This package aims at providing a tool for finding 'hits' (proteins affected 
 in their thermal stability by the treatment used in the experiment) at a given 
-false disscovery rate (FDR). Please note that a change in thermal satbility 
+false disscovery rate (FDR). Please note that a change in thermal stability 
 of a protein is not a guarantee for it interacting with the molecule used as 
 treatment. However, we try to give the user additional information by 
 specifying whether an observed effect is likely due to stabilization or a 
