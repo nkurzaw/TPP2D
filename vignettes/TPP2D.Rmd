@@ -69,8 +69,9 @@ ligand concentrations (including a vehicle condition) are used and two adjacent
 temperatures each are multiplexed in a single mass spectrometry (MS) run. 
 Typically up to 10 or 12 temperatures are used in total that add up to 5 
 or 6 MS runs respectively (Figure 1).  
-```{r echo=FALSE, fig.cap="Experimental 2D-TPP workflow."}
-knitr::include_graphics("tpp_2d_schematic.jpg")
+```{r echo=TRUE, fig.cap="Experimental 2D-TPP workflow."}
+#knitr::include_graphics("tpp_2d_schematic.jpg")
+# Due to a current problem this figure can temporarily not be displayed, please have a look at https://proteomesci.biomedcentral.com/articles/10.1186/s12953-017-0122-4 for an illustration of the experimental 2D-TPP workflow
 ```
 This package aims at providing a tool for finding 'hits' (proteins affected 
 in their thermal stability by the treatment used in the experiment) at a given 
