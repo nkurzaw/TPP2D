@@ -35,3 +35,49 @@ recomputeSignalFromRatios <- function(df){
   
   return(df_recomp)
 }
+
+
+#' Resolve ambiguous protein names
+#' 
+#' @param df tidy data_frame retrieved after 
+#' import of a 2D-TPP dataset
+#' @param includeIsoforms logical indicating
+#' whether protein isoform should be kept for
+#' analysis
+#' 
+#' @return data frame with resolved protein name
+#' ambiguity
+#' 
+#' @examples 
+#' tst_df <- bind_rows(tibble(representative = rep(1:3, each = 3), 
+#'                            clustername = rep(letters[1:3], each = 3)), 
+#'                     tibble(representative = rep(c(4, 5), c(3, 2)), 
+#'                            clustername = rep(c("a", "b"), c(3, 2))))
+#'                            
+#' resolveAmbigousProteinNames(tst_df)
+#' @export
+resolveAmbigousProteinNames <- function(df, includeIsoforms = FALSE){
+    representative <- clustername <- nObs <- NULL
+    lookUpDf <- df %>% 
+        group_by(representative, clustername) %>% 
+        summarize(nObs = n()) %>% 
+        ungroup() 
+    
+    if(includeIsoforms){
+        df_fil <- df %>% 
+            rowwise() %>% 
+            mutate(clustername = 
+                       paste(representative,
+                             clustername, sep = "_")) %>% 
+            ungroup
+    }else{
+        lookUpDf <- lookUpDf %>% 
+            filter(nObs == max(nObs)) %>% 
+            filter(!duplicated(clustername))
+        
+        df_fil <- df %>% 
+            filter(representative %in% 
+                       lookUpDf$representative)
+    }
+    return(df_fil)
+}
