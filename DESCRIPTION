@@ -1,6 +1,6 @@
 Package: TPP2D
 Title: FDR-controlled analysis of 2D-TPP experiments
-Version: 1.2.2
+Version: 1.2.3
 Authors@R: c(
     person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de", 
         role = c("aut", "cre")),
@@ -17,7 +17,7 @@ LazyData: false
 biocViews: Software, Proteomics, DataImport
 BugReports: https://support.bioconductor.org/
 URL: http://bioconductor.org/packages/TPP2D
-RoxygenNote: 6.1.1.9000
+RoxygenNote: 6.1.1
 Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
   RCurl, parallel, MASS
