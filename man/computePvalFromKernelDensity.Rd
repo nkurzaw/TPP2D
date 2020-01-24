@@ -27,7 +27,7 @@ bootstrapped null distribution
 \examples{
 data("simulated_cell_extract_df")
 temp_df <- simulated_cell_extract_df \%>\% 
-  filter(clustername \%in\% paste0("protein", 1)) \%>\% 
+  filter(clustername \%in\% paste0("protein", 1:3)) \%>\% 
   group_by(representative) \%>\% 
   mutate(nObs = n()) \%>\% 
   ungroup 
