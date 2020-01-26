@@ -54,9 +54,9 @@ recomputeSignalFromRatios <- function(df){
 #'                     tibble(representative = rep(c(4, 5), c(3, 2)), 
 #'                            clustername = rep(c("a", "b"), c(3, 2))))
 #'                            
-#' resolveAmbigousProteinNames(tst_df)
+#' resolveAmbiguousProteinNames(tst_df)
 #' @export
-resolveAmbigousProteinNames <- function(df, includeIsoforms = FALSE){
+resolveAmbiguousProteinNames <- function(df, includeIsoforms = FALSE){
     representative <- clustername <- nObs <- NULL
     lookUpDf <- df %>% 
         group_by(representative, clustername) %>% 
