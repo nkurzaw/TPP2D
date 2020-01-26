@@ -72,7 +72,7 @@ resolveAmbigousProteinNames <- function(df, includeIsoforms = FALSE){
             ungroup
     }else{
         lookUpDf <- lookUpDf %>% 
-            group_by(representative) %>% 
+            group_by(clustername) %>% 
             filter(nObs == max(nObs)) %>% 
             ungroup %>% 
             filter(!duplicated(clustername)) 
