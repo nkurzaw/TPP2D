@@ -26,7 +26,8 @@
 gg_qq <- function(x, y, 
                   xlab = "F-statistics from sampled Null distr.",
                   ylab = "observed F-statistics", alpha = 0.25,
-                  gg_theme = theme_classic(), offset = 1){
+                  gg_theme = theme_classic(), offset = 1,
+                  plot_diagonal = TRUE){
   sx <- sort(x)
   sy <- sort(y)
   lenx <- length(sx)
@@ -38,19 +39,25 @@ gg_qq <- function(x, y,
     sy <- approx(1L:leny, sy, n = lenx)$y
   df <- data.frame(sx, sy)
   
-  ggplot(df, aes(sx, sy)) +
+  p <- ggplot(df, aes(sx, sy)) +
     geom_point(alpha = alpha) +
-    geom_line(aes(x, y),
-              linetype = "dashed",
-              color = "gray",
-              data = data.frame(x = seq(0, max(c(sx,sy))),
-                                y = seq(0, max(c(sx,sy))))) +
     coord_fixed(xlim = c(0, max(c(sx,sy)) + offset),
                 ylim = c(0, max(c(sx,sy)) + offset),
                 expand = FALSE) +
     xlab(xlab) +
     ylab(ylab) +
     gg_theme
+  
+  if(plot_diagonal){
+      p <- p + 
+          geom_line(aes(x, y),
+                    linetype = "dashed",
+                    color = "gray",
+                    data = data.frame(
+                        x = seq(0, max(c(sx,sy))),
+                        y = seq(0, max(c(sx,sy))))) 
+  }
+  return(p)
 }
 
 #' Plot 2D thermal profile intensities of a protein 
