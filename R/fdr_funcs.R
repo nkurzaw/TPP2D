@@ -115,66 +115,6 @@ computeFdr <- function(df_out, df_null){
 }
 
 #' Compute p-values for given F statistics based on true and
-#' null dataset using a kernel density estimation of the 
-#' bootstrapped null distribution
-#' 
-#' @param df_out data frame containing results from analysis by
-#' fitAndEvalDataset
-#' @param df_null data frame containing results from analysis by
-#' bootstrapNull
-#' 
-#' @return data frame annotating each protein with a FDR based on 
-#' it's F statistic and number of observations
-#' 
-#' @examples 
-#' data("simulated_cell_extract_df")
-#' temp_df <- simulated_cell_extract_df %>% 
-#'   filter(clustername %in% paste0("protein", 1:3)) %>% 
-#'   group_by(representative) %>% 
-#'   mutate(nObs = n()) %>% 
-#'   ungroup 
-#' example_out <- fitAndEvalDataset(temp_df)
-#' example_null <- bootstrapNull(temp_df, B = 2)
-#' computePvalFromKernelDensity(
-#'   example_out, 
-#'   example_null)
-#'  
-#' @export
-#'
-#' @import dplyr
-#' @importFrom stats density
-#' @importFrom stats p.adjust
-#' @importFrom sfsmisc integrate.xy
-computePvalFromKernelDensity <- function(df_out, df_null){
-    
-    dataset <- nObs <- nObsRound <- F_statistic <- 
-        representative <- clustername <- dataset  <- NULL
-    
-    tmp_df <- bind_rows(df_out %>% mutate(dataset = "true"),
-                        df_null) %>%
-        mutate(nObsRound = round(nObs/10)*10) 
-    
-    out_df <- bind_rows(lapply(unique(tmp_df$nObsRound), function(nobs){
-        nobs_df <- filter(tmp_df, nObsRound == nobs)
-        density_est <- density(filter(nobs_df, dataset != "true")$F_statistic, 
-                               n = 1e6)
-        full_integral <- integrate.xy(density_est$x, density_est$y)
-        nobs_df %>% filter(dataset == "true") %>% 
-            group_by(representative) %>% 
-            mutate(p_value = 1 - (
-                integrate.xy(density_est$x[which(density_est$x < F_statistic)],
-                             density_est$y[which(density_est$x < F_statistic)])/
-                    full_integral)) %>% 
-            ungroup
-    })) %>% 
-        ungroup %>% 
-        within(p_value[p_value == 0] <- .Machine$double.eps) %>% 
-        mutate(p_adj = p.adjust(p_value, method = "BH"))
-    
-    return(out_df)
-}
-
-#' Compute p-values for given F statistics based on true and
 #' null dataset 
 #' 
 #' @param df_out data frame containing results from analysis by

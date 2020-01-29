@@ -20,5 +20,5 @@ URL: http://bioconductor.org/packages/TPP2D
 RoxygenNote: 6.1.1
 Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
-  RCurl, parallel, MASS, sfsmisc, BiocParallel
+  RCurl, parallel, MASS, BiocParallel
 Suggests: knitr, testthat
