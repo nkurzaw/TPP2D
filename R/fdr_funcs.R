@@ -174,6 +174,60 @@ computePvalFromKernelDensity <- function(df_out, df_null){
     return(out_df)
 }
 
+#' Compute p-values for given F statistics based on true and
+#' null dataset 
+#' 
+#' @param df_out data frame containing results from analysis by
+#' fitAndEvalDataset
+#' @param df_null data frame containing results from analysis by
+#' bootstrapNull
+#' 
+#' @return data frame annotating each protein with a FDR based on 
+#' it's F statistic and number of observations
+#' 
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' temp_df <- simulated_cell_extract_df %>% 
+#'   filter(clustername %in% paste0("protein", 1:3)) %>% 
+#'   group_by(representative) %>% 
+#'   mutate(nObs = n()) %>% 
+#'   ungroup 
+#' example_out <- fitAndEvalDataset(temp_df)
+#' example_null <- bootstrapNull(temp_df, B = 2)
+#' getPvalues(
+#'   example_out, 
+#'   example_null)
+#'  
+#' @export
+#'
+#' @import dplyr
+#' @importFrom stats density
+#' @importFrom stats p.adjust
+getPvalues <- function(df_out, df_null){
+    dataset <- nObs <- nObsRound <- F_statistic <- 
+        is_decoy <- max_rank <- true_cumsum <- 
+        null_cumsum <- representative <- clustername <- 
+        dataset <- FDR <- all_true <- all_null <- NULL
+    
+    out_df <- bind_rows(df_out %>% mutate(dataset = "true"),
+                        df_null) %>%
+        mutate(nObsRound = round(nObs/10)*10) %>%
+        group_by(nObsRound) %>%
+        arrange(desc(F_statistic)) %>%
+        mutate(max_rank = n(),
+               rank = dense_rank(desc(F_statistic)),
+               is_decoy = ifelse(dataset != "true", 1, 0)) %>%
+        mutate(all_null = sum(is_decoy),
+               null_cumsum = cumsum(is_decoy)) %>% 
+        mutate(p_value = (null_cumsum)/all_null) %>% 
+        ungroup() %>% 
+        within(p_value[p_value == 0] <- .Machine$double.eps) %>% 
+        filter(dataset == "true") %>% 
+        mutate(p_adj = p.adjust(p_value, method = "BH"))
+    
+    return(out_df)
+}
+
 #' Find hits according to FDR threshold
 #' 
 #' @param fdr_df data frame obtained from computeFdr

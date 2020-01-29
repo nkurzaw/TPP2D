@@ -6,7 +6,7 @@
 \usage{
 gg_qq(x, y, xlab = "F-statistics from sampled Null distr.",
   ylab = "observed F-statistics", alpha = 0.25,
-  gg_theme = theme_classic(), offset = 1)
+  gg_theme = theme_classic(), offset = 1, plot_diagonal = TRUE)
 }
 \arguments{
 \item{x}{vector containing values of values of first 
@@ -25,6 +25,9 @@ distribution to compare}
 
 \item{offset}{offset for x and y axis on top of maximal 
 values}
+
+\item{plot_diagonal}{logical parameter indicating whether
+an identity line should be plotted}
 }
 \value{
 A ggplot displaying the qq-plot of a true and a

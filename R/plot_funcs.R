@@ -10,6 +10,8 @@
 #' @param gg_theme ggplot theme, default is theme_classic()
 #' @param offset offset for x and y axis on top of maximal 
 #' values
+#' @param plot_diagonal logical parameter indicating whether
+#' an identity line should be plotted
 #' 
 #' @return A ggplot displaying the qq-plot of a true and a
 #' a bootstrapped null distribution
