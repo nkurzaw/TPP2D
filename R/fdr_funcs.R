@@ -36,6 +36,7 @@ getFDR <- function(df_out, df_null){
                         df_null) %>%
         mutate(nObsRound = round(nObs/10)*10) %>%
         group_by(nObsRound) %>%
+        filter(!is.na(F_statistic)) %>% 
         arrange(desc(F_statistic)) %>%
         mutate(max_rank = n(),
                rank = dense_rank(desc(F_statistic)),
