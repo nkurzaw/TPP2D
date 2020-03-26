@@ -36,7 +36,6 @@ getFDR <- function(df_out, df_null){
                         df_null) %>%
         mutate(nObsRound = round(nObs/10)*10) %>%
         group_by(nObsRound) %>%
-        filter(!is.na(F_statistic)) %>% 
         arrange(desc(F_statistic)) %>%
         mutate(max_rank = n(),
                rank = dense_rank(desc(F_statistic)),
@@ -47,7 +46,8 @@ getFDR <- function(df_out, df_null){
                null_cumsum = cumsum(is_decoy)) %>% 
         mutate(pi = (all_true-true_cumsum)/((all_null-null_cumsum)/B)) %>% 
         mutate(FDR = pi * (null_cumsum/B)/true_cumsum) %>% 
-        ungroup()
+        ungroup() %>% 
+        within(FDR[is.na(F_statistic)] <- NA)
     
     return(out_df)
 }
@@ -200,6 +200,7 @@ findHits <- function(fdr_df, alpha){
       df_fil <- NULL
   
   hits_df <- fdr_df %>% 
+    filter(!is.na(F_statistic)) %>% 
     group_by(nObsRound) %>% 
     mutate(min_rank_true = min(rank[dataset == "true"])) %>% 
     filter(rank >= min_rank_true) %>% 
