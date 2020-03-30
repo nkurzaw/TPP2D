@@ -541,3 +541,39 @@ computeFStatFromParams <- function(params_df){
                       df1, df2, F_statistic)
     return(fstat_df)
 }
+
+#' Get pEC50 for a protein of interest at a specific temperatures
+#' (optimally the melting point of the protein)
+#' 
+#' @param fstat_df data frame as obtained after calling 
+#' \code{getModelParamsDf}, containing fitted null and 
+#' alternative model parameters for each protein
+#' @param protein character string referring to the protein 
+#' of interest
+#' @param temperaturePEC50 temperature (numeric) at which pEC50
+#' should be inferred
+#' 
+#' @return numeric value specifying the pEC50 for the 
+#' indicated protein and temperature
+#' 
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' 
+#' model_params_df <- getModelParamsDf(
+#'    df = filter(simulated_cell_extract_df, 
+#'            clustername == "tp1"))
+#' 
+#' getPEC504Temperature(
+#'     fstat_df = model_params_df, 
+#'     protein = "tp1", 
+#'     temperaturePEC50 = 60)
+#' @import dplyr
+#' @export
+getPEC504Temperature <- function(fstat_df, protein, 
+                                 temperaturePEC50 = 60){
+    clustername <- NULL
+    fstat_fil <- filter(fstat_df, clustername == protein)
+    pEC50 <- fstat_fil$pEC50H1 - 
+        (temperaturePEC50 *fstat_fil$pEC50_slopeH1)
+    return(pEC50)
+}
