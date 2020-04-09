@@ -5,7 +5,7 @@
 \title{Get FDR for given F statistics based on true and
 null dataset}
 \usage{
-getFDR(df_out, df_null)
+getFDR(df_out, df_null, squeezeDenominator = TRUE)
 }
 \arguments{
 \item{df_out}{data frame containing results from analysis by
@@ -13,6 +13,9 @@ fitAndEvalDataset}
 
 \item{df_null}{data frame containing results from analysis by
 bootstrapNull}
+
+\item{squeezeDenominator}{logical indicating whether F statistic
+denominator should be shrinked using limma::squeezeVar}
 }
 \value{
 data frame annotating each protein with a FDR based on 

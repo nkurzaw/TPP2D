@@ -5,6 +5,8 @@
 #' fitAndEvalDataset
 #' @param df_null data frame containing results from analysis by
 #' bootstrapNull
+#' @param squeezeDenominator logical indicating whether F statistic
+#' denominator should be shrinked using limma::squeezeVar
 #' 
 #' @return data frame annotating each protein with a FDR based on 
 #' it's F statistic and number of observations
@@ -23,11 +25,16 @@
 #' @export
 #'
 #' @import dplyr
-getFDR <- function(df_out, df_null){
+getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
     dataset <- nObs <- nObsRound <- F_statistic <- 
         is_decoy <- max_rank <- true_cumsum <- 
         null_cumsum <- representative <- clustername <- 
         dataset <- FDR <- all_true <- all_null <- NULL
+    
+    if(squeezeDenominator){
+        df_out <- .shrinkFstat(df_out, trueOrNull = "true")
+        df_null <- .shrinkFstat(df_null, trueOrNull = "null")
+    }
     
     B <- max(as.numeric(
         gsub("bootstrap_", "", unique(df_null$dataset))))
@@ -52,6 +59,31 @@ getFDR <- function(df_out, df_null){
     return(out_df)
 }
 
+#' @importFrom limma squeezeVar 
+.shrinkFstat <- function(inDf, trueOrNull = "true"){
+    rssH1 <- df2 <- rssH0 <- rssH1Squeezed <- df1 <- 
+        nObs <- nObsRound <- dataset <- NULL
+    if(trueOrNull == "true"){
+        outDf <- inDf %>% 
+            mutate(nObsRound = round(nObs/10)*10) %>% 
+            group_by(nObsRound) %>% 
+            mutate(rssH1Squeezed = limma::squeezeVar(
+                rssH1, df = df2)$var.post) %>% 
+            ungroup %>% 
+            mutate(F_statistic = (rssH0 - rssH1)/
+                       (rssH1Squeezed) * df2/df1)
+    }else if(trueOrNull == "null"){
+        outDf <- inDf %>% 
+            mutate(nObsRound = round(nObs/10)*10) %>% 
+            group_by(dataset, nObsRound) %>% 
+            mutate(rssH1Squeezed = limma::squeezeVar(
+                rssH1, df = df2)$var.post) %>% 
+            ungroup %>% 
+            mutate(F_statistic = (rssH0 - rssH1)/
+                       (rssH1Squeezed) * df2/df1)
+    }
+    return(outDf)
+}
 #' Compute FDR for given F statistics based on true and
 #' null dataset (old function)
 #' 
