@@ -154,6 +154,8 @@ computeFdr <- function(df_out, df_null){
 #' fitAndEvalDataset
 #' @param df_null data frame containing results from analysis by
 #' bootstrapNull
+#' @param squeezeDenominator logical indicating whether F statistic
+#' denominator should be shrinked using limma::squeezeVar
 #' 
 #' @return data frame annotating each protein with a FDR based on 
 #' it's F statistic and number of observations
@@ -176,11 +178,17 @@ computeFdr <- function(df_out, df_null){
 #' @import dplyr
 #' @importFrom stats density
 #' @importFrom stats p.adjust
-getPvalues <- function(df_out, df_null){
+getPvalues <- function(df_out, df_null,
+                       squeezeDenominator = FALSE){
     dataset <- nObs <- nObsRound <- F_statistic <- 
         is_decoy <- max_rank <- true_cumsum <- 
         null_cumsum <- representative <- clustername <- 
         dataset <- FDR <- all_true <- all_null <- NULL
+    
+    if(squeezeDenominator){
+        df_out <- .shrinkFstat(df_out, trueOrNull = "true")
+        df_null <- .shrinkFstat(df_null, trueOrNull = "null")
+    }
     
     out_df <- bind_rows(df_out %>% mutate(dataset = "true"),
                         df_null) %>%
