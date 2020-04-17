@@ -294,16 +294,28 @@ bootstrapNullAlternativeModel <-
                     
                 }
                 
-                sum_df <- fitAndEvalDataset(df_resample_prot, 
-                                            optim_fun_h0 = optim_fun_h0,
-                                            optim_fun_h1 = optim_fun_h1,
-                                            optim_fun_h1_2 = optim_fun_h1_2,
-                                            gr_fun_h0 = gr_fun_h0,
-                                            gr_fun_h1 = gr_fun_h1,
-                                            gr_fun_h1_2 = gr_fun_h1_2,
-                                            ec50_lower_limit = ec50_limits[1],
-                                            ec50_upper_limit = ec50_limits[2],
-                                            slopEC50 = slopEC50)
+                param_df <- getModelParamsDf(
+                    df_resample_prot, 
+                    optim_fun_h0 = optim_fun_h0,
+                    optim_fun_h1 = optim_fun_h1,
+                    optim_fun_h1_2 = optim_fun_h1_2,
+                    gr_fun_h0 = gr_fun_h0,
+                    gr_fun_h1 = gr_fun_h1,
+                    gr_fun_h1_2 = gr_fun_h1_2,
+                    slopEC50 = slopEC50,
+                    maxit = maxit)
+                sum_df <- computeFStatFromParams(
+                    params_df = param_df)
+                # sum_df <- fitAndEvalDataset(df_resample_prot, 
+                #                             optim_fun_h0 = optim_fun_h0,
+                #                             optim_fun_h1 = optim_fun_h1,
+                #                             optim_fun_h1_2 = optim_fun_h1_2,
+                #                             gr_fun_h0 = gr_fun_h0,
+                #                             gr_fun_h1 = gr_fun_h1,
+                #                             gr_fun_h1_2 = gr_fun_h1_2,
+                #                             ec50_lower_limit = ec50_limits[1],
+                #                             ec50_upper_limit = ec50_limits[2],
+                #                             slopEC50 = slopEC50)
                 
                 return(sum_df)
             })
