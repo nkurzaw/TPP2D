@@ -1,3 +1,9 @@
+Changes in version 1.3.0 (2020-04-17)
++ Carry-over detection is not used anymore
++ Bootstrapping is done based on resampling of alternative model residuals onto null model fits
++ `getFDR` replaces `computeFdr` (now deprecated)
++ option to moderate F is now available in function `getFDR`
+
 Changes in version 1.1.0 (2019-05-06)                       
 + Carry-over detection now works via a LDA
   model
