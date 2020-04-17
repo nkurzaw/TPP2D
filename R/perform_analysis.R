@@ -577,3 +577,38 @@ getPEC504Temperature <- function(fstat_df, protein,
         (temperaturePEC50 *fstat_fil$pEC50_slopeH1)
     return(pEC50)
 }
+
+
+.get2ndHighestTemperatureFstat <- function(in_df, params_df, gene_name){
+    filtered_params_df <- filter(params_df, clustername == gene_name)
+    temp_df <- filter(in_df, clustername == gene_name) %>% 
+        arrange(temperature) %>% 
+        mutate(residualsH0 = filtered_params_df$residualsH0[[1]], 
+               residualsH1 = filtered_params_df$residualsH1[[1]],
+               nObs = n(),
+               min_qupm = min(qupm),
+               max_qupm = max(qupm),
+               nCoeffsH0 = length(filtered_params_df$parH0[[1]]),
+               nCoeffsH1 = length(filtered_params_df$parH1[[1]]),
+               pEC50H1 = filtered_params_df$pEC50H1[1],
+               slopeH1 = filtered_params_df$slopeH1[1],
+               pEC50_slopeH1 = filtered_params_df$pEC50_slopeH1[1]) %>% 
+        group_by(temperature) %>% 
+        mutate(rssH0 = sum(residualsH0^2), 
+               rssH1 = sum(residualsH1^2),
+               nObsTemperature = n()) %>% 
+        mutate(df1 = (nObsTemperature/nObs) * nCoeffsH1 - 
+                   (nObsTemperature/nObs) * nCoeffsH0,
+               df2 = nObsTemperature - 
+                   (nObsTemperature/nObs) * nCoeffsH1) %>% 
+        ungroup %>% 
+        mutate(F_statistic = ((rssH0 - rssH1)/rssH1) * (df2/df1))
+    fselect <- sort(unique(temp_df$F_statistic), decreasing = TRUE)[2]
+    out_df <- filter(temp_df, F_statistic == fselect) %>% 
+        filter(!duplicated(clustername)) %>% 
+        dplyr::select(representative, clustername, nObs,
+                      min_qupm, max_qupm, nCoeffsH0, nCoeffsH1,
+                      rssH0, rssH1, pEC50H1, slopeH1, pEC50_slopeH1, 
+                      df1, df2, F_statistic)
+    return(out_df)
+}
