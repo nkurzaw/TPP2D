@@ -565,9 +565,8 @@ computeFStatFromParams <- function(params_df, in_df = NULL,
             by = c("representative", "clustername")) %>% 
             #mutate(F_statistic = F_statistic_orig + F_statisticT)
             rowwise() %>% 
-            mutate(F_statistic = mean(
-                c(unlist(F_statisticT_list), F_statistic_orig),
-                trim = 0.1)) %>% 
+            mutate(F_statistic = median(
+                c(unlist(F_statisticT_list), F_statistic_orig))) %>% 
             ungroup
     }
     
