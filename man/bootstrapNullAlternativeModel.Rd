@@ -7,6 +7,7 @@ based on resampling alternative model residuals}
 \usage{
 bootstrapNullAlternativeModel(df, params_df, maxit = 500,
   independentFiltering = FALSE, fcThres = 1.5, minObs = 20,
+  shrinkToPerTemperatureFstats = FALSE,
   optim_fun_h0 = TPP2D:::.min_RSS_h0,
   optim_fun_h1 = TPP2D:::.min_RSS_h1_slope_pEC50,
   optim_fun_h1_2 = NULL, gr_fun_h0 = NULL, gr_fun_h1 = NULL,
@@ -34,6 +35,10 @@ upon independent filtering}
 
 \item{minObs}{numeric value of minimal number of observations
 that should be required per protein}
+
+\item{shrinkToPerTemperatureFstats}{logical indicating whether
+F statistic should be shrunked towards per Temperature
+F statistics}
 
 \item{optim_fun_h0}{optimization function that should be used
 for fitting the H0 model}

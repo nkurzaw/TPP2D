@@ -514,9 +514,9 @@ competeModels <- function(df, fcThres = 1.5,
 #' model parameters as obtained by 'getModelParamsDf'
 #' @param in_df data frame of 2D-TPP profiles obtaine after 
 #' data import
-#' @param shrinkFTo2ndTemperature logical indicating whether
-#' F statistic should be shrunked towards 2nd Temperature
-#' F statistic
+#' @param shrinkToPerTemperatureFstats logical indicating whether
+#' F statistic should be shrunked towards per Temperature
+#' F statistics
 #' 
 #' @return data frame of all proteins and computed F statistics
 #' and parameters that were used for the computation
@@ -530,7 +530,7 @@ competeModels <- function(df, fcThres = 1.5,
 #' 
 #' @import dplyr
 computeFStatFromParams <- function(params_df, in_df = NULL, 
-                                   shrinkFTo2ndTemperature = FALSE){
+                                   shrinkToPerTemperatureFstats = FALSE){
     nCoeffsH0 <- nCoeffsH1 <- nObs <- rssH0 <- rssH1 <- df1 <- 
         df2 <- representative <- clustername <- min_qupm <- 
         max_qupm <- pEC50H1 <- slopeH1 <- pEC50_slopeH1 <- 
@@ -546,7 +546,7 @@ computeFStatFromParams <- function(params_df, in_df = NULL,
                       detected_effectH1,
                       df1, df2, F_statistic) 
     
-    if(shrinkFTo2ndTemperature){
+    if(shrinkToPerTemperatureFstats){
         if(is.null(in_df)){
             stop(paste("Please supply the data frame obtained",
                        "after data import as 'in_df' is using",
@@ -554,7 +554,8 @@ computeFStatFromParams <- function(params_df, in_df = NULL,
         }
         fstat_2nd_temp_df <- bind_rows(
             lapply(params_df$clustername, 
-                   .get2ndHighestTemperatureFstat,
+                   #.get2ndHighestTemperatureFstat,
+                   .getPerTemperatureFstats,
                    in_df = in_df, params_df = params_df)
         )
         
@@ -562,7 +563,11 @@ computeFStatFromParams <- function(params_df, in_df = NULL,
             fstat_df %>% rename(F_statistic_orig = F_statistic), 
             fstat_2nd_temp_df,
             by = c("representative", "clustername")) %>% 
-            mutate(F_statistic = F_statistic_orig + F_statisticT)
+            #mutate(F_statistic = F_statistic_orig + F_statisticT)
+            rowwise() %>% 
+            mutate(F_statistic = mean(
+                c(unlist(F_statisticT_list), F_statistic_orig))) %>% 
+            ungroup
     }
     
     return(fstat_df)
@@ -634,5 +639,36 @@ getPEC504Temperature <- function(fstat_df, protein,
         filter(!duplicated(clustername)) %>% 
         dplyr::select(representative, clustername, rssH0T, rssH1T, 
                       df1T, df2T, F_statisticT)
+    return(out_df)
+}
+
+.getPerTemperatureFstats <- function(in_df, params_df, gene_name){
+    filtered_params_df <- filter(params_df, clustername == gene_name)
+    temp_df <- filter(in_df, clustername == gene_name) %>% 
+        arrange(temperature) %>% 
+        mutate(residualsH0 = filtered_params_df$residualsH0[[1]], 
+               residualsH1 = filtered_params_df$residualsH1[[1]],
+               nObs = n(),
+               min_qupm = min(qupm),
+               max_qupm = max(qupm),
+               nCoeffsH0 = length(filtered_params_df$parH0[[1]]),
+               nCoeffsH1 = length(filtered_params_df$parH1[[1]]),
+               pEC50H1 = filtered_params_df$pEC50H1[1],
+               slopeH1 = filtered_params_df$slopeH1[1],
+               pEC50_slopeH1 = filtered_params_df$pEC50_slopeH1[1]) %>% 
+        group_by(temperature) %>% 
+        mutate(rssH0T = sum(residualsH0^2), 
+               rssH1T = sum(residualsH1^2),
+               nObsTemperature = n()) %>% 
+        mutate(df1T = (nObsTemperature/nObs) * nCoeffsH1 - 
+                   (nObsTemperature/nObs) * nCoeffsH0,
+               df2T = nObsTemperature - 
+                   (nObsTemperature/nObs) * nCoeffsH1) %>% 
+        ungroup %>% 
+        mutate(F_statisticT = ((rssH0T - rssH1T)/rssH1T) * (df2T/df1T))
+    fselect <- sort(unique(temp_df$F_statisticT), decreasing = TRUE)[2]
+    out_df <- filter(temp_df, !duplicated(clustername)) %>% 
+        mutate(F_statisticT_list = list(temp_df$F_statisticT)) %>% 
+        dplyr::select(representative, clustername, F_statisticT_list)
     return(out_df)
 }

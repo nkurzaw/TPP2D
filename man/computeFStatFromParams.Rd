@@ -4,11 +4,19 @@
 \alias{computeFStatFromParams}
 \title{Compute F statistics from paramter data frame}
 \usage{
-computeFStatFromParams(params_df)
+computeFStatFromParams(params_df, in_df = NULL,
+  shrinkToPerTemperatureFstats = FALSE)
 }
 \arguments{
 \item{params_df}{data frame listing all null and alternative
 model parameters as obtained by 'getModelParamsDf'}
+
+\item{in_df}{data frame of 2D-TPP profiles obtaine after 
+data import}
+
+\item{shrinkToPerTemperatureFstats}{logical indicating whether
+F statistic should be shrunked towards per Temperature
+F statistics}
 }
 \value{
 data frame of all proteins and computed F statistics
