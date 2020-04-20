@@ -311,7 +311,7 @@ bootstrapNullAlternativeModel <-
                 sum_df <- computeFStatFromParams(
                     params_df = param_df,
                     in_df = df_resample_prot,
-                    shrinkFTo2ndTemperature = 
+                    shrinkToPerTemperatureFstats = 
                         shrinkToPerTemperatureFstats)
                 # sum_df <- fitAndEvalDataset(df_resample_prot, 
                 #                             optim_fun_h0 = optim_fun_h0,
