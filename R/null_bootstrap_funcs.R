@@ -167,7 +167,7 @@ bootstrapNull <- function(df, maxit = 500,
 #' upon independent filtering
 #' @param minObs numeric value of minimal number of observations
 #' that should be required per protein
-#' @param shrinkToPerTemperatureFstats logical indicating whether
+#' @param shrinkTo2ndHighestTemperatureFstat logical indicating whether
 #' F statistic should be shrunked towards per Temperature
 #' F statistics
 #' @param independentFiltering boolean flag indicating whether
@@ -228,7 +228,7 @@ bootstrapNullAlternativeModel <-
              maxit = 500,
              independentFiltering = FALSE,
              fcThres = 1.5, minObs = 20,
-             shrinkToPerTemperatureFstats = FALSE,
+             shrinkTo2ndHighestTemperatureFstat = FALSE,
              optim_fun_h0 = TPP2D:::.min_RSS_h0,
              optim_fun_h1 = TPP2D:::.min_RSS_h1_slope_pEC50,
              optim_fun_h1_2 = NULL,
@@ -311,8 +311,8 @@ bootstrapNullAlternativeModel <-
                 sum_df <- computeFStatFromParams(
                     params_df = param_df,
                     in_df = df_resample_prot,
-                    shrinkToPerTemperatureFstats = 
-                        shrinkToPerTemperatureFstats)
+                    shrinkTo2ndHighestTemperatureFstat = 
+                        shrinkTo2ndHighestTemperatureFstat)
                 # sum_df <- fitAndEvalDataset(df_resample_prot, 
                 #                             optim_fun_h0 = optim_fun_h0,
                 #                             optim_fun_h1 = optim_fun_h1,
