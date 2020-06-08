@@ -67,20 +67,26 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
         outDf <- inDf %>% 
             mutate(nObsRound = round(nObs/10)*10) %>% 
             group_by(nObsRound) %>% 
-            mutate(rssH1Squeezed = limma::squeezeVar(
-                rssH1, df = df2)$var.post) %>% 
+            mutate(
+                rssH1Squeezed = limma::squeezeVar(
+                    rssH1, df = df2)$var.post,
+                df0 = limma::squeezeVar(
+                    rssH1, df = df2)$df.prior) %>% 
             ungroup %>% 
             mutate(F_statistic = (rssH0 - rssH1)/
-                       (rssH1Squeezed) * df2/df1)
+                       (rssH1Squeezed) * (df0 + df2)/df1)
     }else if(trueOrNull == "null"){
         outDf <- inDf %>% 
             mutate(nObsRound = round(nObs/10)*10) %>% 
             group_by(dataset, nObsRound) %>% 
-            mutate(rssH1Squeezed = limma::squeezeVar(
-                rssH1, df = df2)$var.post) %>% 
+            mutate(
+                rssH1Squeezed = limma::squeezeVar(
+                    rssH1, df = df2)$var.post,
+                df0 = limma::squeezeVar(
+                    rssH1, df = df2)$df.prior) %>% 
             ungroup %>% 
             mutate(F_statistic = (rssH0 - rssH1)/
-                       (rssH1Squeezed) * df2/df1)
+                       (rssH1Squeezed) * (df0 + df2)/df1)
     }
     return(outDf)
 }
