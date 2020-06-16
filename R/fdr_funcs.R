@@ -62,7 +62,7 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
 #' @importFrom limma squeezeVar 
 .shrinkFstat <- function(inDf, trueOrNull = "true"){
     rssH1 <- df2 <- rssH0 <- rssH1Squeezed <- df1 <- 
-        nObs <- nObsRound <- dataset <- NULL
+        df0 <- nObs <- nObsRound <- dataset <- NULL
     if(trueOrNull == "true"){
         outDf <- inDf %>% 
             mutate(nObsRound = round(nObs/10)*10) %>% 
@@ -101,12 +101,12 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
 #' @return data frame annotating each protein with a FDR based on 
 #' it's F statistic and number of observations
 #' 
-#' @name computeFdr-deprecated
-#' @seealso \code{\link{TPP2D-deprecated}}
+#' @name computeFdr-defunct
+#' @seealso \code{\link{TPP2D-defunct}}
 #' @keywords internal
 NULL
 
-#' @rdname TPP2D-deprecated
+#' @rdname TPP2D-defunct
 #' @section \code{computeFdr}:
 #' For \code{computeFdr}, use \code{\link{getFDR}}.
 #'
@@ -125,32 +125,7 @@ NULL
 #'
 #' @import dplyr
 computeFdr <- function(df_out, df_null){
-    .Deprecated("getFDR")
-    dataset <- nObs <- nObsRound <- F_statistic <- 
-    is_decoy <- max_rank <- true_cumsum <- 
-    null_cumsum <- representative <- clustername <- 
-    dataset <- FDR <- all_true <- all_null <- NULL
-    
-    B <- max(as.numeric(
-    gsub("bootstrap_", "", unique(df_null$dataset))))
-    
-    out_df <- bind_rows(df_out %>% mutate(dataset = "true"),
-                      df_null) %>%
-    mutate(nObsRound = round(nObs/10)*10) %>%
-    group_by(nObsRound) %>%
-    arrange(desc(F_statistic)) %>%
-    mutate(max_rank = n(),
-           rank = dense_rank(desc(F_statistic)),
-           is_decoy = ifelse(dataset != "true", 1, 0)) %>%
-    mutate(all_null = sum(is_decoy),
-           all_true = sum(!is_decoy),
-           true_cumsum = cumsum(!is_decoy),
-           null_cumsum = cumsum(is_decoy)) %>% 
-    mutate(pi = (all_true-true_cumsum)/((all_null-null_cumsum)/B)) %>% 
-    mutate(FDR = pi * (null_cumsum/B)/true_cumsum) %>% 
-    ungroup()
-    
-    return(out_df)
+    .Defunct("getFDR")
 }
 
 #' Compute p-values for given F statistics based on true and
