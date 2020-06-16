@@ -1,7 +1,7 @@
 Package: TPP2D
 Title: Detection of ligand-protein interactions from 2D thermal 
     profiles (DLPTP)
-Version: 1.5.1
+Version: 1.5.2
 Authors@R: c(
     person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de", 
         role = c("aut", "cre")),
@@ -20,7 +20,7 @@ LazyData: false
 biocViews: Software, Proteomics, DataImport
 BugReports: https://support.bioconductor.org/
 URL: http://bioconductor.org/packages/TPP2D
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
   RCurl, parallel, MASS, BiocParallel, limma

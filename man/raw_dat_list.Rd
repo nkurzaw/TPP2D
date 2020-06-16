@@ -5,11 +5,13 @@
 \alias{raw_dat_list}
 \title{Example raw data for a subset of a simulated 
 2D-TPP cell extract dataset}
-\format{list of data frames with columns representative 
+\format{
+list of data frames with columns representative 
 (protein id), clustername (gene name), temperature, log_conc, 
-raw_value, rel_value, value and log2_value}
+raw_value, rel_value, value and log2_value
+}
 \usage{
-raw_dat_list
+data("raw_dat_list")
 }
 \description{
 Simulated example dataset obtained by 2D-TPP 
@@ -17,8 +19,5 @@ experiments for analysis by the TPP2D-package. It contains
 a list of data frames resembling raw data files returned 
 from a MS database search with 200 simulated protein profiles 
 (protein1-200) and 3 spiked-in true positives (TP1-3).
-}
-\examples{
-data("raw_dat_list")
 }
 \keyword{datasets}

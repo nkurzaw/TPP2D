@@ -4,8 +4,17 @@
 \alias{import2dMain}
 \title{Import 2D-TPP dataset main function}
 \usage{
-import2dMain(configTable, data, idVar, fcStr, addCol, naStrs, intensityStr,
-  qualColName, nonZeroCols)
+import2dMain(
+  configTable,
+  data,
+  idVar,
+  fcStr,
+  addCol,
+  naStrs,
+  intensityStr,
+  qualColName,
+  nonZeroCols
+)
 }
 \arguments{
 \item{configTable}{character string of a file path to a config table}

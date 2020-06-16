@@ -4,9 +4,17 @@
 \alias{fitH1Model}
 \title{Fit H1 model and evaluate fit statistics}
 \usage{
-fitH1Model(df, maxit = 500, optim_fun = .min_RSS_h1_slope_pEC50,
-  optim_fun_2 = NULL, gr_fun = NULL, gr_fun_2 = NULL,
-  ec50_lower_limit = NULL, ec50_upper_limit = NULL, slopEC50 = TRUE)
+fitH1Model(
+  df,
+  maxit = 500,
+  optim_fun = .min_RSS_h1_slope_pEC50,
+  optim_fun_2 = NULL,
+  gr_fun = NULL,
+  gr_fun_2 = NULL,
+  ec50_lower_limit = NULL,
+  ec50_upper_limit = NULL,
+  slopEC50 = TRUE
+)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 

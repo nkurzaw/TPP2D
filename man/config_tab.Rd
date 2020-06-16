@@ -5,15 +5,17 @@
 \alias{config_tab}
 \title{Example config table for a import of a simulated 
 2D-TPP cell extract dataset}
-\format{"Compound" describing the compound used for the assay, 
+\format{
+"Compound" describing the compound used for the assay, 
 "Experiment" listing MS experiment ids of the separate runs
 (typically comprising two multiplexed adjacent temperature), 
 "Temperature": the temperature used for a given sub-experimet, 
 the respective TMT labels "126"-"131L", RefCol referring to
 the label used as a reference label for computing relative
-fold changes (usually the label used for the control treatment).}
+fold changes (usually the label used for the control treatment).
+}
 \usage{
-config_tab
+data("config_tab")
 }
 \description{
 Config table fot import of simulated example 
@@ -31,8 +33,5 @@ already imported data frames the config table for the import
 function should be a path to an txt, csv or xlsx file containing
 an additional column "Path" listing for each row the respective
 path to a searched protein output file.
-}
-\examples{
-data("config_tab")
 }
 \keyword{datasets}

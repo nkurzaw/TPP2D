@@ -4,18 +4,38 @@
 \alias{runTPP2D}
 \title{Run complete TPP2D analysis}
 \usage{
-runTPP2D(df = NULL, configTable = NULL, data = NULL,
-  idVar = "protein_id", intensityStr = "signal_sum_",
-  fcStr = "rel_fc_", nonZeroCols = "qusm", geneNameVar = "gene_name",
-  addCol = NULL, qualColName = "qupm", naStrs = c("NA", "n/d",
-  "NaN"), concFactor = 1e+06, medianNormalizeFC = TRUE,
-  filterContaminants = TRUE, recomputeSignalRatios = FALSE,
-  minObs = 20, independentFiltering = FALSE, fcThres = 1.5,
-  optim_fun_h0 = .min_RSS_h0, optim_fun_h1 = .min_RSS_h1_slope_pEC50,
-  optim_fun_h1_2 = NULL, gr_fun_h0 = NULL, gr_fun_h1 = NULL,
-  gr_fun_h1_2 = NULL, slopEC50 = TRUE, maxit = 750,
-  BPPARAM = BiocParallel::SerialParam(progressbar = TRUE), B = 20,
-  byMsExp = TRUE, alpha = 0.1)
+runTPP2D(
+  df = NULL,
+  configTable = NULL,
+  data = NULL,
+  idVar = "protein_id",
+  intensityStr = "signal_sum_",
+  fcStr = "rel_fc_",
+  nonZeroCols = "qusm",
+  geneNameVar = "gene_name",
+  addCol = NULL,
+  qualColName = "qupm",
+  naStrs = c("NA", "n/d", "NaN"),
+  concFactor = 1e+06,
+  medianNormalizeFC = TRUE,
+  filterContaminants = TRUE,
+  recomputeSignalRatios = FALSE,
+  minObs = 20,
+  independentFiltering = FALSE,
+  fcThres = 1.5,
+  optim_fun_h0 = .min_RSS_h0,
+  optim_fun_h1 = .min_RSS_h1_slope_pEC50,
+  optim_fun_h1_2 = NULL,
+  gr_fun_h0 = NULL,
+  gr_fun_h1 = NULL,
+  gr_fun_h1_2 = NULL,
+  slopEC50 = TRUE,
+  maxit = 750,
+  BPPARAM = BiocParallel::SerialParam(progressbar = TRUE),
+  B = 20,
+  byMsExp = TRUE,
+  alpha = 0.1
+)
 }
 \arguments{
 \item{df}{tidy data_frame retrieved after import of a 2D-TPP 

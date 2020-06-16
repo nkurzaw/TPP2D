@@ -4,9 +4,16 @@
 \alias{gg_qq}
 \title{Plot qq-plot of true data and bootstrapped null with ggplot}
 \usage{
-gg_qq(x, y, xlab = "F-statistics from sampled Null distr.",
-  ylab = "observed F-statistics", alpha = 0.25,
-  gg_theme = theme_classic(), offset = 1, plot_diagonal = TRUE)
+gg_qq(
+  x,
+  y,
+  xlab = "F-statistics from sampled Null distr.",
+  ylab = "observed F-statistics",
+  alpha = 0.25,
+  gg_theme = theme_classic(),
+  offset = 1,
+  plot_diagonal = TRUE
+)
 }
 \arguments{
 \item{x}{vector containing values of values of first 

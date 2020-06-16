@@ -70,8 +70,7 @@ temperatures each are multiplexed in a single mass spectrometry (MS) run.
 Typically up to 10 or 12 temperatures are used in total that add up to 5 
 or 6 MS runs respectively (Figure 1).  
 ```{r echo=TRUE, fig.cap="Experimental 2D-TPP workflow."}
-#knitr::include_graphics("tpp_2d_schematic.jpg")
-# Due to a current problem this figure can temporarily not be displayed, please have a look at https://proteomesci.biomedcentral.com/articles/10.1186/s12953-017-0122-4 for an illustration of the experimental 2D-TPP workflow
+knitr::include_graphics("tpp_2d_schematic.jpg")
 ```
 This package aims at providing a tool for finding 'hits' (proteins affected 
 in their thermal stability by the treatment used in the experiment) at a given 
@@ -126,6 +125,12 @@ import_df <- import2dDataset(
     filterContaminants = TRUE)
 
 recomp_sig_df <- recomputeSignalFromRatios(import_df)
+
+# resolve ambiguous protein names
+preproc_df <- resolveAmbiguousProteinNames(recomp_sig_df)
+# alternatively one could choose to run
+# preproc_df <- resolveAmbiguousProteinNames(
+#     recomp_sig_df, includeIsoforms = TRUE)
 ```
 Please refer to the help page of the function to retrieve in-depth description 
 of the different arguments. Essentially the function needs to know the names 
@@ -185,7 +190,7 @@ a contrained sigmoidal dose-response model across all temperatures.
 
 ```{r}
 model_params_df <- getModelParamsDf(
-    df = recomp_sig_df)
+    df = preproc_df)
 ```
 
 The goodness of fit of both models for each protein is then compared and 
@@ -202,7 +207,7 @@ FDR for a given $F$ statistic in the next step.
 ```{r}
 set.seed(12, kind = "L'Ecuyer-CMRG")
 null_model <- bootstrapNullAlternativeModel(
-    df = recomp_sig_df,
+    df = preproc_df,
     params_df = model_params_df,
     B = 2)
 ```

@@ -4,12 +4,21 @@
 \alias{import2dDataset}
 \title{Import 2D-TPP dataset using a config table}
 \usage{
-import2dDataset(configTable, data, idVar = "representative",
-  intensityStr = "sumionarea_protein_", fcStr = "rel_fc_protein_",
-  nonZeroCols = "qssm", geneNameVar = "clustername", addCol = NULL,
-  qualColName = "qupm", naStrs = c("NA", "n/d", "NaN"),
-  concFactor = 1e+06, medianNormalizeFC = TRUE,
-  filterContaminants = TRUE)
+import2dDataset(
+  configTable,
+  data,
+  idVar = "representative",
+  intensityStr = "sumionarea_protein_",
+  fcStr = "rel_fc_protein_",
+  nonZeroCols = "qssm",
+  geneNameVar = "clustername",
+  addCol = NULL,
+  qualColName = "qupm",
+  naStrs = c("NA", "n/d", "NaN"),
+  concFactor = 1e+06,
+  medianNormalizeFC = TRUE,
+  filterContaminants = TRUE
+)
 }
 \arguments{
 \item{configTable}{character string of a file path to a config table}

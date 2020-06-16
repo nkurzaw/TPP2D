@@ -2,8 +2,11 @@
 % Please edit documentation in R/TPP2D-deprecated.R, R/fdr_funcs.R
 \name{TPP2D-deprecated}
 \alias{TPP2D-deprecated}
+\alias{computeFdr}
 \title{Deprecated functions in package \pkg{TPP2D}.}
-
+\usage{
+computeFdr(df_out, df_null)
+}
 \description{
 The functions listed below are deprecated and will be defunct in
   the near future. When possible, alternative functions with similar
@@ -11,11 +14,23 @@ The functions listed below are deprecated and will be defunct in
   available at \code{help("-deprecated")}.
 }
 \details{
-  The following functions are deprecated and will be made defunct; use
-  the replacement indicated below:
-  \itemize{
-
-    \item{computeFdr: \code{\link{getFDR}}}
-
-  }
+TPP2D deprecated functions
 }
+\section{\code{computeFdr}}{
+
+For \code{computeFdr}, use \code{\link{getFDR}}.
+}
+
+\examples{
+data("simulated_cell_extract_df")
+temp_df <- simulated_cell_extract_df \%>\% 
+  filter(clustername \%in\% paste0("protein", 1:5)) \%>\% 
+  group_by(representative) \%>\% 
+  mutate(nObs = n()) \%>\% 
+  ungroup 
+example_out <- fitAndEvalDataset(temp_df)
+example_null <- bootstrapNull(temp_df, B = 1)
+computeFdr(example_out, example_null)
+ 
+}
+\keyword{internal}

@@ -5,13 +5,24 @@
 \title{Bootstrap null distribution of F statistics for FDR estimation
 based on resampling alternative model residuals}
 \usage{
-bootstrapNullAlternativeModel(df, params_df, maxit = 500,
-  independentFiltering = FALSE, fcThres = 1.5, minObs = 20,
+bootstrapNullAlternativeModel(
+  df,
+  params_df,
+  maxit = 500,
+  independentFiltering = FALSE,
+  fcThres = 1.5,
+  minObs = 20,
   optim_fun_h0 = TPP2D:::.min_RSS_h0,
   optim_fun_h1 = TPP2D:::.min_RSS_h1_slope_pEC50,
-  optim_fun_h1_2 = NULL, gr_fun_h0 = NULL, gr_fun_h1 = NULL,
-  gr_fun_h1_2 = NULL, BPPARAM = BiocParallel::SerialParam(progressbar =
-  TRUE), B = 20, byMsExp = TRUE, verbose = FALSE)
+  optim_fun_h1_2 = NULL,
+  gr_fun_h0 = NULL,
+  gr_fun_h1 = NULL,
+  gr_fun_h1_2 = NULL,
+  BPPARAM = BiocParallel::SerialParam(progressbar = TRUE),
+  B = 20,
+  byMsExp = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{df}{tidy data frame retrieved after import of a 2D-TPP 
