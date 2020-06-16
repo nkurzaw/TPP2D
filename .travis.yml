@@ -1,6 +1,5 @@
 language: r
 r: bioc-devel
-warnings_are_errors: false
 bioc_check: true
 
 r_packages:

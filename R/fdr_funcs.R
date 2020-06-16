@@ -92,15 +92,6 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
 }
 #' Compute FDR for given F statistics based on true and
 #' null dataset (old function)
-#' 
-#' @param df_out data frame containing results from analysis by
-#' fitAndEvalDataset
-#' @param df_null data frame containing results from analysis by
-#' bootstrapNull
-#' 
-#' @return data frame annotating each protein with a FDR based on 
-#' it's F statistic and number of observations
-#' 
 #' @name computeFdr-defunct
 #' @seealso \code{\link{TPP2D-defunct}}
 #' @keywords internal
@@ -109,21 +100,6 @@ NULL
 #' @rdname TPP2D-defunct
 #' @section \code{computeFdr}:
 #' For \code{computeFdr}, use \code{\link{getFDR}}.
-#'
-#' @examples 
-#' data("simulated_cell_extract_df")
-#' temp_df <- simulated_cell_extract_df %>% 
-#'   filter(clustername %in% paste0("protein", 1:5)) %>% 
-#'   group_by(representative) %>% 
-#'   mutate(nObs = n()) %>% 
-#'   ungroup 
-#' example_out <- fitAndEvalDataset(temp_df)
-#' example_null <- bootstrapNull(temp_df, B = 1)
-#' computeFdr(example_out, example_null)
-#'  
-#' @export
-#'
-#' @import dplyr
 computeFdr <- function(df_out, df_null){
     .Defunct("getFDR")
 }
