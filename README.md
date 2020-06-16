@@ -1,4 +1,8 @@
 # TPP2D
+
+[![Build Status](https://travis-ci.org/nkurzaw/TPP2D.svg?branch=master)](https://travis-ci.org/nkurzaw/TPP2D)[![codecov](https://codecov.io/gh/nkurzaw/TPP2D/branch/master/graph/badge.svg)](https://codecov.io/gh/nkurzaw/TPP2D)
+
+
 > Detection of ligand-protein interactions from thermal proteome profiles (DLPTP) by FDR-controlled analysis of 2D-TPP experiments
 
 This package contains functions to analyze 2D-thermal proteome profiles using the DLPTP (detection of ligand-protein interactions from thermal proteome profiles) approach. This is done by fitting two nested models (null and alternative) to the thermal profile of each protein and asking whether the alternative model explains the variance in the data significantly better than the null.
