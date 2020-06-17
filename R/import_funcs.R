@@ -627,7 +627,7 @@ annotateDataList <- function(dataList, geneNameVar, configLong,
     conc <- unique_ID <- spread_var <- NULL
   
   combinedTab <- bind_rows(lapply(dataList, function(dat){
-    datLong <- dat %>% tbl_df() %>%
+    datLong <- dat %>% as_tibble() %>%
       gather(channel, signal, matches(intensityStr), matches(fcStr)) %>%
       mutate(label = gsub(fcStr, "", gsub(intensityStr, "", channel))) %>%
       left_join(configLong %>% 

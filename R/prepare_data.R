@@ -36,7 +36,6 @@ recomputeSignalFromRatios <- function(df){
   return(df_recomp)
 }
 
-
 #' Resolve ambiguous protein names
 #' 
 #' @param df tidy data_frame retrieved after 

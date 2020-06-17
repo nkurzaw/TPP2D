@@ -4,17 +4,6 @@
 \alias{computeFdr-defunct}
 \title{Compute FDR for given F statistics based on true and
 null dataset (old function)}
-\arguments{
-\item{df_out}{data frame containing results from analysis by
-fitAndEvalDataset}
-
-\item{df_null}{data frame containing results from analysis by
-bootstrapNull}
-}
-\value{
-data frame annotating each protein with a FDR based on 
-it's F statistic and number of observations
-}
 \description{
 Compute FDR for given F statistics based on true and
 null dataset (old function)
