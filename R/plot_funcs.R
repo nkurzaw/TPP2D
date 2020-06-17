@@ -275,3 +275,58 @@ plot2dTppFit <- function(df, name,
                (log_conc - (optim_model$par[1] + 
                   optim_model$par[2] * temperature))))
 }
+
+#' Plot heatmap of 2D thermal profile fold changes of 
+#' a protein of choice
+#' 
+#' @param df tidy data frame of a 2D-TPP dataset 
+#' @param name gene name (clustername) of protein that 
+#' should be visualized
+#' @param drug_name character string of profiled drug name
+#' @param fc_range range of fold changes covered
+#' @param midpoint midpoint of fold changes for color
+#' scaling
+#' 
+#' @return A ggplot displaying the thermal profile 
+#' as a heatmap of fold changes of
+#' a protein of choice in a dataset of choice
+#' 
+#' @export
+#' @examples
+#' 
+#' data("simulated_cell_extract_df")
+#' plot2dTppFcHeatmap(simulated_cell_extract_df, 
+#'  "tp2", drug_name = "drug1", fc_range = c(0.75, 6.5), 
+#'   midpoint = 4.5)
+#'
+#' @import ggplot2
+#' @import dplyr
+plot2dTppFcHeatmap <- function(df, name, 
+                               drug_name = "",
+                               fc_range = c(0.75, 16.5),
+                               midpoint = 8){
+  clustername <- temperature <- conc <- 
+    rel_value <- fc <- NULL
+  
+  heat_df <- df %>% 
+    filter(clustername == name) %>% 
+    dplyr::select(clustername, temperature, 
+                  conc, rel_value) %>% 
+    mutate(temperature = factor(
+      temperature, levels = rev(sort(unique(temperature)))),
+      conc = as.factor(conc)) %>% 
+    group_by(clustername, temperature, conc) %>% 
+    summarise(fc = mean(rel_value, na.rm = TRUE)) %>% 
+    ungroup
+  
+  ggplot(heat_df, aes(conc, temperature)) +
+    geom_tile(aes(fill = fc)) +
+    scale_fill_gradient2(
+      "Fold change", 
+      low = "khaki", mid = "darkgreen", 
+      high = "black", midpoint = midpoint, 
+      limits = fc_range) +
+    labs(x = paste(drug_name, "conc."),
+         y = expression("Temperature ("*~degree*C*")")) +
+    theme_minimal()
+}
