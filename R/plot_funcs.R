@@ -328,5 +328,6 @@ plot2dTppFcHeatmap <- function(df, name,
       limits = fc_range) +
     labs(x = paste(drug_name, "conc."),
          y = expression("Temperature ("*~degree*C*")")) +
+    ggtitle(name) +
     theme_minimal()
 }
