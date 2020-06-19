@@ -78,7 +78,13 @@ resolveAmbiguousProteinNames <- function(df, includeIsoforms = FALSE){
         
         df_fil <- df %>% 
             filter(representative %in% 
-                       lookUpDf$representative)
+                       lookUpDf$representative) %>% 
+          mutate(protein_id = paste(
+            representative,
+            clustername,
+            sep = "_"
+          )) %>% 
+          mutate(representative = clustername)
     }
     return(df_fil)
 }
