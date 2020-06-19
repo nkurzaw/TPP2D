@@ -331,3 +331,77 @@ plot2dTppFcHeatmap <- function(df, name,
     ggtitle(name) +
     theme_minimal()
 }
+
+#' Plot Volcano plot of TPP2D results
+#' @param fdr_df data frame obtained from `getFDR`
+#' @param hits_df hits_df data frame obtained from `findHits`
+#' @param alpha transparency level of plotted points
+#' @param title_string character argument handed over to ggtitle
+#' @param x_lim vector with two numerics indicating the x axis limits
+#' @param y_lim vector with two numerics indicating the y axis limits
+#' @param facet_by_obs logical indicating whether plot should be facetted
+#' by number of observations, default: FALSE
+#'
+#' @return a ggplot displaying a volcano plot of the results
+#' obtained after a TPP2D analysis
+#'
+#' @import ggplot2
+#' @import dplyr
+#' 
+#' @export
+#' 
+#' @examples 
+#' data("simulated_cell_extract_df")
+#' temp_df <- simulated_cell_extract_df %>%
+#'   filter(clustername %in% paste0("protein", 1:5)) %>%
+#'   group_by(representative) %>%
+#'   mutate(nObs = n()) %>%
+#'   ungroup
+#' example_params <- getModelParamsDf(temp_df)
+#' example_fstat <- computeFStatFromParams(example_params)
+#' example_null <- bootstrapNullAlternativeModel(
+#'    df = temp_df, params_df = example_params,
+#'    B = 2)
+#' fdr_df <- getFDR(example_fstat, example_null)
+#' hits_df <- findHits(fdr_df, 0.1)
+#' plot2dTppVolcano(fdr_df = fdr_df, hits_df = hits_df)
+plot2dTppVolcano <- function(fdr_df, hits_df, 
+                             alpha = 0.5,
+                             title_string = "",
+                             x_lim = c(-12.5, 7.5),
+                             y_lim = c(0, 6),
+                             facet_by_obs = FALSE){
+  dataset <- rssH0 <- rssH1 <- F_statistic <- group <- 
+    clustername <- NULL
+  stab_colors <- c("steelblue", "orange")
+  names(stab_colors) <- c(
+    "stabilized",
+    "destabilized")
+  
+  p <- ggplot(fdr_df %>% 
+           filter(dataset == "true") %>% 
+           mutate(group = case_when(slopeH1 > 0 ~ "stabilized",
+                                    slopeH1 < 0 ~ "destabilized")), 
+         aes(log2(rssH0 - rssH1), asinh(F_statistic))) +
+    geom_point(color = "gray", alpha = alpha) + 
+    geom_point(aes(color = group), alpha = alpha, 
+               data = hits_df %>% 
+                 mutate(group = case_when(
+                   slopeH1 > 0 ~ "stabilized",
+                   slopeH1 < 0 ~ "destabilized"))) + 
+    geom_text(
+      aes(label = clustername),
+      data = hits_df, nudge_x = 0.5, nudge_y = 0.5) +
+    scale_color_manual("", values = c("steelblue", "orange")) +
+    labs(x = expression('log'[2]~'(RSS'^0~' - RSS'^1~')'),
+         y = expression('asinh('*italic(F)*' statistic)')) +
+    ggtitle(title_string) +
+    coord_cartesian(xlim = x_lim,
+                    ylim = y_lim) +
+    theme(legend.position = "bottom")
+  if(facet_by_obs){
+    p <- p +
+      facet_wrap(~nObsRound)
+  }
+  return(p)
+}

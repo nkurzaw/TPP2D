@@ -233,7 +233,15 @@ hits %>%
     dplyr::select(clustername, nObs, F_statistic, FDR)
 ```
 
-Finally we can fit and plot proteins that have come up as 
+We can now plot our obtained result as a (one-sided) volcano plot:
+
+```{r}
+plot2dTppVolcano(fdr_df = fdr_tab, hits_df = hits)
+```
+
+
+
+Finally, we can fit and plot proteins that have come up as 
 significant in our analysis by using:
 ```{r}
 plot2dTppFit(recomp_sig_df, "tp1", model_type = "H0")
@@ -242,6 +250,33 @@ or respectively for the H1 model:
 ```{r}
 plot2dTppFit(recomp_sig_df, "tp1", model_type = "H1")
 ```
+
+An alternative option to visualize thermal profiles of proteins of interest is to use `plot2dTppFcHeatmap`:
+
+```{r}
+plot2dTppFcHeatmap(recomp_sig_df, "tp1", 
+                   drug_name = "drug X",
+                   fc_range = c(0.75, 5),
+                   midpoint = 3.5)
+```
+```{r}
+plot2dTppFcHeatmap(recomp_sig_df, "tp3", 
+                   drug_name = "drug X",
+                   fc_range = c(0.75, 6),
+                   midpoint = 3.5)
+```
+
+# Acknowledgements
+
+We thank the following people for valuable feedback and help with the `TPP2D` package:               
+    
+    - André Mateus
+    - Constantin Ahlmann-Eltze              
+    - Stefan Gade
+    - Dorothee Childs
+    - Nikos Ignatiadis              
+    - Britta Velten             
+
 
 ```{r}
 sessionInfo()

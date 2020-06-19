@@ -51,7 +51,12 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
                all_true = sum(!is_decoy),
                true_cumsum = cumsum(!is_decoy),
                null_cumsum = cumsum(is_decoy)) %>% 
-        mutate(pi = (all_true-true_cumsum)/((all_null-null_cumsum)/B)) %>% 
+        mutate(remaining_null = all_null - null_cumsum,
+               remaining_true = all_true - true_cumsum) %>% 
+        mutate(pi = case_when(
+          remaining_null > 0 ~ 
+            remaining_true/(remaining_null/B),
+          remaining_null == 0 ~ 1)) %>% 
         mutate(FDR = pi * (null_cumsum/B)/true_cumsum) %>% 
         ungroup() %>% 
         within(FDR[is.na(F_statistic)] <- NA)
@@ -72,6 +77,7 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
                     rssH1, df = df2)$var.post,
                 df0 = limma::squeezeVar(
                     rssH1, df = df2)$df.prior) %>% 
+            within(df0[is.infinite(df0)] <- 0) %>% 
             ungroup %>% 
             mutate(F_statistic = (rssH0 - rssH1)/
                        (rssH1Squeezed) * (df0 + df2)/df1)
@@ -84,6 +90,7 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
                     rssH1, df = df2)$var.post,
                 df0 = limma::squeezeVar(
                     rssH1, df = df2)$df.prior) %>% 
+            within(df0[is.infinite(df0)] <- 0) %>% 
             ungroup %>% 
             mutate(F_statistic = (rssH0 - rssH1)/
                        (rssH1Squeezed) * (df0 + df2)/df1)
