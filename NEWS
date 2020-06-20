@@ -1,3 +1,8 @@
+Changes in version 1.5.5
++ new visualization options
+  + volcanoplot: `plot2dTppVolcano`
+  + heatmap of fold changes: `plot2dTppFcHeatmap`
+
 Changes in version 1.4.1 (2020-06-20)
 + bug fix in moderated F statistic computation - old version is unneccessarily stringent
 
