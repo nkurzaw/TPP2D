@@ -53,10 +53,7 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
                null_cumsum = cumsum(is_decoy)) %>% 
         mutate(remaining_null = all_null - null_cumsum,
                remaining_true = all_true - true_cumsum) %>% 
-        mutate(pi = case_when(
-          remaining_null > 0 ~ 
-            remaining_true/(remaining_null/B),
-          remaining_null == 0 ~ 1)) %>% 
+        mutate(pi = remaining_true/(remaining_null/B)) %>% 
         mutate(FDR = pi * (null_cumsum/B)/true_cumsum) %>% 
         ungroup() %>% 
         within(FDR[is.na(F_statistic)] <- NA)
