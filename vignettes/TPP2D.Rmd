@@ -255,15 +255,11 @@ An alternative option to visualize thermal profiles of proteins of interest is t
 
 ```{r}
 plot2dTppFcHeatmap(recomp_sig_df, "tp1", 
-                   drug_name = "drug X",
-                   fc_range = c(0.75, 5),
-                   midpoint = 3.5)
+                   drug_name = "drug X")
 ```
 ```{r}
 plot2dTppFcHeatmap(recomp_sig_df, "tp3", 
-                   drug_name = "drug X",
-                   fc_range = c(0.75, 6),
-                   midpoint = 3.5)
+                   drug_name = "drug X")
 ```
 
 # Acknowledgements

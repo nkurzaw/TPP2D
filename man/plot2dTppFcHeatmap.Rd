@@ -5,13 +5,7 @@
 \title{Plot heatmap of 2D thermal profile fold changes of 
 a protein of choice}
 \usage{
-plot2dTppFcHeatmap(
-  df,
-  name,
-  drug_name = "",
-  fc_range = c(0.75, 16.5),
-  midpoint = 8
-)
+plot2dTppFcHeatmap(df, name, drug_name = "", fc_range = NULL, midpoint = NULL)
 }
 \arguments{
 \item{df}{tidy data frame of a 2D-TPP dataset}
@@ -21,10 +15,14 @@ should be visualized}
 
 \item{drug_name}{character string of profiled drug name}
 
-\item{fc_range}{range of fold changes covered}
+\item{fc_range}{range of fold changes covered , default: 
+NULL leads to automatic choice by evaluating min and max 
+fold changes of the chosen protein}
 
 \item{midpoint}{midpoint of fold changes for color
-scaling}
+scaling, default: NULL leads to automatic choice
+by evaluating min and max fold changes of the chosen
+protein}
 }
 \value{
 A ggplot displaying the thermal profile 

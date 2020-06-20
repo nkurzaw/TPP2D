@@ -283,9 +283,13 @@ plot2dTppFit <- function(df, name,
 #' @param name gene name (clustername) of protein that 
 #' should be visualized
 #' @param drug_name character string of profiled drug name
-#' @param fc_range range of fold changes covered
+#' @param fc_range range of fold changes covered , default: 
+#' NULL leads to automatic choice by evaluating min and max 
+#' fold changes of the chosen protein
 #' @param midpoint midpoint of fold changes for color
-#' scaling
+#' scaling, default: NULL leads to automatic choice
+#' by evaluating min and max fold changes of the chosen
+#' protein
 #' 
 #' @return A ggplot displaying the thermal profile 
 #' as a heatmap of fold changes of
@@ -303,8 +307,8 @@ plot2dTppFit <- function(df, name,
 #' @import dplyr
 plot2dTppFcHeatmap <- function(df, name, 
                                drug_name = "",
-                               fc_range = c(0.75, 16.5),
-                               midpoint = 8){
+                               fc_range = NULL,
+                               midpoint = NULL){
   clustername <- temperature <- conc <- 
     rel_value <- fc <- NULL
   
@@ -318,6 +322,18 @@ plot2dTppFcHeatmap <- function(df, name,
     group_by(clustername, temperature, conc) %>% 
     summarise(fc = mean(rel_value, na.rm = TRUE)) %>% 
     ungroup
+  
+  if(is.null(fc_range)){
+    fc_range <- c(
+      min(heat_df$fc),
+      max(heat_df$fc)
+    )
+  }
+  if(is.null(midpoint)){
+    midpoint <- mean(
+      c(fc_range)
+    )
+  }
   
   ggplot(heat_df, aes(conc, temperature)) +
     geom_tile(aes(fill = fc)) +
@@ -373,6 +389,7 @@ plot2dTppVolcano <- function(fdr_df, hits_df,
                              facet_by_obs = FALSE){
   dataset <- rssH0 <- rssH1 <- F_statistic <- group <- 
     clustername <- NULL
+  
   stab_colors <- c("steelblue", "orange")
   names(stab_colors) <- c(
     "stabilized",
