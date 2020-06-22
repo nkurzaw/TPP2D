@@ -33,15 +33,22 @@ a functional analysis approach.
 This package implements a method to detect ligand-protein interactions from
 datasets obtained with the 2D-TPP assay. Please note that methods for analyzing
 convential TPP datasets (e.g. single dose, melting curve approach) can be found
-at: https://bioconductor.org/packages/release/bioc/html/TPP and 
-https://bioconductor.org/packages/release/bioc/html/NPARC.Rmd .
+at: [`TPP`](https://bioconductor.org/packages/release/bioc/html/TPP.html) and 
+[`NPARC`](https://bioconductor.org/packages/release/bioc/html/NPARC.html) .
 
 This vignette is not aiming to give an in-depth introduction to thermal 
 proteome profiling, please refer to other sources for this purpose:     
 
-- Original TPP paper: http://science.sciencemag.org/content/346/6205/1255784    
-- 2D-TPP paper: https://www.nature.com/articles/nchembio.2185   
-- review article: https://www.embopress.org/doi/10.15252/msb.20199232
+- [Original TPP publication](http://science.sciencemag.org/content/346/6205/1255784)     
+- [2D-TPP publication](https://www.nature.com/articles/nchembio.2185)
+- [review article](https://www.embopress.org/doi/10.15252/msb.20199232)
+
+
+**Note:** if you use `TPP2D` in published research, please cite:
+
+> Kurzawa, N.\*, Becher, I.\* *et al.* (2020)
+> Computational analysis of ligand dose range thermal proteome profiles.
+> *Biorxiv*, [10.1101/2020.05.08.083709](https://doi.org/10.1101/2020.05.08.083709)
 
 # Installation
 
@@ -264,12 +271,12 @@ plot2dTppFcHeatmap(recomp_sig_df, "tp3",
 
 We thank the following people for valuable feedback and help with the `TPP2D` package:               
     
-    - André Mateus
-    - Constantin Ahlmann-Eltze              
-    - Stefan Gade
-    - Dorothee Childs
-    - Nikos Ignatiadis              
-    - Britta Velten             
+- André Mateus
+- Constantin Ahlmann-Eltze              
+- Stefan Gade
+- Dorothee Childs
+- Nikos Ignatiadis              
+- Britta Velten             
 
 
 ```{r}

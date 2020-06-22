@@ -235,9 +235,15 @@ bootstrapNullAlternativeModel <-
              B = 20,
              byMsExp = TRUE,
              verbose = FALSE){
-        
+      
         clustername <- prot <- log2_value <- experiment <- 
             temperature <- temp_i <- log_conc <- nObs <- NULL 
+        
+        if(B < 20){
+          print(paste("Warning: You have specificed B < 20, it is",
+                      "recommended to use at least B = 20 in order", 
+                      "to obtain reliable results."))
+        }
         
         .checkDfColumns(df)
         

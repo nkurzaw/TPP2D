@@ -29,7 +29,8 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
     dataset <- nObs <- nObsRound <- F_statistic <- 
         is_decoy <- max_rank <- true_cumsum <- 
         null_cumsum <- representative <- clustername <- 
-        dataset <- FDR <- all_true <- all_null <- NULL
+        dataset <- FDR <- all_true <- all_null <- 
+        remaining_null <- remaining_true <- NULL
     
     if(squeezeDenominator){
         df_out <- .shrinkFstat(df_out, trueOrNull = "true")
