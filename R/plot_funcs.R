@@ -283,13 +283,8 @@ plot2dTppFit <- function(df, name,
 #' @param name gene name (clustername) of protein that 
 #' should be visualized
 #' @param drug_name character string of profiled drug name
-#' @param fc_range range of fold changes covered , default: 
-#' NULL leads to automatic choice by evaluating min and max 
-#' fold changes of the chosen protein
 #' @param midpoint midpoint of fold changes for color
-#' scaling, default: NULL leads to automatic choice
-#' by evaluating min and max fold changes of the chosen
-#' protein
+#' scaling, default: 1
 #' 
 #' @return A ggplot displaying the thermal profile 
 #' as a heatmap of fold changes of
@@ -300,15 +295,13 @@ plot2dTppFit <- function(df, name,
 #' 
 #' data("simulated_cell_extract_df")
 #' plot2dTppFcHeatmap(simulated_cell_extract_df, 
-#'  "tp2", drug_name = "drug1", fc_range = c(0.75, 6.5), 
-#'   midpoint = 4.5)
+#'  "tp2", drug_name = "drug1")
 #'
 #' @import ggplot2
 #' @import dplyr
 plot2dTppFcHeatmap <- function(df, name, 
                                drug_name = "",
-                               fc_range = NULL,
-                               midpoint = NULL){
+                               midpoint = 1){
   clustername <- temperature <- conc <- 
     rel_value <- fc <- NULL
   
@@ -323,25 +316,12 @@ plot2dTppFcHeatmap <- function(df, name,
     summarise(fc = mean(rel_value, na.rm = TRUE)) %>% 
     ungroup
   
-  if(is.null(fc_range)){
-    fc_range <- c(
-      min(heat_df$fc),
-      max(heat_df$fc)
-    )
-  }
-  if(is.null(midpoint)){
-    midpoint <- mean(
-      c(fc_range)
-    )
-  }
-  
   ggplot(heat_df, aes(conc, temperature)) +
     geom_tile(aes(fill = fc)) +
     scale_fill_gradient2(
       "Fold change", 
-      low = "khaki", mid = "darkgreen", 
-      high = "black", midpoint = midpoint, 
-      limits = fc_range) +
+      low = "firebrick", mid = "khaki", 
+      high = "darkgreen", midpoint = midpoint) +
     labs(x = paste(drug_name, "conc."),
          y = expression("Temperature ("*~degree*C*")")) +
     ggtitle(name) +
@@ -409,7 +389,7 @@ plot2dTppVolcano <- function(fdr_df, hits_df,
     geom_text(
       aes(label = clustername),
       data = hits_df, nudge_x = 0.5, nudge_y = 0.5) +
-    scale_color_manual("", values = c("steelblue", "orange")) +
+    scale_color_manual("", values = stab_colors) +
     labs(x = expression('log'[2]~'(RSS'^0~' - RSS'^1~')'),
          y = expression('asinh('*italic(F)*' statistic)')) +
     ggtitle(title_string) +

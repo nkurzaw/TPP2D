@@ -14,7 +14,6 @@ test_that("plot2dTppProfile generates ggplot object", {
 
 test_that("plot2dTppFcHeatmap generates ggplot object", {
     gg_rel_heatmap <- plot2dTppFcHeatmap(
-        simulated_cell_extract_df, "tp2", drug_name = "drug1", 
-        fc_range = c(0.75, 6.5), midpoint = 4.5)
+        simulated_cell_extract_df, "tp2", drug_name = "drug1")
     expect_identical(class(gg_rel_heatmap), c("gg", "ggplot"))
 })
