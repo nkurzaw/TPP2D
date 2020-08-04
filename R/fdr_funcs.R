@@ -42,7 +42,7 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
     
     out_df <- bind_rows(df_out %>% mutate(dataset = "true"),
                         df_null) %>%
-        mutate(nObsRound = round(nObs/10)*10) %>%
+        mutate(nObsRound = round(nObs, digits = -1)) %>%
         group_by(nObsRound) %>%
         arrange(desc(F_statistic)) %>%
         mutate(max_rank = n(),
@@ -154,7 +154,7 @@ getPvalues <- function(df_out, df_null,
     
     out_df <- bind_rows(df_out %>% mutate(dataset = "true"),
                         df_null) %>%
-        mutate(nObsRound = round(nObs/10)*10) %>%
+        mutate(nObsRound = round(nObs, digits = -1)) %>%
         group_by(nObsRound) %>%
         arrange(desc(F_statistic)) %>%
         mutate(max_rank = n(),
