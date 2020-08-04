@@ -12,7 +12,7 @@ findHits(fdr_df, alpha)
 \item{alpha}{significance threshold, default is set to 0.1}
 }
 \value{
-data frame of significant hits at FDR = alpha
+data frame of significant hits at FDR <= alpha
 }
 \description{
 Find hits according to FDR threshold

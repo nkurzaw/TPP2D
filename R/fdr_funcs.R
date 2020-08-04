@@ -57,43 +57,34 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
         mutate(pi = remaining_true/(remaining_null/B)) %>% 
         mutate(FDR = pi * (null_cumsum/B)/true_cumsum) %>% 
         ungroup() %>% 
-        within(FDR[is.na(F_statistic)] <- NA)
+        mutate(FDR = ifelse(is.na(F_statistic), NA, FDR))
     
     return(out_df)
 }
 
 #' @importFrom limma squeezeVar 
 .shrinkFstat <- function(inDf, trueOrNull = "true"){
-    rssH1 <- df2 <- rssH0 <- rssH1Squeezed <- df1 <- 
-        df0 <- nObs <- nObsRound <- dataset <- NULL
-    if(trueOrNull == "true"){
-        outDf <- inDf %>% 
-            mutate(nObsRound = round(nObs/10)*10) %>% 
-            group_by(nObsRound) %>% 
-            mutate(
-                rssH1Squeezed = limma::squeezeVar(
-                    rssH1, df = df2)$var.post,
-                df0 = limma::squeezeVar(
-                    rssH1, df = df2)$df.prior) %>% 
-            within(df0[is.infinite(df0)] <- 0) %>% 
-            ungroup %>% 
-            mutate(F_statistic = (rssH0 - rssH1)/
-                       (rssH1Squeezed) * (df0 + df2)/df1)
-    }else if(trueOrNull == "null"){
-        outDf <- inDf %>% 
-            mutate(nObsRound = round(nObs/10)*10) %>% 
-            group_by(dataset, nObsRound) %>% 
-            mutate(
-                rssH1Squeezed = limma::squeezeVar(
-                    rssH1, df = df2)$var.post,
-                df0 = limma::squeezeVar(
-                    rssH1, df = df2)$df.prior) %>% 
-            within(df0[is.infinite(df0)] <- 0) %>% 
-            ungroup %>% 
-            mutate(F_statistic = (rssH0 - rssH1)/
-                       (rssH1Squeezed) * (df0 + df2)/df1)
-    }
-    return(outDf)
+  . <- rssH1 <- df2 <- rssH0 <- rssH1Squeezed <- 
+    df1 <- df0 <- nObs <- nObsRound <- dataset <- NULL
+  
+  outDf <- inDf %>% 
+    mutate(nObsRound = round(nObs, digits = -1)) %>% 
+    { 
+      if(trueOrNull == "true")
+        group_by(., nObsRound)    
+      else 
+        group_by(., dataset, nObsRound) 
+    } %>%
+    do({
+      squeezeResult <- limma::squeezeVar(.$rssH1, df = .$df2)
+      mutate(., rssH1Squeezed = squeezeResult$var.post, 
+             df0 = squeezeResult$df.prior)
+    }) %>%
+    mutate(df0 = ifelse(is.finite(df0), df0, 0)) %>% 
+    ungroup %>% 
+    mutate(F_statistic = (rssH0 - rssH1)/
+             (rssH1Squeezed) * (df0 + df2)/df1)
+  return(outDf)
 }
 #' Compute FDR for given F statistics based on true and
 #' null dataset (old function)
@@ -176,7 +167,7 @@ getPvalues <- function(df_out, df_null,
 #' @param fdr_df data frame obtained from computeFdr
 #' @param alpha significance threshold, default is set to 0.1
 #' 
-#' @return data frame of significant hits at FDR = alpha
+#' @return data frame of significant hits at FDR <= alpha
 #' 
 #' @examples 
 #' data("simulated_cell_extract_df")
@@ -206,7 +197,7 @@ findHits <- function(fdr_df, alpha){
     group_by(nObsRound) %>% 
     mutate(min_rank_true = min(rank[dataset == "true"])) %>% 
     filter(rank >= min_rank_true) %>% 
-    mutate(max_rank_fdr = min(rank[FDR > alpha], na.rm = TRUE)) %>% 
+    mutate(max_rank_fdr = min(c(Inf, rank[FDR > alpha]), na.rm = TRUE)) %>% 
     filter(rank < max_rank_fdr) %>% 
     filter(dataset == "true") %>% 
     ungroup() %>% 
