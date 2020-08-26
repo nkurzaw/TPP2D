@@ -364,22 +364,39 @@ plot2dTppFcHeatmap <- function(df, name,
 plot2dTppVolcano <- function(fdr_df, hits_df, 
                              alpha = 0.5,
                              title_string = "",
-                             x_lim = c(-12.5, 7.5),
-                             y_lim = c(0, 6),
+                             x_lim = NULL,
+                             y_lim = NULL,
                              facet_by_obs = FALSE){
   dataset <- rssH0 <- rssH1 <- F_statistic <- group <- 
-    clustername <- NULL
+    clustername <- slopeH1 <- NULL
   
   stab_colors <- c("steelblue", "orange")
   names(stab_colors) <- c(
     "stabilized",
     "destabilized")
   
-  p <- ggplot(fdr_df %>% 
-           filter(dataset == "true") %>% 
+  fdr_true_df <- fdr_df %>% 
+    filter(dataset == "true")
+  
+  if(is.null(x_lim)){
+    x_lim <- c(
+      floor(min(sign(fdr_true_df$slopeH1)*
+            sqrt(fdr_true_df$rssH0 - fdr_true_df$rssH1)) - 0.5),
+      round(max(sign(fdr_true_df$slopeH1)*
+            sqrt(fdr_true_df$rssH0 - fdr_true_df$rssH1)) + 0.5)
+    )
+  }
+  if(is.null(y_lim)){
+    y_lim <- c(
+      0,
+      round(max(log2(fdr_true_df$F_statistic + 1)) + 0.5) 
+    )
+  }
+  
+  p <- ggplot(fdr_true_df %>% 
            mutate(group = case_when(slopeH1 > 0 ~ "stabilized",
                                     slopeH1 < 0 ~ "destabilized")), 
-         aes(log2(rssH0 - rssH1), asinh(F_statistic))) +
+         aes(sign(slopeH1)*sqrt(rssH0 - rssH1), log2(F_statistic + 1))) +
     geom_point(color = "gray", alpha = alpha) + 
     geom_point(aes(color = group), alpha = alpha, 
                data = hits_df %>% 
@@ -390,8 +407,8 @@ plot2dTppVolcano <- function(fdr_df, hits_df,
       aes(label = clustername),
       data = hits_df, nudge_x = 0.5, nudge_y = 0.5) +
     scale_color_manual("", values = stab_colors) +
-    labs(x = expression('log'[2]~'(RSS'^0~' - RSS'^1~')'),
-         y = expression('asinh('*italic(F)*' statistic)')) +
+    labs(x = bquote(sign(kappa) %.% sqrt(~'RSS'^0~' - RSS'^1~'')),
+         y = expression('log'[2]~'('*italic(F)*'-statistic + 1)')) +
     ggtitle(title_string) +
     coord_cartesian(xlim = x_lim,
                     ylim = y_lim) +

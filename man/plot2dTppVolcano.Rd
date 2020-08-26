@@ -9,8 +9,8 @@ plot2dTppVolcano(
   hits_df,
   alpha = 0.5,
   title_string = "",
-  x_lim = c(-12.5, 7.5),
-  y_lim = c(0, 6),
+  x_lim = NULL,
+  y_lim = NULL,
   facet_by_obs = FALSE
 )
 }

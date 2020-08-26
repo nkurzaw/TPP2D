@@ -5,7 +5,7 @@
 \title{Compute p-values for given F statistics based on true and
 null dataset}
 \usage{
-getPvalues(df_out, df_null, squeezeDenominator = FALSE)
+getPvalues(df_out, df_null, pseudo_count = 1, squeezeDenominator = FALSE)
 }
 \arguments{
 \item{df_out}{data frame containing results from analysis by
@@ -13,6 +13,10 @@ fitAndEvalDataset}
 
 \item{df_null}{data frame containing results from analysis by
 bootstrapNull}
+
+\item{pseudo_count}{numeric larger or equal to 0 added to both
+counts of protein with an F-statistic higher than a threshold
+theta of the true and bootstrapped datasets}
 
 \item{squeezeDenominator}{logical indicating whether F statistic
 denominator should be shrinked using limma::squeezeVar}

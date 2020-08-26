@@ -48,7 +48,7 @@ proteome profiling, please refer to other sources for this purpose:
 
 > Kurzawa, N.\*, Becher, I.\* *et al.* (2020)
 > Computational analysis of ligand dose range thermal proteome profiles.
-> *Biorxiv*, [10.1101/2020.05.08.083709](https://doi.org/10.1101/2020.05.08.083709)
+> *bioRxiv*, [10.1101/2020.05.08.083709](https://doi.org/10.1101/2020.05.08.083709)
 
 # Installation
 
@@ -189,9 +189,9 @@ neccessary for usage of the downstream functions.
     
     
 We then begin our actual data analysis by fitting two nested models to 
-each protein profil: A null model that is expected when a protein profile 
+each protein profile: A null model that is expected when a protein profile 
 remains unaffected by a given treatment and an alternative model which is 
-a contrained sigmoidal dose-response model across all temperatures. 
+a constrained sigmoidal dose-response model across all temperatures. 
 
 ```{r}
 model_params_df <- getModelParamsDf(
@@ -199,7 +199,7 @@ model_params_df <- getModelParamsDf(
 ```
 
 The goodness of fit of both models for each protein is then compared and 
-a $F$ statistic is computed.
+a $F$-statistic is computed.
 
 ```{r}
 fstat_df <- computeFStatFromParams(model_params_df)
@@ -207,7 +207,7 @@ fstat_df <- computeFStatFromParams(model_params_df)
 
 
 Then we create a null model using our dataset to be able to estimate the 
-FDR for a given $F$ statistic in the next step.
+FDR for a given $F$-statistic in the next step.
 
 ```{r}
 set.seed(12, kind = "L'Ecuyer-CMRG")
@@ -222,7 +222,7 @@ permutations) is not enough to guarantee faithful FDR estimation, this
 has simply been set for fast demonstration purposes. We recommend to 
 use at least $B = 20$ for applications in praxis.    
     
-To estimate the FDR for all given $F$ statistics and retrieve all 
+To estimate the FDR for all given $F$-statistics and retrieve all 
 significant hits at a set FDR $\alpha$ we use the following functions:
 
 ```{r, warning=FALSE}
@@ -272,7 +272,8 @@ plot2dTppFcHeatmap(recomp_sig_df, "tp3",
 We thank the following people for valuable feedback and help with the `TPP2D` package:               
     
 - André Mateus
-- Constantin Ahlmann-Eltze              
+- Constantin Ahlmann-Eltze    
+- Alexander Helmboldt               
 - Stefan Gade
 - Dorothee Childs
 - Nikos Ignatiadis              
