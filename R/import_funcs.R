@@ -410,7 +410,7 @@ TPP_importCheckConfigTable <- function(infoTable, type = "2D"){
     else if (length(which(!infoTable$RefCol %in% labelColsNew)) != 
              0) {
       stop("Labels in reference column not found", 
-           "in any of teh label columns.")
+           " in any of the label columns.")
     }
     hasCompoundCol <- any(allCols == "Compound")
     if (!hasCompoundCol) {
