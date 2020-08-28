@@ -409,8 +409,8 @@ TPP_importCheckConfigTable <- function(infoTable, type = "2D"){
     }
     else if (length(which(!infoTable$RefCol %in% labelColsNew)) != 
              0) {
-      stop("Labels in reference column not found", 
-           " in any of the label columns.")
+      stop(paste("Labels in reference column not found", 
+                 "in any of the label columns."))
     }
     hasCompoundCol <- any(allCols == "Compound")
     if (!hasCompoundCol) {
@@ -669,7 +669,7 @@ filterOutContaminants <- function(dataLong){
           na.rm = TRUE)){
     message("Recomputing ratios!")
     dataOut <- dataLong %>%
-      dplyr::group_by_(idVar, "temperature") %>%
+      group_by(.dots = c(idVar, "temperature")) %>%
       mutate(rel_value = rel_value/rel_value[label == RefCol]) %>%
       ungroup %>%
       filter(!is.na(raw_value)) %>%
