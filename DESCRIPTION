@@ -1,7 +1,7 @@
 Package: TPP2D
 Title: Detection of ligand-protein interactions from 2D thermal 
     profiles (DLPTP)
-Version: 1.5.10
+Version: 1.5.11
 Authors@R: c(
     person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de", 
         role = c("aut", "cre")),

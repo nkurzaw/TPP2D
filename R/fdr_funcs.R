@@ -76,14 +76,15 @@ getFDR <- function(df_out, df_null, squeezeDenominator = TRUE){
         group_by(., dataset, nObsRound) 
     } %>%
     do({
-      squeezeResult <- limma::squeezeVar(.$rssH1, df = .$df2)
-      mutate(., rssH1Squeezed = squeezeResult$var.post, 
-             df0 = squeezeResult$df.prior)
+      squeezeResult <- limma::squeezeVar(.$rssH1/.$df2, df = .$df2)
+      mutate(., rssH1Squeezed = squeezeResult$var.post) #,
+             #df0 = squeezeResult$df.prior)
     }) %>%
-    mutate(df0 = ifelse(is.finite(df0), df0, 0)) %>% 
+    #mutate(df0 = ifelse(is.finite(df0), df0, 0)) %>% 
     ungroup %>% 
-    mutate(F_statistic = (rssH0 - rssH1)/
-             (rssH1Squeezed) * (df0 + df2)/df1)
+    mutate(F_statistic = (rssH0 - rssH1)/(rssH1Squeezed) * 1/df1)
+             #(rssH1Squeezed) * (df0 + df2)/df1)
+             
   return(outDf)
 }
 #' Compute FDR for given F statistics based on true and
