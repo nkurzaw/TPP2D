@@ -13,8 +13,8 @@ bibentry(
         person(c("Wolfgang"), "Huber"),
         person(c("Mikhail", "M."), "Savitski")
     ),
-    title = "Computational analysis of ligand dose range thermal proteome profiles",
-    journal = "bioRxiv",
+    title = "A computational method for detection of ligand-binding proteins from dose range thermal proteome profiles",
+    journal = "Nature Communications",
     year = "2020",
-    doi =  "10.1101/2020.05.08.083709"
+    doi =  "10.1038/s41467-020-19529-8"
 )
