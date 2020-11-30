@@ -47,8 +47,8 @@ proteome profiling, please refer to other sources for this purpose:
 **Note:** if you use `TPP2D` in published research, please cite:
 
 > Kurzawa, N.\*, Becher, I.\* *et al.* (2020)
-> Computational analysis of ligand dose range thermal proteome profiles.
-> *bioRxiv*, [10.1101/2020.05.08.083709](https://doi.org/10.1101/2020.05.08.083709)
+> A computational method for detection of ligand-binding proteins from dose range thermal proteome profiles.
+> *Nat. Commun.*, [10.1038/s41467-020-19529-8](https://doi.org/10.1038/s41467-020-19529-8)
 
 # Installation
 
@@ -249,11 +249,17 @@ plot2dTppVolcano(fdr_df = fdr_tab, hits_df = hits)
 Finally, we can fit and plot proteins that have come up as 
 significant in our analysis by using:
 ```{r}
-plot2dTppFit(recomp_sig_df, "tp1", model_type = "H0")
+plot2dTppFit(recomp_sig_df, "tp1", 
+             model_type = "H0",
+             dot_size = 1,
+             fit_color = "darkorange")
 ```
 or respectively for the H1 model:
 ```{r}
-plot2dTppFit(recomp_sig_df, "tp1", model_type = "H1")
+plot2dTppFit(recomp_sig_df, "tp1", 
+             model_type = "H1",
+             dot_size = 1,
+             fit_color = "darkgreen")
 ```
 
 An alternative option to visualize thermal profiles of proteins of interest is to use `plot2dTppFcHeatmap`:
