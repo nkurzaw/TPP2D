@@ -133,6 +133,12 @@ plot2dTppRelProfile <- function(df, name){
 #' should be given, default is set to 500
 #' @param xlab character string of x-axis label of plot
 #' @param ylab character string of y-axis label of plot
+#' @param dot_size numeric indicating the size of the data points
+#' to plot
+#' @param line_type character string defining the line type 
+#' of the fitted curve, default "dashed"
+#' @param fit_color character string defining the color
+#' of the fitted curve
 #' 
 #' @return A ggplot displaying the thermal profile of
 #' a protein of choice in a datset of choice
@@ -151,7 +157,10 @@ plot2dTppFit <- function(df, name,
                          optim_fun_2 = NULL,
                          maxit = 500,
                          xlab = "-log10(conc.)",
-                         ylab = "log2(summed intensities)"){
+                         ylab = "log2(summed intensities)",
+                         dot_size = 0.5,
+                         line_type = "dashed",
+                         fit_color = "darkgray"){
   
   clustername <- temperature <- temp_i <- 
     log_conc <- y_hat <- log2_value <- NULL
@@ -200,8 +209,11 @@ plot2dTppFit <- function(df, name,
     stop("Please specify a valid model_type! Either H0 or H1!")
   }
   ggplot(fit_df, aes(log_conc, y_hat)) +
-    geom_line() +
-    geom_point(aes(log_conc, log2_value), data = df_fil) +
+    geom_point(aes(log_conc, log2_value), 
+               size = dot_size,
+               data = df_fil) +
+    geom_line(color = fit_color,
+              linetype = line_type) +
     facet_wrap(~temperature) +
     ggtitle(name) +
     labs(x = xlab, y = ylab)

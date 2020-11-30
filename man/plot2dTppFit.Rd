@@ -13,7 +13,10 @@ plot2dTppFit(
   optim_fun_2 = NULL,
   maxit = 500,
   xlab = "-log10(conc.)",
-  ylab = "log2(summed intensities)"
+  ylab = "log2(summed intensities)",
+  dot_size = 0.5,
+  line_type = "dashed",
+  fit_color = "darkgray"
 )
 }
 \arguments{
@@ -39,6 +42,15 @@ should be given, default is set to 500}
 \item{xlab}{character string of x-axis label of plot}
 
 \item{ylab}{character string of y-axis label of plot}
+
+\item{dot_size}{numeric indicating the size of the data points
+to plot}
+
+\item{line_type}{character string defining the line type 
+of the fitted curve, default "dashed"}
+
+\item{fit_color}{character string defining the color
+of the fitted curve}
 }
 \value{
 A ggplot displaying the thermal profile of
