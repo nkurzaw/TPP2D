@@ -1,5 +1,5 @@
 language: r
-r: bioc-devel
+r: bioc-release
 bioc_check: true
 
 r_packages:
@@ -7,7 +7,7 @@ r_packages:
   
 before_script:
   # ensure bioc-devel is being used
-  - R -e 'BiocManager::install(version = "devel", ask=FALSE)'
+  - R -e 'BiocManager::install(version = "3.12", ask=FALSE)'
   - R -e 'BiocManager::install("BiocStyle")'
   - R -e 'BiocManager::install("TPP")'
   - R -e 'BiocManager::valid()'
