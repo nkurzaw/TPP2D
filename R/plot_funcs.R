@@ -158,9 +158,9 @@ plot2dTppFit <- function(df, name,
                          maxit = 500,
                          xlab = "-log10(conc.)",
                          ylab = "log2(summed intensities)",
-                         dot_size = 0.5,
-                         line_type = "dashed",
-                         fit_color = "darkgray"){
+                         dot_size = 1,
+                         line_type = "solid",
+                         fit_color = "gray30"){
   
   clustername <- temperature <- temp_i <- 
     log_conc <- y_hat <- log2_value <- NULL
@@ -211,6 +211,7 @@ plot2dTppFit <- function(df, name,
   ggplot(fit_df, aes(log_conc, y_hat)) +
     geom_point(aes(log_conc, log2_value), 
                size = dot_size,
+               shape = 21,
                data = df_fil) +
     geom_line(color = fit_color,
               linetype = line_type) +
