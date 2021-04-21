@@ -24,4 +24,4 @@ RoxygenNote: 7.1.0
 Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
   RCurl, parallel, MASS, BiocParallel, limma
-Suggests: knitr, testthat
+Suggests: knitr, testthat, rmarkdown
