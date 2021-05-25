@@ -14,9 +14,9 @@ plot2dTppFit(
   maxit = 500,
   xlab = "-log10(conc.)",
   ylab = "log2(summed intensities)",
-  dot_size = 0.5,
-  line_type = "dashed",
-  fit_color = "darkgray"
+  dot_size = 1,
+  line_type = "solid",
+  fit_color = "gray30"
 )
 }
 \arguments{
