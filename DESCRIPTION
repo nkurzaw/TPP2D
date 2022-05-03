@@ -3,7 +3,7 @@ Title: Detection of ligand-protein interactions from 2D thermal
     profiles (DLPTP)
 Version: 1.13.0
 Authors@R: c(
-    person("Nils", "Kurzawa", email = "nils.kurzawa@embl.de", 
+    person("Nils", "Kurzawa", email = "nilskurzawa@gmail.com", 
         role = c("aut", "cre")),
     person("Holger", "Franken", role = c("aut")),
     person("Simon", "Anders", role = c("aut")),
