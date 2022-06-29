@@ -814,6 +814,8 @@ import2dDataset <- function(configTable, data,
                             medianNormalizeFC = TRUE,
                             filterContaminants = TRUE){
   
+  raw_value <- rel_value <- NULL
+  
   configWide <- TPP_importCheckConfigTable(
     infoTable = configTable, type = "2D")
   configLong <- configWide2Long(configWide = configWide)
@@ -851,6 +853,8 @@ import2dDataset <- function(configTable, data,
   if(filterContaminants){
     dataOut <- filterOutContaminants(dataOut)
   }
+  
+  dataOut <- filter(dataOut, !is.na(raw_value), !is.na(rel_value))
   
   return(dataOut)
 }
