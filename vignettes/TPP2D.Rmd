@@ -62,7 +62,7 @@ BiocManager::install("TPP2D")
 
 Or install the development version of the package from Github.
 ```{r, eval = FALSE}
-BiocManager::install(“nkurzaw/TPP2D”)
+BiocManager::install("nkurzaw/TPP2D")
 ```
 
 2. Load the package into R session.
