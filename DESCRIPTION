@@ -1,7 +1,7 @@
 Package: TPP2D
 Title: Detection of ligand-protein interactions from 2D thermal 
     profiles (DLPTP)
-Version: 1.15.2
+Version: 1.15.3
 Authors@R: c(
     person("Nils", "Kurzawa", email = "nilskurzawa@gmail.com", 
         role = c("aut", "cre")),
@@ -24,4 +24,4 @@ RoxygenNote: 7.1.2
 Depends: R (>= 3.6.0), stats, utils, dplyr, methods
 Imports: ggplot2, tidyr, foreach, doParallel, openxlsx, stringr, 
   RCurl, parallel, MASS, BiocParallel, limma
-Suggests: knitr, testthat, rmarkdown
+Suggests: knitr, testthat, rmarkdown, BiocStyle
